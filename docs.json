@@ -20,7 +20,7 @@
 
   "topbarCtaButton": {
     "name": "Dashboard",
-    "url": "https://ai.kaiho.cc/panel"
+    "url": "https://ai.kaiho.cc/token"
   },
 
   "anchors": [
@@ -36,76 +36,248 @@
     }
   ],
 
-  "tabs": [
-    {
-      "name": "API 手册",
-      "url": "api-manual"
-    },
-    {
-      "name": "使用技巧",
-      "url": "guides"
-    }
-  ],
-
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "概览",
-        "groups": [
+        "language": "cn",
+        "tabs": [
           {
-            "group": "开始使用",
-            "pages": [
-              "zh-CN/index"
+            "tab": "用户指南",
+            "groups": [
+              {
+                "group": "概览",
+                "pages": [
+                  "cn/index"
+                ]
+              },
+              {
+                "group": "快速开始",
+                "pages": [
+                  "cn/guides/quickstart"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API 手册",
+            "groups": [
+              {
+                "group": "文本系列",
+                "pages": [
+                  "cn/api-manual/text/general-chat",
+                  "cn/api-manual/text/claude-messages",
+                  "cn/api-manual/text/gemini-native",
+                  "cn/api-manual/text/openai-multimodal"
+                ]
+              },
+              {
+                "group": "图像系列",
+                "pages": [
+                  "cn/api-manual/image/gpt4o-image"
+                ]
+              },
+              {
+                "group": "视频系列",
+                "pages": [
+                  "cn/api-manual/video/sora2"
+                ]
+              },
+              {
+                "group": "音频系列",
+                "pages": [
+                  "cn/api-manual/audio/whisper-transcription",
+                  "cn/api-manual/audio/tts"
+                ]
+              },
+              {
+                "group": "任务管理",
+                "pages": [
+                  "cn/api-manual/task/get-status"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "API 手册",
-        "groups": [
+        "language": "en",
+        "tabs": [
           {
-            "group": "文本系列",
-            "pages": [
-              "zh-CN/api-manual/text/general-chat",
-              "zh-CN/api-manual/text/claude-messages",
-              "zh-CN/api-manual/text/gemini-native",
-              "zh-CN/api-manual/text/openai-multimodal"
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "en/index"
+                ]
+              },
+              {
+                "group": "Quick Start",
+                "pages": [
+                  "en/guides/quickstart"
+                ]
+              }
             ]
           },
           {
-            "group": "图像系列",
-            "pages": [
-              "zh-CN/api-manual/image/gpt4o-image"
-            ]
-          },
-          {
-            "group": "视频系列",
-            "pages": [
-              "zh-CN/api-manual/video/sora2"
-            ]
-          },
-          {
-            "group": "音频系列",
-            "pages": [
-              "zh-CN/api-manual/audio/whisper-transcription",
-              "zh-CN/api-manual/audio/tts"
-            ]
-          },
-          {
-            "group": "任务管理",
-            "pages": [
-              "zh-CN/api-manual/task/get-status"
+            "tab": "API Manual",
+            "groups": [
+              {
+                "group": "Text Series",
+                "pages": [
+                  "en/api-manual/text/general-chat",
+                  "en/api-manual/text/claude-messages",
+                  "en/api-manual/text/gemini-native",
+                  "en/api-manual/text/openai-multimodal"
+                ]
+              },
+              {
+                "group": "Image Series",
+                "pages": [
+                  "en/api-manual/image/gpt4o-image"
+                ]
+              },
+              {
+                "group": "Video Series",
+                "pages": [
+                  "en/api-manual/video/sora2"
+                ]
+              },
+              {
+                "group": "Audio Series",
+                "pages": [
+                  "en/api-manual/audio/whisper-transcription",
+                  "en/api-manual/audio/tts"
+                ]
+              },
+              {
+                "group": "Task Management",
+                "pages": [
+                  "en/api-manual/task/get-status"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "使用技巧",
-        "groups": [
+        "language": "zh-Hant",
+        "tabs": [
           {
-            "group": "快速开始",
-            "pages": [
-              "zh-CN/guides/quickstart"
+            "tab": "使用指南",
+            "groups": [
+              {
+                "group": "概覽",
+                "pages": [
+                  "zh-Hant/index"
+                ]
+              },
+              {
+                "group": "快速開始",
+                "pages": [
+                  "zh-Hant/guides/quickstart"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API 手冊",
+            "groups": [
+              {
+                "group": "文字系列",
+                "pages": [
+                  "zh-Hant/api-manual/text/general-chat",
+                  "zh-Hant/api-manual/text/claude-messages",
+                  "zh-Hant/api-manual/text/gemini-native",
+                  "zh-Hant/api-manual/text/openai-multimodal"
+                ]
+              },
+              {
+                "group": "圖像系列",
+                "pages": [
+                  "zh-Hant/api-manual/image/gpt4o-image"
+                ]
+              },
+              {
+                "group": "影片系列",
+                "pages": [
+                  "zh-Hant/api-manual/video/sora2"
+                ]
+              },
+              {
+                "group": "音訊系列",
+                "pages": [
+                  "zh-Hant/api-manual/audio/whisper-transcription",
+                  "zh-Hant/api-manual/audio/tts"
+                ]
+              },
+              {
+                "group": "任務管理",
+                "pages": [
+                  "zh-Hant/api-manual/task/get-status"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "jp",
+        "tabs": [
+          {
+            "tab": "ユーザーガイド",
+            "groups": [
+              {
+                "group": "概要",
+                "pages": [
+                  "jp/index"
+                ]
+              },
+              {
+                "group": "クイックスタート",
+                "pages": [
+                  "jp/guides/quickstart"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "APIマニュアル",
+            "groups": [
+              {
+                "group": "テキストシリーズ",
+                "pages": [
+                  "jp/api-manual/text/general-chat",
+                  "jp/api-manual/text/claude-messages",
+                  "jp/api-manual/text/gemini-native",
+                  "jp/api-manual/text/openai-multimodal"
+                ]
+              },
+              {
+                "group": "画像シリーズ",
+                "pages": [
+                  "jp/api-manual/image/gpt4o-image"
+                ]
+              },
+              {
+                "group": "動画シリーズ",
+                "pages": [
+                  "jp/api-manual/video/sora2"
+                ]
+              },
+              {
+                "group": "音声シリーズ",
+                "pages": [
+                  "jp/api-manual/audio/whisper-transcription",
+                  "jp/api-manual/audio/tts"
+                ]
+              },
+              {
+                "group": "タスク管理",
+                "pages": [
+                  "jp/api-manual/task/get-status"
+                ]
+              }
             ]
           }
         ]

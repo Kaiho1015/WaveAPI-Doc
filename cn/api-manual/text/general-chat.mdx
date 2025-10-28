@@ -3,11 +3,10 @@ title: "通用对话接口"
 api: "POST https://ai.kaiho.cc/v1/chat/completions"
 ---
 
-# 通用对话接口
-
->  - 统一的对话API接口，支持所有文本生成模型
+- 统一的对话API接口，支持所有文本生成模型
 - 通过 model 参数选择不同的AI模型
 - 兼容 OpenAI Chat Completions API 格式 
+- 支持多模态对话调用
 
 <RequestExample>
   ```bash cURL theme={null}
@@ -17,7 +16,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
     --header 'Authorization: Bearer <token>' \
     --header 'Content-Type: application/json' \
     --data '{
-      "model": "gpt-4o", # 可替换为任意支持的模型 ID
+      "model": "gpt-5", # 可替换为任意支持的模型 ID
       "messages": [
         {
           "role": "system",
@@ -25,7 +24,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
         },
         {
           "role": "user",
-          "content": "介绍一下人工智能的发展历史。"
+          "content": "解释一下冒泡算法。"
         }
       ]
     }'
@@ -37,7 +36,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
   url = "https://ai.kaiho.cc/v1/chat/completions"
 
   payload = {
-      "model": "gpt-4o",  # 可替换为任意支持的模型 ID
+      "model": "gpt-5",  # 可替换为任意支持的模型 ID
       "messages": [
           {
               "role": "system",
@@ -45,7 +44,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
           },
           {
               "role": "user",
-              "content": "介绍一下人工智能的发展历史。"
+              "content": "解释一下冒泡算法。"
           }
       ]
   }
@@ -64,7 +63,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
   const url = "https://ai.kaiho.cc/v1/chat/completions";
 
   const payload = {
-    model: "gpt-4o",  // 可替换为任意支持的模型 ID
+    model: "gpt-5",  // 可替换为任意支持的模型 ID
     messages: [
       {
         role: "system",
@@ -72,7 +71,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       },
       {
         role: "user",
-        content: "介绍一下人工智能的发展历史。"
+        content: "解释一下冒泡算法。"
       }
     ]
   };
@@ -107,7 +106,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       url := "https://ai.kaiho.cc/v1/chat/completions"
 
       payload := map[string]interface{}{
-          "model": "gpt-4o",  // 可替换为任意支持的模型 ID
+          "model": "gpt-5",  // 可替换为任意支持的模型 ID
           "messages": []map[string]string{
               {
                   "role":    "system",
@@ -115,7 +114,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
               },
               {
                   "role":    "user",
-                  "content": "介绍一下人工智能的发展历史。",
+                  "content": "解释一下冒泡算法。",
               },
           },
       }
@@ -151,7 +150,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
           // 可替换为任意支持的模型 ID
           String payload = """
           {
-            "model": "gpt-4o",
+            "model": "gpt-5",
             "messages": [
               {
                 "role": "system",
@@ -159,7 +158,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
               },
               {
                 "role": "user",
-                "content": "介绍一下人工智能的发展历史。"
+                "content": "解释一下冒泡算法。"
               }
             ]
           }
@@ -188,7 +187,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
   // 可替换为任意支持的模型 ID
   $payload = [
-      "model" => "gpt-4o",
+      "model" => "gpt-5",
       "messages" => [
           [
               "role" => "system",
@@ -196,7 +195,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
           ],
           [
               "role" => "user",
-              "content" => "介绍一下人工智能的发展历史。"
+              "content" => "解释一下冒泡算法。"
           ]
       ]
   ];
@@ -226,7 +225,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
   # 可替换为任意支持的模型 ID
   payload = {
-    model: "gpt-4o",
+    model: "gpt-5",
     messages: [
       {
         role: "system",
@@ -234,7 +233,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       },
       {
         role: "user",
-        content: "介绍一下人工智能的发展历史。"
+        content: "解释一下冒泡算法。"
       }
     ]
   }
@@ -257,7 +256,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
   let url = URL(string: "https://ai.kaiho.cc/v1/chat/completions")!
 
   let payload: [String: Any] = [
-      "model": "gpt-4o",  // 可替换为任意支持的模型 ID
+      "model": "gpt-5",  // 可替换为任意支持的模型 ID
       "messages": [
           [
               "role": "system",
@@ -265,7 +264,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
           ],
           [
               "role": "user",
-              "content": "介绍一下人工智能的发展历史。"
+              "content": "解释一下冒泡算法。"
           ]
       ]
   ]
@@ -304,7 +303,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
           // 可替换为任意支持的模型 ID
           var payload = @"{
-              ""model"": ""gpt-4o"",
+              ""model"": ""gpt-5"",
               ""messages"": [
                   {
                       ""role"": ""system"",
@@ -312,7 +311,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
                   },
                   {
                       ""role"": ""user"",
-                      ""content"": ""介绍一下人工智能的发展历史。""
+                      ""content"": ""解释一下冒泡算法。""
                   }
               ]
           }";
@@ -344,8 +343,8 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
           const char *url = "https://ai.kaiho.cc/v1/chat/completions";
           // 可替换为任意支持的模型 ID
           const char *payload = "{"
-              "\"model\":\"gpt-4o\","
-              "\"messages\":[{\"role\":\"system\",\"content\":\"你是一个专业的AI助手。\"},{\"role\":\"user\",\"content\":\"介绍一下人工智能的发展历史。\"}]"
+              "\"model\":\"gpt-5\","
+              "\"messages\":[{\"role\":\"system\",\"content\":\"你是一个专业的AI助手。\"},{\"role\":\"user\",\"content\":\"解释一下冒泡算法。\"}]"
           "}";
 
           struct curl_slist *headers = NULL;
@@ -381,7 +380,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
           
           // 可替换为任意支持的模型 ID
           NSDictionary *payload = @{
-              @"model": @"gpt-4o",
+              @"model": @"gpt-5",
               @"messages": @[
                   @{
                       @"role": @"system",
@@ -389,7 +388,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
                   },
                   @{
                       @"role": @"user",
-                      @"content": @"介绍一下人工智能的发展历史。"
+                      @"content": @"解释一下冒泡算法。"
                   }
               ]
           };
@@ -434,7 +433,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
   (* 可替换为任意支持的模型 ID *)
   let payload = {|{
-    "model": "gpt-4o",
+    "model": "gpt-5",
     "messages": [
       {
         "role": "system",
@@ -442,7 +441,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       },
       {
         "role": "user",
-        "content": "介绍一下人工智能的发展历史。"
+        "content": "解释一下冒泡算法。"
       }
     ]
   }|}
@@ -470,7 +469,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
     
     // 可替换为任意支持的模型 ID
     final payload = {
-      'model': 'gpt-4o',
+      'model': 'gpt-5',
       'messages': [
         {
           'role': 'system',
@@ -478,7 +477,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
         },
         {
           'role': 'user',
-          'content': '介绍一下人工智能的发展历史。'
+          'content': '解释一下冒泡算法。'
         }
       ]
     };
@@ -504,7 +503,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
   # 可替换为任意支持的模型 ID
   payload <- list(
-    model = "gpt-4o",
+    model = "gpt-5",
     messages = list(
       list(
         role = "system",
@@ -512,7 +511,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       ),
       list(
         role = "user",
-        content = "介绍一下人工智能的发展历史。"
+        content = "解释一下冒泡算法。"
       )
     )
   )
@@ -539,7 +538,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       "id": "chatcmpl-9876543210",
       "object": "chat.completion",
       "created": 1677652288,
-      "model": "gpt-4o",
+      "model": "gpt-5",
       "choices": [
         {
           "index": 0,
@@ -637,7 +636,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
   获取 API Key：
 
-  访问 [API Key 管理页面](https://ai.kaiho.cc/panel) 获取您的 API Key
+  访问 [API Key 管理页面](https://ai.kaiho.cc/token) 获取您的 API Key
 
   使用时在请求头中添加：
 
@@ -844,7 +843,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
 ```json  theme={null}
 {
-  "model": "gpt-4o",
+  "model": "gpt-5",
   "messages": [
     {"role": "user", "content": "你好"}
   ]
@@ -880,7 +879,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
 ```json  theme={null}
 {
-  "model": "gpt-4o",
+  "model": "gpt-5",
   "messages": [
     {"role": "user", "content": "写一首关于春天的诗"}
   ],

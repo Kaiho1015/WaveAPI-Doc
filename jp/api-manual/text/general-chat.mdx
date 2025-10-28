@@ -1,0 +1,150 @@
+---
+title: "汎用対話インターフェース"
+api: "POST https://ai.kaiho.cc/v1/chat/completions"
+---
+
+# 汎用対話インターフェース
+
+>  - すべてのテキスト生成モデルをサポートする統合対話APIインターフェース
+- model パラメータで異なるAIモデルを選択
+- OpenAI Chat Completions API フォーマットと互換性 
+
+<RequestExample>
+  ```bash cURL theme={null}
+
+  curl --request POST \
+    --url https://ai.kaiho.cc/v1/chat/completions \
+    --header 'Authorization: Bearer <token>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "model": "gpt-4o",
+      "messages": [
+        {
+          "role": "system",
+          "content": "あなたはプロフェッショナルなAIアシスタントです。"
+        },
+        {
+          "role": "user",
+          "content": "人工知能の発展史について紹介してください。"
+        }
+      ]
+    }'
+  ```
+
+  ```python Python theme={null}
+  import requests
+
+  url = "https://ai.kaiho.cc/v1/chat/completions"
+
+  payload = {
+      "model": "gpt-4o",
+      "messages": [
+          {
+              "role": "system",
+              "content": "あなたはプロフェッショナルなAIアシスタントです。"
+          },
+          {
+              "role": "user",
+              "content": "人工知能の発展史について紹介してください。"
+          }
+      ]
+  }
+
+  headers = {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+  }
+
+  response = requests.post(url, json=payload, headers=headers)
+
+  print(response.json())
+  ```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "code": 200,
+    "data": {
+      "id": "chatcmpl-9876543210",
+      "object": "chat.completion",
+      "created": 1677652288,
+      "model": "gpt-4o",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "人工知能（AI）の発展史は1950年代まで遡ることができます..."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 28,
+        "completion_tokens": 320,
+        "total_tokens": 348
+      }
+    }
+  }
+  ```
+</ResponseExample>
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required>
+  すべてのインターフェースは Bearer Token を使用した認証が必要
+
+  API Key の取得：
+
+  [API キー管理ページ](https://ai.kaiho.cc/token) にアクセスして API Key を取得
+
+  使用時にリクエストヘッダーに追加：
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## Body
+
+<ParamField body="model" type="string" required>
+  モデル名
+
+  サポートされているモデル：
+
+  * **OpenAI**: `gpt-5`, `gpt-5-chat-latest`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`
+  * **Anthropic**: `claude-sonnet-4-5-20250929`, `claude-opus-4-1-20250805`, `claude-haiku-4-5-20251001`
+  * **Google**: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-pro-thinking`, `gemini-2.5-flash-lite`
+  * **DeepSeek**: `deepseek-v3.1-250821`, `deepseek-v3.1-think-250821`, `deepseek-v3-0324`
+  * **Doubao**: `doubao-seed-1-6-251015`, `doubao-seed-1-6-flash-250828`, `doubao-seed-1-6-thinking-250715`
+  * さらに多くのモデルが継続的に更新されています...
+</ParamField>
+
+<ParamField body="messages" type="array" required>
+  対話メッセージリスト
+
+  各メッセージには以下が含まれます：
+
+  * `role`: ロールタイプ（`system`、`user`、`assistant`）
+  * `content`: メッセージ内容（文字列またはマルチモーダルコンテンツ配列）
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  出力のランダム性を制御、範囲 0-2
+
+  * 低い値（0.2など）は出力をより確定的にします
+  * 高い値（1.8など）は出力をよりランダムにします
+
+  デフォルト値：1.0
+</ParamField>
+
+<ParamField body="stream" type="boolean">
+  ストリーミング出力を使用するかどうか
+
+  * `true`: ストリーミング返却（SSE形式）
+  * `false`: 完全なレスポンスを一度に返却
+
+  デフォルト値：false
+</ParamField>
+

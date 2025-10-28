@@ -1,0 +1,163 @@
+---
+title: "クイックスタート"
+description: "5分で Kaihoxz API を使い始める"
+---
+
+## 📋 前提条件
+
+始める前に、以下が必要です：
+
+- Kaihoxz アカウント
+- API キー（[ダッシュボード](https://ai.kaiho.cc/token)から取得）
+- 基本的なプログラミング知識
+
+## 1️⃣ API キーを取得
+
+<Steps>
+  <Step title="コンソールにログイン">
+    [Kaihoxz ダッシュボード](https://ai.kaiho.cc/token) にアクセスしてログイン
+  </Step>
+  <Step title="キーを生成">
+    API キー管理ページで「新しいキーを作成」をクリック
+  </Step>
+  <Step title="キーを保存">
+    API キーをコピーして安全に保存
+  </Step>
+</Steps>
+
+<Warning>
+  **セキュリティ注意：** 公開コードやクライアント側で API キーを露出しないでください
+</Warning>
+
+## 2️⃣ 最初のリクエストを送信
+
+### cURL を使用
+
+```bash
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "こんにちは、自己紹介してください"
+      }
+    ]
+  }'
+```
+
+### Python を使用
+
+```python
+import openai
+
+client = openai.OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://ai.kaiho.cc/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "user", "content": "こんにちは、自己紹介してください"}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript/Node.js を使用
+
+```javascript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'YOUR_API_KEY',
+  baseURL: 'https://ai.kaiho.cc/v1'
+});
+
+async function main() {
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      { role: 'user', content: 'こんにちは、自己紹介してください' }
+    ]
+  });
+  
+  console.log(response.choices[0].message.content);
+}
+
+main();
+```
+
+## 3️⃣ レスポンスを理解する
+
+成功したレスポンスの形式は以下のとおりです：
+
+```json
+{
+  "id": "chatcmpl-123",
+  "object": "chat.completion",
+  "created": 1677652288,
+  "model": "gpt-4o",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "こんにちは！私は AI アシスタントです..."
+    },
+    "finish_reason": "stop"
+  }],
+  "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 12,
+    "total_tokens": 21
+  }
+}
+```
+
+## 4️⃣ さらに機能を探索
+
+<CardGroup cols={2}>
+  <Card
+    title="テキスト生成 API"
+    icon="comments"
+    href="/jp/api-manual/text/general-chat"
+  >
+    完全なチャット API のパラメータとオプションを学ぶ
+  </Card>
+  <Card
+    title="画像生成 API"
+    icon="image"
+    href="/jp/api-manual/image/gpt4o-image"
+  >
+    AI で画像を生成
+  </Card>
+  <Card
+    title="動画生成 API"
+    icon="video"
+    href="/jp/api-manual/video/sora2"
+  >
+    AI 動画コンテンツを作成
+  </Card>
+  <Card
+    title="タスク管理"
+    icon="tasks"
+    href="/jp/api-manual/task/get-status"
+  >
+    非同期生成タスクを管理
+  </Card>
+</CardGroup>
+
+## 📚 次のステップ
+
+- [API マニュアル](/jp/api-manual/text/general-chat) で利用可能なすべてのモデルとパラメータを確認
+- [Discord コミュニティ](https://discord.gg/你的邀请码) に参加して他の開発者と交流
+- [GitHub](https://github.com/Kaiho1015) でサンプルコードを確認
+
+<Tip>
+  **ヒント：** すべての API は OpenAI SDK と互換性があるため、既存の OpenAI 統合コードを直接使用できます！
+</Tip>
+
