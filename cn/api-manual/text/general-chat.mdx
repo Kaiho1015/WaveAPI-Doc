@@ -3,10 +3,10 @@ title: "通用对话接口"
 api: "POST https://ai.kaiho.cc/v1/chat/completions"
 ---
 
-- 统一的对话API接口，支持所有文本生成模型
-- 通过 model 参数选择不同的AI模型
-- 兼容 OpenAI Chat Completions API 格式 
-- 支持多模态对话调用
+- 统一的对话 API 接口，支持所有主流文本生成模型
+- 完全兼容 OpenAI Chat Completions API 格式
+- 通过 `model` 参数无缝切换不同 AI 模型
+- 支持流式输出、函数调用等高级功能
 
 <RequestExample>
   ```bash cURL theme={null}
@@ -533,28 +533,38 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 <ResponseExample>
   ```json 200 theme={null}
   {
-    "code": 200,
-    "data": {
-      "id": "chatcmpl-9876543210",
-      "object": "chat.completion",
-      "created": 1677652288,
-      "model": "gpt-5",
-      "choices": [
-        {
-          "index": 0,
-          "message": {
-            "role": "assistant",
-            "content": "人工智能（AI）的发展历史可以追溯到20世纪50年代...\n\n1. **早期阶段（1950s-1960s）**：图灵测试的提出标志着AI研究的开始...\n\n2. **专家系统时代（1970s-1980s）**：基于规则的系统开始应用于医疗诊断、金融分析等领域...\n\n3. **机器学习兴起（1990s-2000s）**：统计学习方法逐渐成为主流...\n\n4. **深度学习革命（2010s-至今）**：神经网络技术的突破带来了AI的爆发式发展..."
-          },
-          "finish_reason": "stop"
-        }
-      ],
-      "usage": {
-        "prompt_tokens": 28,
-        "completion_tokens": 320,
-        "total_tokens": 348
+    "id": "resp_0b5904e74ed0e721006905a51uvyi0do8uhswyd3g6sveogkc6",
+    "model": "gpt-5-2025-08-07",
+    "object": "chat.completion",
+    "created": 1761977740,
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "冒泡排序（Bubble Sort）是一种简单的比较交换排序。核心思想是：通过不断比较相邻元素并交换，把"较大"的元素一步步"冒泡"到序列的末尾。\n\n如何工作\n- 从头到尾扫描序列，比较相邻两个元素，如果前者比后者大就交换。\n- 完成一趟扫描后，最大值会被放到序列末尾。\n- 重复上述过程，每一趟少比较一个末尾已排好位置的元素，直到不再发生交换或所有元素有序。"
+        },
+        "logprobs": null,
+        "finish_reason": "stop"
       }
-    }
+    ],
+    "usage": {
+      "prompt_tokens": 24,
+      "completion_tokens": 1026,
+      "total_tokens": 1050,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 0,
+        "audio_tokens": 0,
+        "image_tokens": 0
+      },
+      "completion_tokens_details": {
+        "text_tokens": 0,
+        "audio_tokens": 0,
+        "reasoning_tokens": 512
+      }
+    },
+    "system_fingerprint": null
   }
   ```
 
@@ -769,6 +779,10 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
       </Expandable>
     </ResponseField>
 
+    <ResponseField name="logprobs" type="object">
+      对数概率信息（默认为 null）
+    </ResponseField>
+
     <ResponseField name="finish_reason" type="string">
       结束原因
 
@@ -787,17 +801,61 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
   <Expandable title="属性">
     <ResponseField name="prompt_tokens" type="integer">
-      输入消息的token数
+      输入消息的 token 数
     </ResponseField>
 
     <ResponseField name="completion_tokens" type="integer">
-      生成内容的token数
+      生成内容的 token 数
     </ResponseField>
 
     <ResponseField name="total_tokens" type="integer">
-      总token数
+      总 token 数
+    </ResponseField>
+
+    <ResponseField name="prompt_tokens_details" type="object">
+      输入 token 详细信息
+
+      <Expandable title="属性">
+        <ResponseField name="cached_tokens" type="integer">
+          缓存的 token 数
+        </ResponseField>
+
+        <ResponseField name="text_tokens" type="integer">
+          文本 token 数
+        </ResponseField>
+
+        <ResponseField name="audio_tokens" type="integer">
+          音频 token 数
+        </ResponseField>
+
+        <ResponseField name="image_tokens" type="integer">
+          图像 token 数
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="completion_tokens_details" type="object">
+      生成 token 详细信息
+
+      <Expandable title="属性">
+        <ResponseField name="text_tokens" type="integer">
+          文本 token 数
+        </ResponseField>
+
+        <ResponseField name="audio_tokens" type="integer">
+          音频 token 数
+        </ResponseField>
+
+        <ResponseField name="reasoning_tokens" type="integer">
+          推理 token 数（思考模型专用）
+        </ResponseField>
+      </Expandable>
     </ResponseField>
   </Expandable>
+</ResponseField>
+
+<ResponseField name="system_fingerprint" type="string">
+  系统指纹标识（用于追踪后端配置）
 </ResponseField>
 
 ## 支持的模型列表
@@ -886,3 +944,16 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
   "stream": true
 }
 ```
+
+## 高级功能
+
+<Note>
+  **💡 需要更多功能？**
+
+  本接口支持基础的文本对话。如需使用以下高级功能，请参考：
+
+  - 📸 **图片/视频分析** - 查看 [多模态响应接口](/cn/api-manual/text/openai-multimodal)
+  - 🔧 **工具调用 (Function Calling)** - 查看 [多模态响应接口](/cn/api-manual/text/openai-multimodal)
+  - 🌐 **网络搜索、文件搜索** - 查看 [多模态响应接口](/cn/api-manual/text/openai-multimodal)
+  - 📡 **流式输出详细教程** - 查看用户指南（即将推出）
+</Note>
