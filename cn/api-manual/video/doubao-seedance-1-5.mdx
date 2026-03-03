@@ -1,0 +1,182 @@
+---
+title: "Doubao Seedance 1.5 Pro 视频生成"
+description: "使用字节跳动豆包 Seedance 1.5 Pro 模型生成高质量视频"
+api: "POST https://ai.kaiho.cc/v1/videos/generations"
+---
+
+<Note>
+  本接口为异步调用。任务成功提交后会返回 `task_id`，您需要通过 [查询任务状态](/cn/api-manual/task/get-status) 接口获取最终的生成结果。生成后的文件链接有效期为 24 小时。
+</Note>
+
+<RequestExample>
+
+```bash cURL theme={null}
+curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--data '{
+    "model": "doubao-seedance-1-5-pro",
+    "prompt": "城市霓虹灯下的雨夜街道",
+    "aspect_ratio": "16:9"
+}'
+```
+
+```python Python theme={null}
+import requests
+
+url = "https://ai.kaiho.cc/v1/videos/generations"
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY"
+}
+data = {
+    "model": "doubao-seedance-1-5-pro",
+    "prompt": "城市霓虹灯下的雨夜街道",
+    "aspect_ratio": "16:9"
+}
+
+response = requests.post(url, headers=headers, json=data)
+print(response.json())
+```
+
+```javascript JavaScript theme={null}
+fetch('https://ai.kaiho.cc/v1/videos/generations', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    "model": "doubao-seedance-1-5-pro",
+    "prompt": "城市霓虹灯下的雨夜街道",
+    "aspect_ratio": "16:9"
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```go Go theme={null}
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	url := "https://ai.kaiho.cc/v1/videos/generations"
+	payload := map[string]interface{}{
+		"model":        "doubao-seedance-1-5-pro",
+		"prompt":       "城市霓虹灯下的雨夜街道",
+		"aspect_ratio": "16:9",
+	}
+	jsonData, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	fmt.Println(result)
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 成功响应 theme={null}
+{
+    "code": "success",
+    "data": "task-wave1741000000000123456789"
+}
+```
+
+```json 错误响应 theme={null}
+{
+    "code": "invalid_request",
+    "message": "请求参数无效",
+    "data": null
+}
+```
+
+</ResponseExample>
+
+## 认证方式
+
+在请求头中使用 API Key 进行身份验证。您可以在 [API Key 管理](https://ai.kaiho.cc/token) 页面获取您的密钥。
+
+```http theme={null}
+Authorization: Bearer YOUR_API_KEY
+```
+
+## 请求参数
+
+<ParamField body="model" type="string" required>
+  模型名称，固定为 `doubao-seedance-1-5-pro`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  视频生成的提示词。
+</ParamField>
+
+<ParamField body="image_urls" type="array">
+  图片输入。用于图生视频场景，可包含首帧和尾帧图片链接。
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  视频宽高比。
+  * `16:9`
+  * `9:16`
+  * `1:1`
+</ParamField>
+
+<ParamField body="duration" type="integer">
+  视频生成时长。
+</ParamField>
+
+<ParamField body="audio" type="object">
+  音频生成配置。支持在生成视频的同时生成环境音或配音。
+</ParamField>
+
+## 响应参数
+
+<ResponseField name="code" type="string">
+  响应状态码 * `success` - 请求成功，任务已提交
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  任务 ID，格式为 `task-wave{timestamp}{userId}{random}`，用于通过 [查询任务状态](/cn/api-manual/task/get-status) 接口获取生成结果
+</ResponseField>
+
+## 使用示例
+
+**文本生成视频（带音频）**
+
+```json theme={null}
+{
+    "model": "doubao-seedance-1-5-pro",
+    "prompt": "城市霓虹灯下的雨夜街道",
+    "aspect_ratio": "16:9"
+}
+```
+
+## 注意事项
+
+1. **异步处理**: 视频生成通常需要数分钟。请记录返回的 `data` (任务 ID) 并轮询状态接口。
+2. **错误处理**:
+   * `invalid_request`: 请求参数无效。
+   * `authentication_error`: 身份验证失败，请检查您的 API 密钥。
+   * `payment_required`: 账户余额不足，请充值后再试。
+   * `quota_not_enough`: 用户额度不足。
+   * `rate_limit_error`: 请求过于频繁，请稍后再试。
+   * `server_error`: 服务器内部错误，请稍后重试。
+3. **有效期**: 生成后的视频文件链接有效期为 24 小时。

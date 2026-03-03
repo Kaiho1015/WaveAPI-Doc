@@ -1,6 +1,6 @@
 ---
-title: "Sora2 视频生成"
-description: "使用 OpenAI Sora2 模型生成高质量视频"
+title: "Kling 2.6 视频生成"
+description: "使用快手可灵 2.6 模型生成高质量视频"
 api: "POST https://ai.kaiho.cc/v1/videos/generations"
 ---
 
@@ -15,10 +15,11 @@ curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --header 'Content-Type: application/json' \
 --data '{
-    "model": "sora-2-vip",
-    "prompt": "瀑布倾泻而下形成彩虹",
-    "aspect_ratio": "16:9",
-    "duration": 15
+    "model": "kling-v2-6",
+    "prompt": "一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感",
+    "mode": "pro",
+    "duration": 5,
+    "aspect_ratio": "16:9"
 }'
 ```
 
@@ -31,10 +32,11 @@ headers = {
     "Content-Type": "application/json"
 }
 data = {
-    "model": "sora-2-vip",
-    "prompt": "瀑布倾泻而下形成彩虹",
-    "aspect_ratio": "16:9",
-    "duration": 15
+    "model": "kling-v2-6",
+    "prompt": "一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感",
+    "mode": "pro",
+    "duration": 5,
+    "aspect_ratio": "16:9"
 }
 
 response = requests.post(url, headers=headers, json=data)
@@ -50,10 +52,11 @@ const headers = {
   'Content-Type': 'application/json'
 };
 const data = {
-  model: 'sora-2-vip',
-  prompt: '瀑布倾泻而下形成彩虹',
-  aspect_ratio: '16:9',
-  duration: 15
+  model: 'kling-v2-6',
+  prompt: '一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感',
+  mode: 'pro',
+  duration: 5,
+  aspect_ratio: '16:9'
 };
 
 axios.post(url, data, { headers })
@@ -74,10 +77,11 @@ import (
 func main() {
 	url := "https://ai.kaiho.cc/v1/videos/generations"
 	data := map[string]interface{}{
-		"model":        "sora-2-vip",
-		"prompt":       "瀑布倾泻而下形成彩虹",
+		"model":        "kling-v2-6",
+		"prompt":       "一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感",
+		"mode":         "pro",
+		"duration":     5,
 		"aspect_ratio": "16:9",
-		"duration":     15,
 	}
 	jsonData, _ := json.Marshal(data)
 
@@ -163,51 +167,39 @@ func main() {
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-可选值：`sora-2`（标准版）, `sora-2-vip`（VIP版）, `sora-2-pro`（专业版,支持更长时长）
+固定值：`kling-v2-6`
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
-视频生成的文本描述。例如："瀑布倾泻而下形成彩虹"。支持使用 `@username` 引用角色。
+视频生成的文本描述。例如："一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感"
 </ParamField>
 
-<ParamField body="duration" type="number" default="10">
-视频时长。`sora-2` 和 `sora-2-vip` 支持 `10`, `15` 秒；`sora-2-pro` 支持 `10`, `15`, `25` 秒。
+<ParamField body="mode" type="string" default="std">
+生成模式：`std`（标准 720P，仅静音）, `pro`（专业 1080P，支持音频生成）。
+</ParamField>
+
+<ParamField body="duration" type="number" default="5">
+视频时长。支持 `5` 或 `10` 秒。
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="16:9">
-视频宽高比，支持 `16:9` 和 `9:16`。
+视频宽高比，支持 `16:9`, `9:16`, `1:1`。
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+负向提示词，用于排除不想要的内容。
 </ParamField>
 
 <ParamField body="image_urls" type="array">
-参考图 URL。用于图生视频或风格参考，支持 jpeg/jpg/png/webp 格式，最大 10MB。
+支持最多 2 张图片 URL。1 张作为首帧，2 张作为首尾帧（需在 `pro` 模式下）。
+</ParamField>
+
+<ParamField body="audio" type="boolean" default="false">
+是否生成配套音频。仅在 `pro` 模式下有效，且与尾帧输入互斥。
 </ParamField>
 
 <ParamField body="watermark" type="boolean" default="false">
 是否添加水印。
-</ParamField>
-
-<ParamField body="thumbnail" type="boolean" default="false">
-是否生成并保存缩略图。注意：缩略图仅保存 1 小时。
-</ParamField>
-
-<ParamField body="private" type="boolean" default="false">
-开启隐私模式。
-</ParamField>
-
-<ParamField body="style" type="string">
-风格选择，支持：`thanksgiving`, `comic`, `news`, `selfie`, `nostalgic`, `anime`。
-</ParamField>
-
-<ParamField body="storyboard" type="boolean" default="false">
-开启分镜控制。
-</ParamField>
-
-<ParamField body="character_url" type="string">
-参考视频 URL。用于角色提取和一致性生成。
-</ParamField>
-
-<ParamField body="character_timestamps" type="string">
-格式为 "start,end"（如 "1,3"），指定从参考视频中提取角色的起始和结束时间。
 </ParamField>
 
 ## 响应参数
@@ -220,28 +212,39 @@ func main() {
 任务 ID，格式为 `task-wave{timestamp}{userId}{random}`，用于通过 [查询任务状态](/cn/api-manual/task/get-status) 接口获取生成结果
 </ResponseField>
 
+## 功能支持矩阵
+
+| 功能 | 标准模式 (std) | 专业模式 (pro) |
+| :--- | :--- | :--- |
+| 分辨率 | 720P | 1080P |
+| 视频时长 | 5s / 10s | 5s / 10s |
+| 首尾帧 | 不支持 | 支持 |
+| 音频生成 | 不支持 | 支持 |
+| 运镜控制 | 支持 | 支持 |
+
 ## 使用示例
 
-### VIP 文生视频 (15s)
+### 专业模式文生视频 (10s)
 
 ```json theme={null}
 {
-  "model": "sora-2-vip",
-  "prompt": "瀑布倾泻而下形成彩虹",
-  "aspect_ratio": "16:9",
-  "duration": 15
+  "model": "kling-v2-6",
+  "prompt": "赛博朋克风格的繁华都市街道，雨夜，霓虹灯反射在积水中",
+  "mode": "pro",
+  "duration": 10,
+  "aspect_ratio": "16:9"
 }
 ```
 
-### 专业版角色参考
+### 专业模式图生视频 (首尾帧)
 
 ```json theme={null}
 {
-  "model": "sora-2-pro",
-  "prompt": "一只戴着墨镜的猫在海边冲浪 @cat_surfer",
-  "character_url": "https://example.com/character_source.mp4",
-  "character_timestamps": "1,3",
-  "duration": 10
+  "model": "kling-v2-6",
+  "prompt": "镜头缓缓推进，展示人物表情变化",
+  "mode": "pro",
+  "image_urls": ["https://example.com/start.jpg", "https://example.com/end.jpg"],
+  "duration": 5
 }
 ```
 
@@ -249,5 +252,4 @@ func main() {
 
 - 接口为异步处理，返回任务 ID 后请通过查询接口获取结果。
 - 视频链接有效期为 24 小时，过期后将无法访问，请及时转存。
-- 缩略图（如果开启）仅保存 1 小时。
-- `character_timestamps` 需严格遵守 "起始秒数,结束秒数" 格式。
+- `pro` 模式下的音频生成功能与双图输入（首尾帧）不可同时使用。
