@@ -1,14 +1,14 @@
 ---
 title: "FLUX Series"
 description: "FLUX image generation series models"
-api: "POST https://ai.kaiho.cc/v1/tasks"
+api: "POST https://qingbo.dev/v1/tasks"
 ---
 
 Async processing mode -- submit a request and receive a task ID. Use the [Query Task Status](/en/api-reference/task/status) endpoint to retrieve generation results.
 
 <RequestExample>
 ```bash cURL
-curl -X POST https://ai.kaiho.cc/v1/tasks \
+curl -X POST https://qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -22,7 +22,7 @@ curl -X POST https://ai.kaiho.cc/v1/tasks \
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://ai.kaiho.cc/v1",
+    base_url="https://qingbo.dev/v1",
     api_key="YOUR_API_KEY"
 )
 
@@ -39,7 +39,7 @@ print(response.data[0])
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://ai.kaiho.cc/v1',
+  baseURL: 'https://qingbo.dev/v1',
   apiKey: 'YOUR_API_KEY'
 });
 
@@ -71,7 +71,7 @@ func main() {
     }
 
     body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req, _ := http.NewRequest("POST", "https://qingbo.dev/v1/tasks", bytes.NewBuffer(body))
     req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
     req.Header.Set("Content-Type", "application/json")
 
@@ -98,7 +98,7 @@ public class Main {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .uri(URI.create("https://qingbo.dev/v1/tasks"))
             .header("Authorization", "Bearer YOUR_API_KEY")
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(payload))

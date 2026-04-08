@@ -8,14 +8,14 @@ description: "Get started with WaveAPI API in 5 minutes"
 Before you begin, you'll need:
 
 - A WaveAPI account
-- An API key (obtain from the [Dashboard](https://ai.kaiho.cc/token))
+- An API key (obtain from the [Dashboard](https://qingbo.dev/token))
 - Basic programming knowledge
 
 ## 1️⃣ Get Your API Key
 
 <Steps>
   <Step title="Login to Console">
-    Visit [WaveAPI Dashboard](https://ai.kaiho.cc/token) and log in
+    Visit [WaveAPI Dashboard](https://qingbo.dev/token) and log in
   </Step>
   <Step title="Generate Key">
     Click "Create New Key" on the API Key Management page
@@ -34,7 +34,7 @@ Before you begin, you'll need:
 ### Using cURL
 
 ```bash
-curl https://ai.kaiho.cc/v1/chat/completions \
+curl https://qingbo.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
@@ -55,7 +55,7 @@ import openai
 
 client = openai.OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://ai.kaiho.cc/v1"
+    base_url="https://qingbo.dev/v1"
 )
 
 response = client.chat.completions.create(
@@ -75,7 +75,7 @@ import OpenAI from 'openai';
 
 const client = new OpenAI({
   apiKey: 'YOUR_API_KEY',
-  baseURL: 'https://ai.kaiho.cc/v1'
+  baseURL: 'https://qingbo.dev/v1'
 });
 
 async function main() {

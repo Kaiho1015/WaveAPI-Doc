@@ -1,7 +1,7 @@
 ---
 title: "Sora2 Video Generation"
 description: "Generate high-quality video content using Sora2 AI model"
-api: "POST https://ai.kaiho.cc/v1/videos/generations"
+api: "POST https://qingbo.dev/v1/videos/generations"
 ---
 
 ## Overview
@@ -55,7 +55,7 @@ import time
 
 # Create video generation task
 response = requests.post(
-    "https://ai.kaiho.cc/v1/videos/generations",
+    "https://qingbo.dev/v1/videos/generations",
     headers={
         "Content-Type": "application/json",
         "Authorization": "Bearer YOUR_API_KEY"
@@ -75,7 +75,7 @@ task_id = response.json()["id"]
 # Poll task status
 while True:
     status = requests.get(
-        f"https://ai.kaiho.cc/v1/tasks/{task_id}",
+        f"https://qingbo.dev/v1/tasks/{task_id}",
         headers={"Authorization": "Bearer YOUR_API_KEY"}
     ).json()
     

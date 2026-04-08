@@ -1,7 +1,7 @@
 ---
 title: "Doubao Seedance 1.5 Pro 视频生成"
 description: "使用字节跳动豆包 Seedance 1.5 Pro 模型生成高质量视频"
-api: "POST https://ai.kaiho.cc/v1/videos/generations"
+api: "POST https://qingbo.dev/v1/videos/generations"
 ---
 
 <Note>
@@ -11,7 +11,7 @@ api: "POST https://ai.kaiho.cc/v1/videos/generations"
 <RequestExample>
 
 ```bash cURL theme={null}
-curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
+curl --location 'https://qingbo.dev/v1/videos/generations' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --data '{
@@ -24,7 +24,7 @@ curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
 ```python Python theme={null}
 import requests
 
-url = "https://ai.kaiho.cc/v1/videos/generations"
+url = "https://qingbo.dev/v1/videos/generations"
 headers = {
     "Content-Type": "application/json",
     "Authorization": "Bearer YOUR_API_KEY"
@@ -40,7 +40,7 @@ print(response.json())
 ```
 
 ```javascript JavaScript theme={null}
-fetch('https://ai.kaiho.cc/v1/videos/generations', {
+fetch('https://qingbo.dev/v1/videos/generations', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ import (
 )
 
 func main() {
-	url := "https://ai.kaiho.cc/v1/videos/generations"
+	url := "https://qingbo.dev/v1/videos/generations"
 	payload := map[string]interface{}{
 		"model":        "doubao-seedance-1-5-pro",
 		"prompt":       "城市霓虹灯下的雨夜街道",
@@ -112,7 +112,7 @@ func main() {
 
 ## 认证方式
 
-在请求头中使用 API Key 进行身份验证。您可以在 [API Key 管理](https://ai.kaiho.cc/dashboard/keys) 页面获取您的密钥。
+在请求头中使用 API Key 进行身份验证。您可以在 [API Key 管理](https://qingbo.dev/dashboard/keys) 页面获取您的密钥。
 
 ```http theme={null}
 Authorization: Bearer YOUR_API_KEY

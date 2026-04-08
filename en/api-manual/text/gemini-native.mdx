@@ -1,7 +1,7 @@
 ---
 title: "Gemini Native Format"
 description: "Use Google Gemini native API format"
-api: "POST https://ai.kaiho.cc/v1/models/{model}:generateContent"
+api: "POST https://qingbo.dev/v1/models/{model}:generateContent"
 ---
 
 ## Overview
@@ -35,7 +35,7 @@ import google.generativeai as genai
 genai.configure(
     api_key="YOUR_API_KEY",
     transport="rest",
-    client_options={"api_endpoint": "https://ai.kaiho.cc/v1"}
+    client_options={"api_endpoint": "https://qingbo.dev/v1"}
 )
 
 model = genai.GenerativeModel('gemini-2.0-flash-exp')

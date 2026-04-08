@@ -6,7 +6,7 @@ description: "POST /v1/tasks — 提交非同步生成任務"
 ## 端點
 
 ```
-POST https://ai.kaiho.cc/v1/tasks
+POST https://qingbo.dev/v1/tasks
 ```
 
 提交圖像、影片或音訊生成任務，立即回傳 `task_id`。
@@ -53,7 +53,7 @@ POST https://ai.kaiho.cc/v1/tasks
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://ai.kaiho.cc/v1/tasks \
+curl -X POST https://qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -68,7 +68,7 @@ curl -X POST https://ai.kaiho.cc/v1/tasks \
 import requests
 
 response = requests.post(
-    "https://ai.kaiho.cc/v1/tasks",
+    "https://qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
         "model": "veo3",

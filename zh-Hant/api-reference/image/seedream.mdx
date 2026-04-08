@@ -1,14 +1,14 @@
 ---
 title: "Seedream 系列"
 description: "位元組跳動 Seedream 圖像生成系列模型"
-api: "POST https://ai.kaiho.cc/v1/tasks"
+api: "POST https://qingbo.dev/v1/tasks"
 ---
 
 非同步處理模式 — 提交請求後回傳任務 ID，透過 [查詢任務狀態](/zh-Hant/api-reference/task/status) 介面取得生成結果。圖片連結有效期 24 小時，請及時儲存。
 
 <RequestExample>
 ```bash cURL
-curl -X POST https://ai.kaiho.cc/v1/tasks \
+curl -X POST https://qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -25,7 +25,7 @@ curl -X POST https://ai.kaiho.cc/v1/tasks \
 import requests
 
 response = requests.post(
-    "https://ai.kaiho.cc/v1/tasks",
+    "https://qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
         "model": "seedream-5.0",
@@ -42,7 +42,7 @@ print(f"任務已提交: {task_id}")
 ```
 
 ```javascript JavaScript
-const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+const response = await fetch('https://qingbo.dev/v1/tasks', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -84,7 +84,7 @@ func main() {
     }
 
     body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req, _ := http.NewRequest("POST", "https://qingbo.dev/v1/tasks", bytes.NewBuffer(body))
     req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
     req.Header.Set("Content-Type", "application/json")
 
@@ -114,7 +114,7 @@ public class Main {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .uri(URI.create("https://qingbo.dev/v1/tasks"))
             .header("Authorization", "Bearer YOUR_API_KEY")
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(payload))

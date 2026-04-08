@@ -1,7 +1,7 @@
 ---
 title: "Sora2 视频生成"
 description: "使用 OpenAI Sora2 模型生成高质量视频"
-api: "POST https://ai.kaiho.cc/v1/videos/generations"
+api: "POST https://qingbo.dev/v1/videos/generations"
 ---
 
 <Note>
@@ -11,7 +11,7 @@ api: "POST https://ai.kaiho.cc/v1/videos/generations"
 <RequestExample>
 
 ```bash cURL theme={null}
-curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
+curl --location 'https://qingbo.dev/v1/videos/generations' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -25,7 +25,7 @@ curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
 ```python Python theme={null}
 import requests
 
-url = "https://ai.kaiho.cc/v1/videos/generations"
+url = "https://qingbo.dev/v1/videos/generations"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -44,7 +44,7 @@ print(response.json())
 ```javascript JavaScript theme={null}
 const axios = require('axios');
 
-const url = 'https://ai.kaiho.cc/v1/videos/generations';
+const url = 'https://qingbo.dev/v1/videos/generations';
 const headers = {
   'Authorization': 'Bearer YOUR_API_KEY',
   'Content-Type': 'application/json'
@@ -72,7 +72,7 @@ import (
 )
 
 func main() {
-	url := "https://ai.kaiho.cc/v1/videos/generations"
+	url := "https://qingbo.dev/v1/videos/generations"
 	data := map[string]interface{}{
 		"model":        "sora-2-vip",
 		"prompt":       "瀑布倾泻而下形成彩虹",
@@ -158,7 +158,7 @@ func main() {
 
 ## 认证方式
 
-在请求头中加入 `Authorization: Bearer YOUR_API_KEY` 进行身份验证。您可以在 [令牌管理](https://ai.kaiho.cc/dashboard/keys) 页面获取您的 API 密钥。
+在请求头中加入 `Authorization: Bearer YOUR_API_KEY` 进行身份验证。您可以在 [令牌管理](https://qingbo.dev/dashboard/keys) 页面获取您的 API 密钥。
 
 ## 请求参数
 

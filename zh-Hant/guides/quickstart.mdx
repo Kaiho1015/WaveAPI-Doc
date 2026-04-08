@@ -5,7 +5,7 @@ description: "5 分鐘快速上手 WaveAPI"
 
 ## 前置要求
 
-- 一個 WaveAPI 帳戶（[註冊](https://ai.kaiho.cc/login)）
+- 一個 WaveAPI 帳戶（[註冊](https://qingbo.dev/login)）
 - API 金鑰
 - 基礎的程式設計知識
 
@@ -13,7 +13,7 @@ description: "5 分鐘快速上手 WaveAPI"
 
 <Steps>
   <Step title="登入控制台">
-    存取 [Dashboard](https://ai.kaiho.cc/dashboard/keys) 並登入
+    存取 [Dashboard](https://qingbo.dev/dashboard/keys) 並登入
   </Step>
   <Step title="建立金鑰">
     在金鑰管理頁面點擊「建立新金鑰」
@@ -37,7 +37,7 @@ WaveAPI 完全相容 OpenAI SDK，只需替換 `base_url` 即可使用。
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://ai.kaiho.cc/v1",
+    base_url="https://qingbo.dev/v1",
     api_key="YOUR_API_KEY"
 )
 
@@ -55,7 +55,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://ai.kaiho.cc/v1',
+  baseURL: 'https://qingbo.dev/v1',
   apiKey: 'YOUR_API_KEY'
 });
 
@@ -70,7 +70,7 @@ console.log(response.choices[0].message.content);
 ```
 
 ```bash cURL
-curl https://ai.kaiho.cc/v1/chat/completions \
+curl https://qingbo.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{

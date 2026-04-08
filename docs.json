@@ -46,7 +46,7 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://ai.kaiho.cc/token"
+      "href": "https://qingbo.dev/dashboard/keys"
     }
   },
 
@@ -56,7 +56,7 @@
         {
           "anchor": "Status",
           "icon": "signal",
-          "href": "https://ai.kaiho.cc"
+          "href": "https://qingbo.dev"
         },
         {
           "anchor": "Community",
@@ -440,9 +440,9 @@
 
   "footer": {
     "socials": {
-      "github": "https://github.com/Kaiho1015",
+      "github": "https://github.com/Kaiho1015/WaveAPI-Doc",
       "discord": "https://discord.gg/你的邀请码",
-      "website": "https://ai.kaiho.cc"
+      "website": "https://qingbo.dev"
     }
   }
 }

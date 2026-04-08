@@ -5,7 +5,7 @@ description: "Get started with WaveAPI in 5 minutes"
 
 ## Prerequisites
 
-- A WaveAPI account ([Sign up](https://ai.kaiho.cc/login))
+- A WaveAPI account ([Sign up](https://qingbo.dev/login))
 - An API key
 - Basic programming knowledge
 
@@ -13,7 +13,7 @@ description: "Get started with WaveAPI in 5 minutes"
 
 <Steps>
   <Step title="Log in to the Console">
-    Visit the [Dashboard](https://ai.kaiho.cc/dashboard/keys) and log in
+    Visit the [Dashboard](https://qingbo.dev/dashboard/keys) and log in
   </Step>
   <Step title="Create a Key">
     Click "Create New Key" on the key management page
@@ -37,7 +37,7 @@ WaveAPI is fully compatible with the OpenAI SDK — simply replace the `base_url
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://ai.kaiho.cc/v1",
+    base_url="https://qingbo.dev/v1",
     api_key="YOUR_API_KEY"
 )
 
@@ -55,7 +55,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://ai.kaiho.cc/v1',
+  baseURL: 'https://qingbo.dev/v1',
   apiKey: 'YOUR_API_KEY'
 });
 
@@ -70,7 +70,7 @@ console.log(response.choices[0].message.content);
 ```
 
 ```bash cURL
-curl https://ai.kaiho.cc/v1/chat/completions \
+curl https://qingbo.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{

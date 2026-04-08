@@ -1,7 +1,7 @@
 ---
 title: "OpenAI Multimodal Responses API"
 description: "API supporting text and image outputs"
-api: "POST https://ai.kaiho.cc/v1/chat/completions"
+api: "POST https://qingbo.dev/v1/chat/completions"
 ---
 
 ## Overview
@@ -40,7 +40,7 @@ import openai
 
 client = openai.OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://ai.kaiho.cc/v1"
+    base_url="https://qingbo.dev/v1"
 )
 
 response = client.chat.completions.create(

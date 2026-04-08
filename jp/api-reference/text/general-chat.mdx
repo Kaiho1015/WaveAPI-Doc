@@ -1,6 +1,6 @@
 ---
 title: "汎用チャットインターフェース"
-api: "POST https://ai.kaiho.cc/v1/chat/completions"
+api: "POST https://qingbo.dev/v1/chat/completions"
 ---
 
 - 統一されたチャット API インターフェース、全ての主要テキスト生成モデルに対応
@@ -10,7 +10,7 @@ api: "POST https://ai.kaiho.cc/v1/chat/completions"
 
 <RequestExample>
 ```bash cURL
-curl -X POST https://ai.kaiho.cc/v1/chat/completions \
+curl -X POST https://qingbo.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -34,7 +34,7 @@ curl -X POST https://ai.kaiho.cc/v1/chat/completions \
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://ai.kaiho.cc/v1",
+    base_url="https://qingbo.dev/v1",
     api_key="YOUR_API_KEY"
 )
 
@@ -55,7 +55,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://ai.kaiho.cc/v1',
+  baseURL: 'https://qingbo.dev/v1',
   apiKey: 'YOUR_API_KEY'
 });
 
@@ -95,7 +95,7 @@ func main() {
     }
 
     body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/chat/completions", bytes.NewBuffer(body))
+    req, _ := http.NewRequest("POST", "https://qingbo.dev/v1/chat/completions", bytes.NewBuffer(body))
     req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
     req.Header.Set("Content-Type", "application/json")
 
@@ -130,7 +130,7 @@ public class Main {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://ai.kaiho.cc/v1/chat/completions"))
+            .uri(URI.create("https://qingbo.dev/v1/chat/completions"))
             .header("Authorization", "Bearer YOUR_API_KEY")
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(payload))
@@ -259,7 +259,7 @@ public class Main {
 
   API Key の取得：
 
-  [API Key 管理ページ](https://ai.kaiho.cc/dashboard/keys) にアクセスして API Key を取得してください
+  [API Key 管理ページ](https://qingbo.dev/dashboard/keys) にアクセスして API Key を取得してください
 
   リクエストヘッダーに以下を追加してください：
 

@@ -6,7 +6,7 @@ description: "POST /v1/tasks -- Submit an async generation task"
 ## Endpoint
 
 ```
-POST https://ai.kaiho.cc/v1/tasks
+POST https://qingbo.dev/v1/tasks
 ```
 
 Submit an image, video, or audio generation task. Returns a `task_id` immediately.
@@ -53,7 +53,7 @@ For additional parameters, refer to the [Image Generation Overview](/en/api-refe
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://ai.kaiho.cc/v1/tasks \
+curl -X POST https://qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -68,7 +68,7 @@ curl -X POST https://ai.kaiho.cc/v1/tasks \
 import requests
 
 response = requests.post(
-    "https://ai.kaiho.cc/v1/tasks",
+    "https://qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
         "model": "veo3",

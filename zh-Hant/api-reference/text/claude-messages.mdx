@@ -1,6 +1,6 @@
 ---
 title: "Claude 訊息介面"
-api: "POST https://ai.kaiho.cc/v1/messages"
+api: "POST https://qingbo.dev/v1/messages"
 ---
 
 - 完全相容 Claude Messages API 格式
@@ -9,7 +9,7 @@ api: "POST https://ai.kaiho.cc/v1/messages"
 
 <RequestExample>
 ```bash cURL
-curl -X POST https://ai.kaiho.cc/v1/messages \
+curl -X POST https://qingbo.dev/v1/messages \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -H "anthropic-version: 2023-06-01" \
@@ -30,7 +30,7 @@ curl -X POST https://ai.kaiho.cc/v1/messages \
 import anthropic
 
 client = anthropic.Anthropic(
-    base_url="https://ai.kaiho.cc/v1",
+    base_url="https://qingbo.dev/v1",
     api_key="YOUR_API_KEY"
 )
 
@@ -50,7 +50,7 @@ print(message.content[0].text)
 import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({
-  baseURL: 'https://ai.kaiho.cc/v1',
+  baseURL: 'https://qingbo.dev/v1',
   apiKey: 'YOUR_API_KEY'
 });
 
@@ -88,7 +88,7 @@ func main() {
     }
 
     body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/messages", bytes.NewBuffer(body))
+    req, _ := http.NewRequest("POST", "https://qingbo.dev/v1/messages", bytes.NewBuffer(body))
     req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
     req.Header.Set("Content-Type", "application/json")
     req.Header.Set("anthropic-version", "2023-06-01")
@@ -123,7 +123,7 @@ public class Main {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://ai.kaiho.cc/v1/messages"))
+            .uri(URI.create("https://qingbo.dev/v1/messages"))
             .header("Authorization", "Bearer YOUR_API_KEY")
             .header("Content-Type", "application/json")
             .header("anthropic-version", "2023-06-01")
@@ -206,7 +206,7 @@ public class Main {
 <ParamField header="x-api-key" type="string" required>
   API 金鑰用於身份驗證
 
-  存取 [API Key 管理頁面](https://ai.kaiho.cc/dashboard/keys) 取得您的 API Key
+  存取 [API Key 管理頁面](https://qingbo.dev/dashboard/keys) 取得您的 API Key
 
   在請求標頭中新增：
 

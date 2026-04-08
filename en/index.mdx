@@ -11,7 +11,7 @@ An OpenAI-compatible unified API endpoint to call GPT-4o, Claude, Gemini, Sora, 
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://ai.kaiho.cc/v1",
+    base_url="https://qingbo.dev/v1",
     api_key="your-api-key"
 )
 
@@ -27,7 +27,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://ai.kaiho.cc/v1',
+  baseURL: 'https://qingbo.dev/v1',
   apiKey: 'your-api-key'
 });
 
@@ -40,7 +40,7 @@ console.log(response.choices[0].message.content);
 ```
 
 ```bash cURL
-curl https://ai.kaiho.cc/v1/chat/completions \
+curl https://qingbo.dev/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -124,10 +124,10 @@ Access a wide range of AI models through WaveAPI.
 
 <Steps>
   <Step title="Get an API Key">
-    Go to the [Dashboard](https://ai.kaiho.cc/dashboard/keys) to sign up and obtain your API key
+    Go to the [Dashboard](https://qingbo.dev/dashboard/keys) to sign up and obtain your API key
   </Step>
   <Step title="Replace the Base URL">
-    Replace the base URL in your OpenAI SDK with `https://ai.kaiho.cc/v1`
+    Replace the base URL in your OpenAI SDK with `https://qingbo.dev/v1`
   </Step>
   <Step title="Choose a Model and Make a Request">
     Specify the desired model via the `model` parameter and send your request
