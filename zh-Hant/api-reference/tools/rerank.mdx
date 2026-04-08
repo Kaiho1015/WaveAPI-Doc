@@ -1,0 +1,150 @@
+---
+title: "文件重排序"
+description: "按與查詢的相關性對候選文件重新排序"
+api: "POST https://ai.kaiho.cc/v1/rerank"
+---
+
+同步介面 — 對候選文件按與查詢文字的相關性進行重新排序，常用於 RAG 檢索增強。參數直接透傳給上游模型。
+
+<RequestExample>
+```bash cURL
+curl https://ai.kaiho.cc/v1/rerank \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "jina-reranker-v2-base-multilingual",
+    "query": "什么是机器学习？",
+    "documents": [
+      "机器学习是人工智能的一个分支",
+      "今天天气很好",
+      "深度学习使用神经网络进行特征学习"
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/rerank",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "jina-reranker-v2-base-multilingual",
+        "query": "什么是机器学习？",
+        "documents": [
+            "机器学习是人工智能的一个分支",
+            "今天天气很好",
+            "深度学习使用神经网络进行特征学习"
+        ]
+    }
+)
+
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/rerank', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'jina-reranker-v2-base-multilingual',
+    query: '什么是机器学习？',
+    documents: [
+      '机器学习是人工智能的一个分支',
+      '今天天气很好',
+      '深度学习使用神经网络进行特征学习'
+    ]
+  })
+});
+
+console.log(await response.json());
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model": "jina-reranker-v2-base-multilingual",
+        "query": "什么是机器学习？",
+        "documents": []string{
+            "机器学习是人工智能的一个分支",
+            "今天天气很好",
+            "深度学习使用神经网络进行特征学习",
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/rerank", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "jina-reranker-v2-base-multilingual",
+          "query": "什么是机器学习？",
+          "documents": [
+            "机器学习是人工智能的一个分支",
+            "今天天气很好",
+            "深度学习使用神经网络进行特征学习"
+          ]
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/rerank"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+## 請求參數
+
+<ParamField body="model" type="string" required>
+  重排序模型 ID，如 `jina-reranker-v2-base-multilingual`
+</ParamField>
+
+<ParamField body="query" type="string" required>
+  查詢文字
+</ParamField>
+
+<ParamField body="documents" type="string[]" required>
+  候選文件陣列
+</ParamField>
+
+<ParamField body="top_n" type="integer">
+  回傳前 N 個最相關的文件
+</ParamField>

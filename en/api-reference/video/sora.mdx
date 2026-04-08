@@ -1,0 +1,270 @@
+---
+title: "Sora Series"
+description: "OpenAI Sora video generation models"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+Async processing mode -- submit a request and receive a task ID. Use the [Query Task Status](/en/api-reference/task/status) endpoint to retrieve generation results.
+
+<Warning>
+Sora 2 series models will be discontinued on September 24, 2026.
+</Warning>
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sora-2-pro",
+    "action": "generate",
+    "prompt": "A cat playing piano in a jazz club, cinematic lighting",
+    "aspect_ratio": "16:9",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "sora-2-pro",
+        "action": "generate",
+        "prompt": "A cat playing piano in a jazz club, cinematic lighting",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'sora-2-pro',
+    action: 'generate',
+    prompt: 'A cat playing piano in a jazz club, cinematic lighting',
+    aspect_ratio: '16:9',
+    duration: 8,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`Task submitted: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "sora-2-pro",
+        "action":       "generate",
+        "prompt":       "A cat playing piano in a jazz club, cinematic lighting",
+        "aspect_ratio": "16:9",
+        "duration":     8,
+        "resolution":   "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "sora-2-pro",
+          "action": "generate",
+          "prompt": "A cat playing piano in a jazz club, cinematic lighting",
+          "aspect_ratio": "16:9",
+          "duration": 8,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "sora-2-pro",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## Available Models
+
+| Model ID | Resolution Support | Description |
+|----------|-------------------|-------------|
+| `sora-2-pro` | `720p`, `1080p` | High quality, supports 1080p |
+| `sora-2` | `720p` | Faster processing |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type: `generate`, `remix`, `extend`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Additional parameters passed through to Sora
+</ParamField>
+
+## Parameters by Operation Type
+
+<Tabs>
+  <Tab title="Generate">
+    Text-to-video or image-to-video.
+
+    <ParamField body="aspect_ratio" type="string" default="9:16">
+      Aspect ratio: `16:9`, `9:16`
+    </ParamField>
+
+    <ParamField body="duration" type="integer" default="4">
+      Video duration (seconds): `4`, `8`, `12`, `16`, `20`
+    </ParamField>
+
+    <ParamField body="resolution" type="string" default="720p">
+      Output resolution. `1080p` supported by `sora-2-pro` only
+    </ParamField>
+
+    <ParamField body="image_urls" type="string[]">
+      Reference image URLs for first-frame guidance. Image aspect ratio must match `aspect_ratio`
+    </ParamField>
+
+    <ParamField body="extra.characters" type="array">
+      Character asset array, maximum 2. Character names must be mentioned in the prompt
+
+      <Expandable title="Properties">
+        <ParamField body="name" type="string" required>
+          Character name
+        </ParamField>
+        <ParamField body="asset_id" type="string" required>
+          Character asset ID
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+
+  <Tab title="Remix">
+    Modify an existing video. Requires the original video's task_id.
+
+    <ParamField body="extra.video_id" type="string" required>
+      Original video ID to remix
+    </ParamField>
+
+    <ParamField body="extra.strength" type="string" default="Mild">
+      Variation intensity: `Subtle`, `Mild`, `Strong`, or numeric `1`-`8`
+    </ParamField>
+
+    <Note>
+    Remix is being replaced by Edits.
+    </Note>
+  </Tab>
+
+  <Tab title="Extend">
+    Extend an existing video, maintaining continuity of motion, camera, and scene.
+
+    <ParamField body="duration" type="integer" required>
+      Extension segment duration (seconds): `4`, `8`, `12`, `16`, `20`
+    </ParamField>
+
+    <ParamField body="extra.video_id" type="string" required>
+      Original video ID to extend (must be a completed Sora video)
+    </ParamField>
+
+    **Limits:**
+    - Maximum 6 extensions per video chain (120 seconds total)
+    - `image_urls` and `characters` are not supported
+  </Tab>
+</Tabs>
+
+## Response
+
+<ResponseField name="task_id" type="string">
+  Task ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model ID used
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Operation type
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Task status: `queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation time (Unix millisecond timestamp)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  Progress, initially `0`
+</ResponseField>

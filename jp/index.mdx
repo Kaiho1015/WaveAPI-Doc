@@ -1,9 +1,9 @@
 ---
 title: "WaveAPI"
-description: "統合 AI モデル API ゲートウェイ — 一つのエンドポイントですべての主要 AI モデルにアクセス"
+description: "統合 AI モデル API ゲートウェイ — 1つのインターフェースで全ての主要大規模モデルを呼び出し"
 ---
 
-OpenAI 互換の統合 API エンドポイント。GPT-4o、Claude、Gemini、Sora、VEO などの主要モデルに一つの base URL でアクセス。`base_url` を変更するだけで、既存のコードを修正する必要はありません。
+OpenAI 互換の統合 API エンドポイントで、1行のコードで GPT-4o、Claude、Gemini、Sora、VEO などの主要モデルを呼び出せます。`base_url` を変更するだけで、既存のコードを修正する必要はありません。
 
 <CodeGroup>
 
@@ -17,7 +17,7 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="gpt-4o",
-    messages=[{"role": "user", "content": "こんにちは！"}]
+    messages=[{"role": "user", "content": "Hello!"}]
 )
 
 print(response.choices[0].message.content)
@@ -33,7 +33,7 @@ const client = new OpenAI({
 
 const response = await client.chat.completions.create({
   model: 'gpt-4o',
-  messages: [{ role: 'user', content: 'こんにちは！' }]
+  messages: [{ role: 'user', content: 'Hello!' }]
 });
 
 console.log(response.choices[0].message.content);
@@ -45,7 +45,7 @@ curl https://ai.kaiho.cc/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gpt-4o",
-    "messages": [{"role": "user", "content": "こんにちは！"}]
+    "messages": [{"role": "user", "content": "Hello!"}]
   }'
 ```
 
@@ -59,21 +59,21 @@ WaveAPI を通じて各種 AI モデルを呼び出せます。
   <Card
     title="テキスト生成"
     img="/images/cards/text-generation.svg"
-    href="/jp/api-manual/text/general-chat"
+    href="/jp/api-reference/text/general-chat"
   >
-    GPT-4o、Claude Sonnet、Gemini などの主要 LLM、ストリーミング対応
+    GPT-4o、Claude Sonnet、Gemini などの主要大規模言語モデル、ストリーミング出力対応
   </Card>
   <Card
     title="画像生成"
     img="/images/cards/image-generation.svg"
-    href="/jp/api-manual/image/gpt4o-image"
+    href="/jp/api-reference/image/gpt4o-image"
   >
     GPT-4o Image、FLUX Kontext、Seedream などの画像生成モデル
   </Card>
   <Card
     title="動画生成"
     img="/images/cards/video-generation.svg"
-    href="/jp/api-manual/video/sora2"
+    href="/jp/api-reference/video/veo3"
   >
     VEO3、Sora2、Kling、Hailuo などの動画生成モデル
   </Card>
@@ -83,14 +83,14 @@ WaveAPI を通じて各種 AI モデルを呼び出せます。
   <Card
     title="音声処理"
     img="/images/cards/audio.svg"
-    href="/jp/api-manual/audio/tts"
+    href="/jp/api-reference/audio/tts"
   >
     Whisper 音声認識と TTS テキスト読み上げ
   </Card>
   <Card
     title="タスク管理"
     img="/images/cards/task-management.svg"
-    href="/jp/api-manual/task/get-status"
+    href="/jp/api-reference/task/get-status"
   >
     非同期タスクのステータス照会、画像・動画生成の進捗追跡
   </Card>
@@ -99,37 +99,37 @@ WaveAPI を通じて各種 AI モデルを呼び出せます。
     img="/images/cards/openai-compatible.svg"
     href="/jp/guides/quickstart"
   >
-    OpenAI SDK とそのまま互換 — URL を変更するだけ
+    OpenAI SDK と完全互換、URL を変更するだけで接続可能
   </Card>
 </CardGroup>
 
 ## WaveAPI を選ぶ理由
 
 <CardGroup cols={2}>
-  <Card title="ゼロコスト移行" icon="rotate">
-    OpenAI API 互換フォーマット — base URL を変更するだけで開始
+  <Card title="移行コストゼロ" icon="rotate">
+    OpenAI API フォーマットと互換性があり、既存のコードは base_url を変更するだけで利用できます
   </Card>
-  <Card title="マルチモデルアクセス" icon="layer-group">
-    一つの API キーですべての主要 AI モデルにアクセス、model パラメータで切り替え
+  <Card title="マルチモデル統合" icon="layer-group">
+    1つの API Key で全ての主要大規模モデルにアクセスし、model パラメータで柔軟に切り替え可能
   </Card>
   <Card title="非同期タスクシステム" icon="clock-rotate-left">
-    画像・動画生成の非同期処理とリアルタイムステータス追跡
+    画像・動画生成は非同期処理に対応し、タスクのステータスや進捗をリアルタイムに照会できます
   </Card>
-  <Card title="安定した基盤" icon="shield-check">
-    高性能 API ゲートウェイとインテリジェントルーティングで安定性を保証
+  <Card title="安定・信頼性" icon="shield-check">
+    高性能 API ゲートウェイとインテリジェントルーティングでサービスの安定性を保証します
   </Card>
 </CardGroup>
 
 ## クイックスタート
 
 <Steps>
-  <Step title="API キーを取得">
-    [Dashboard](https://ai.kaiho.cc/token) に登録して API キーを取得
+  <Step title="API Key の取得">
+    [Dashboard](https://ai.kaiho.cc/dashboard/keys) にアクセスして登録し、API Key を取得してください
   </Step>
-  <Step title="Base URL を置き換え">
-    OpenAI SDK の base URL を `https://ai.kaiho.cc/v1` に変更
+  <Step title="Base URL の置き換え">
+    OpenAI SDK の base URL を `https://ai.kaiho.cc/v1` に置き換えてください
   </Step>
   <Step title="モデルを選択して呼び出し">
-    `model` パラメータで使用したいモデルを指定してリクエストを送信
+    `model` パラメータで使用したいモデルを指定し、リクエストを送信してください
   </Step>
 </Steps>

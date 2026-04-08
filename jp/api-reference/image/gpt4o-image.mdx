@@ -1,0 +1,286 @@
+---
+title: "GPT-4o 画像生成"
+description: "GPT-4o-image モデルで高品質な画像を生成、テキストから画像、画像から画像、画像編集に対応"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+<Note>
+  **非同期処理モード：** リクエスト送信後にタスク ID が返されます。[タスクステータス照会](/jp/api-reference/task/get-status) インターフェースで生成結果を取得してください。生成された画像リンクの有効期限は24時間です。速やかに保存してください。
+</Note>
+
+<RequestExample>
+  ```bash cURL theme={null}
+  curl --request POST \
+    --url https://ai.kaiho.cc/v1/tasks \
+    --header 'Authorization: Bearer <token>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "model": "gpt-4o-image",
+      "prompt": "星空下的古老城堡，数字艺术风格",
+      "size": "1:1",
+      "n": 1,
+      "image_urls": [
+        "https://example.com/reference.png"
+      ]
+    }'
+  ```
+
+  ```python Python theme={null}
+  import requests
+
+  url = "https://ai.kaiho.cc/v1/tasks"
+
+  payload = {
+      "model": "gpt-4o-image",
+      "prompt": "星空下的古老城堡，数字艺术风格",
+      "size": "1:1",
+      "n": 1,
+      "image_urls": [
+          "https://example.com/reference.png"
+      ]
+  }
+
+  headers = {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+  }
+
+  response = requests.post(url, json=payload, headers=headers)
+
+  print(response.json())
+  ```
+
+  ```javascript JavaScript theme={null}
+  const url = "https://ai.kaiho.cc/v1/tasks";
+
+  const payload = {
+    model: "gpt-4o-image",
+    prompt: "星空下的古老城堡，数字艺术风格",
+    size: "1:1",
+    n: 1,
+    image_urls: [
+      "https://example.com/reference.png"
+    ]
+  };
+
+  const headers = {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  };
+
+  fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+  ```
+
+  ```go Go theme={null}
+  package main
+
+  import (
+      "bytes"
+      "encoding/json"
+      "fmt"
+      "io/ioutil"
+      "net/http"
+  )
+
+  func main() {
+      url := "https://ai.kaiho.cc/v1/tasks"
+
+      payload := map[string]interface{}{
+          "model":  "gpt-4o-image",
+          "prompt": "星空下的古老城堡，数字艺术风格",
+          "size":   "1:1",
+          "n":      1,
+          "image_urls": []string{
+              "https://example.com/reference.png",
+          },
+      }
+
+      jsonData, _ := json.Marshal(payload)
+
+      req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+      req.Header.Set("Authorization", "Bearer <token>")
+      req.Header.Set("Content-Type", "application/json")
+
+      client := &http.Client{}
+      resp, err := client.Do(req)
+      if err != nil {
+          panic(err)
+      }
+      defer resp.Body.Close()
+
+      body, _ := ioutil.ReadAll(resp.Body)
+      fmt.Println(string(body))
+  }
+  ```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "code": "success",
+    "data": "task-wave17486161910001884721"
+  }
+  ```
+
+  ```json 400 theme={null}
+  {
+    "code": "invalid_request",
+    "message": "リクエストパラメータが無効です",
+    "data": null
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "code": "authentication_error",
+    "message": "認証に失敗しました。API キーを確認してください",
+    "data": null
+  }
+  ```
+
+  ```json 402 theme={null}
+  {
+    "code": "payment_required",
+    "message": "アカウント残高が不足しています。チャージしてから再度お試しください",
+    "data": null
+  }
+  ```
+
+  ```json 403 theme={null}
+  {
+    "code": "quota_not_enough",
+    "message": "ユーザーのクォータが不足しています",
+    "data": null
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "code": "rate_limit_error",
+    "message": "リクエストが多すぎます。しばらく後にお試しください",
+    "data": null
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "code": "server_error",
+    "message": "サーバー内部エラーです。しばらく後に再試行してください",
+    "data": null
+  }
+  ```
+</ResponseExample>
+
+## 認証方式
+
+<ParamField header="Authorization" type="string" required>
+  全てのインターフェースで Bearer Token 認証が必要です
+
+  API Key の取得：
+
+  [API Key 管理ページ](https://ai.kaiho.cc/dashboard/keys) にアクセスして API Key を取得してください
+
+  リクエストヘッダーに以下を追加してください：
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## リクエストパラメータ
+
+<ParamField body="model" type="string" default="gpt-4o-image" required>
+  画像生成モデル名
+
+  例：`"gpt-4o-image"`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  画像生成のテキスト説明
+
+  最大1000文字
+</ParamField>
+
+<ParamField body="size" type="string">
+  画像生成サイズ
+
+  対応するアスペクト比：
+
+  * `1:1` - 正方形
+  * `2:3` - 縦型
+  * `3:2` - 横型
+</ParamField>
+
+<ParamField body="n" type="integer">
+  生成する画像の数
+
+  1、2、4 に対応、料金は数量に応じて先払いされます
+
+  デフォルト値：1
+
+  **注意：** 数値（例：`1`）を直接入力してください。引用符で囲まないでください
+</ParamField>
+
+<ParamField body="image_urls" type="array<url>">
+  参照画像 URL リスト、画像から画像生成や画像編集に使用
+
+  <Expandable title="詳細説明">
+    配列の各要素は文字列で、2つのフォーマットに対応：
+
+    **1. 完全な画像 URL**
+
+    * パブリックにアクセス可能な画像 URL（http:// または https://）
+    * 例：`"https://example.com/image.jpg"`
+
+    **2. Base64 エンコード形式**
+
+    * **完全な Data URI 形式を使用する必要があります**
+    * 形式：`data:image/{format};base64,{base64data}`
+    * 対応画像フォーマット：jpeg、png、webp
+    * 例：`"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABg..."`
+    * 注意：`data:image/jpeg;base64,` プレフィックスを必ず含めてください
+
+    **制限：**
+
+    * 1枚あたり最大 10MB
+    * 対応フォーマット：.jpeg、.jpg、.png、.webp
+  </Expandable>
+
+  **制限：** 最大5枚
+</ParamField>
+
+<ParamField body="mask_url" type="string">
+  マスク画像 URL
+
+  * PNG 形式である必要があります
+  * サイズは参照画像と一致する必要があります
+  * 最大 4MB
+</ParamField>
+
+## レスポンスパラメータ
+
+<ResponseField name="code" type="string">
+  レスポンスステータスコード
+
+  * `success` - リクエスト成功、タスク送信済み
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  タスク ID、形式は `task-wave{timestamp}{userId}{random}`
+
+  [タスクステータス照会](/jp/api-reference/task/get-status) インターフェースで生成結果を取得するために使用します
+</ResponseField>
+
+## 注意事項
+
+1. **非同期処理：** タスク送信後に非同期で処理されます。[タスクステータス照会](/jp/api-reference/task/get-status) で生成結果を取得してください
+2. **リンクの有効期限：** 生成された画像リンクの有効期限は24時間です。速やかにダウンロードして保存してください
+3. **画像 URL の要件：** 入力する参照画像はパブリックにアクセス可能な URL または Base64 形式である必要があります
+4. **料金について：** `n` が1より大きい場合、料金は数量に応じて先払いされます

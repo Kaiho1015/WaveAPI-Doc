@@ -1,0 +1,51 @@
+---
+title: "Query Status"
+description: "GET /v1/tasks/{task_id} -- Query task status and results"
+---
+
+## Endpoint
+
+```
+GET https://ai.kaiho.cc/v1/tasks/{task_id}
+```
+
+## Response
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "veo3",
+  "action": "generate",
+  "status": "completed",
+  "created_at": 1720000000,
+  "start_time": 1720000002,
+  "completed_at": 1720000030,
+  "progress": 100,
+  "result": {
+    "images": [],
+    "videos": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+## Status Values
+
+| Status | Description |
+|--------|-------------|
+| `queued` | Waiting to be processed |
+| `processing` | Generation in progress, check the `progress` field for current progress |
+| `completed` | Completed, `result` contains the generation output |
+| `failed` | Failed, `error` contains error details |
+| `cancelled` | Cancelled |
+
+## Polling Recommendations
+
+- Polling interval: 2-5 seconds
+- Set a maximum wait time (recommended: 5 minutes)
+- Check the `progress` field to monitor generation progress
+
+<Warning>
+URLs in generation results have an expiration period (`expires_at`). Please download and save them promptly.
+</Warning>

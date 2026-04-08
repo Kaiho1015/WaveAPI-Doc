@@ -1,0 +1,584 @@
+---
+title: "通用對話介面"
+api: "POST https://ai.kaiho.cc/v1/chat/completions"
+---
+
+- 統一的對話 API 介面，支援所有主流文字生成模型
+- 完全相容 OpenAI Chat Completions API 格式
+- 透過 `model` 參數無縫切換不同 AI 模型
+- 支援串流輸出、函式呼叫等進階功能
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-5",
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的AI助手。"
+      },
+      {
+        "role": "user",
+        "content": "解释一下冒泡排序算法。"
+      }
+    ],
+    "temperature": 0.7,
+    "max_tokens": 1024
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.chat.completions.create(
+    model="gpt-5",
+    messages=[
+        {"role": "system", "content": "你是一个专业的AI助手。"},
+        {"role": "user", "content": "解释一下冒泡排序算法。"}
+    ],
+    temperature=0.7,
+    max_tokens=1024
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-5',
+  messages: [
+    { role: 'system', content: '你是一个专业的AI助手。' },
+    { role: 'user', content: '解释一下冒泡排序算法。' }
+  ],
+  temperature: 0.7,
+  max_tokens: 1024
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model": "gpt-5",
+        "messages": []map[string]string{
+            {"role": "system", "content": "你是一个专业的AI助手。"},
+            {"role": "user", "content": "解释一下冒泡排序算法。"},
+        },
+        "temperature": 0.7,
+        "max_tokens": 1024,
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/chat/completions", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "gpt-5",
+          "messages": [
+            {"role": "system", "content": "你是一个专业的AI助手。"},
+            {"role": "user", "content": "解释一下冒泡排序算法。"}
+          ],
+          "temperature": 0.7,
+          "max_tokens": 1024
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/chat/completions"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "id": "chatcmpl-CdA8u0qPqzeN2gu8QLuQfjaP9CHU4",
+    "object": "chat.completion",
+    "created": 1763449816,
+    "model": "gpt-5-2025-08-07",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "冒泡排序（Bubble Sort）是一种简单的比较交换排序。它通过重复遍历序列，比较相邻元素并把较大的"冒泡"到右侧末端，直到序列有序。\n\n核心思想\n- 每一趟从左到右比较相邻元素，若前者大于后者则交换。一次趟结束后，当前未排部分中最大的元素被放到末尾。\n- 重复多趟，直到没有发生交换或已完成 n−1 趟。\n\n流程示例（以 [5, 1, 4, 2] 为例）\n- 第1趟：比较并交换 → [1, 5, 4, 2] → [1, 4, 5, 2] → [1, 4, 2, 5]（最大元素5到末尾）\n- 第2趟：比较并交换 → [1, 4, 2, 5] → [1, 2, 4, 5]（已整体有序，可提前结束）\n\n性质\n- 时间复杂度：平均/最坏 O(n^2)，最好 O(n)（当已基本有序且使用提前退出优化）\n- 空间复杂度：O(1)（就地排序）\n- 稳定性：稳定（相等元素相对次序不变）\n- 适用场景：数据量小或序列几乎有序；不适合大规模无序数据\n\n常见优化\n- 提前退出：某趟未发生交换则已排序完成。\n- 缩短边界：记录本趟最后一次交换的位置，下一趟只需遍历到该位置。\n- 双向冒泡（鸡尾酒排序）：从左到右、再从右到左各走一遍，更快收敛。\n\n简要伪代码\nfunction bubbleSort(a):\n    n = length(a)\n    repeat\n        swapped = false\n        for j = 0 to n-2:\n            if a[j] > a[j+1]:\n                swap(a[j], a[j+1])\n                swapped = true\n        n = n - 1    // 末尾已就位，缩短范围\n    until swapped == false\n\n如需，我可以给出某种语言的实现代码或更多变体说明。",
+          "refusal": null,
+          "annotations": []
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 24,
+      "completion_tokens": 1030,
+      "total_tokens": 1054,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "audio_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 512,
+        "audio_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    }
+  }
+  ```
+
+  ```json 400 theme={null}
+  {
+    "error": {
+      "code": 400,
+      "message": "請求參數無效",
+      "type": "invalid_request_error"
+    }
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "error": {
+      "code": 401,
+      "message": "身份驗證失敗，請檢查您的API金鑰",
+      "type": "authentication_error"
+    }
+  }
+  ```
+
+  ```json 402 theme={null}
+  {
+    "error": {
+      "code": 402,
+      "message": "帳戶餘額不足，請儲值後再試",
+      "type": "payment_required"
+    }
+  }
+  ```
+
+  ```json 403 theme={null}
+  {
+    "error": {
+      "code": 403,
+      "message": "存取被禁止，您沒有權限存取此資源",
+      "type": "permission_error"
+    }
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "error": {
+      "code": 429,
+      "message": "請求過於頻繁，請稍後再試",
+      "type": "rate_limit_error"
+    }
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "error": {
+      "code": 500,
+      "message": "伺服器內部錯誤，請稍後重試",
+      "type": "server_error"
+    }
+  }
+  ```
+
+  ```json 502 theme={null}
+  {
+    "error": {
+      "code": 502,
+      "message": "閘道錯誤，伺服器暫時不可用",
+      "type": "bad_gateway"
+    }
+  }
+  ```
+</ResponseExample>
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required>
+  所有介面均需要使用Bearer Token進行認證
+
+  取得 API Key：
+
+  存取 [API Key 管理頁面](https://ai.kaiho.cc/dashboard/keys) 取得您的 API Key
+
+  使用時在請求標頭中新增：
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## Body
+
+<ParamField body="model" type="string" required>
+  模型名稱
+
+  支援的模型包括：
+
+  * **OpenAI**: `gpt-5`, `gpt-5-chat-latest`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`
+  * **Anthropic**: `claude-sonnet-4-5-20250929`, `claude-opus-4-1-20250805`, `claude-haiku-4-5-20251001`, `claude-opus-4-1-20250805-thinking`, `claude-sonnet-4-5-20250929-thinking`
+  * **Google**: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-pro-thinking`, `gemini-2.5-flash-lite`,`gemini-3-pro-preview-thinking`,`gemini-3-pro-image-preview`,`gemini-3-pro-preview`
+  * **DeepSeek**: `deepseek-v3.1-250821`, `deepseek-v3.1-think-250821`, `deepseek-v3-0324`
+  * **Doubao**: `doubao-seed-1-6-251015`, `doubao-seed-1-6-flash-250828`, `doubao-seed-1-6-thinking-250715`
+  * **X.AI**: `grok-4.1`
+  * 更多模型持續更新中...
+</ParamField>
+
+<ParamField body="messages" type="array" required>
+  對話訊息列表
+
+  <Expandable title="訊息物件屬性">
+    <ParamField body="role" type="string" required>
+      角色類型：`system`（系統提示）、`user`（使用者輸入）、`assistant`（模型回覆）
+    </ParamField>
+
+    <ParamField body="content" type="string" required>
+      訊息內容，支援字串或多模態內容陣列
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  控制輸出隨機性，範圍 0-2
+
+  * 較低的值（如 0.2）使輸出更確定
+  * 較高的值（如 1.8）使輸出更隨機
+
+  預設值：1.0
+</ParamField>
+
+<ParamField body="max_tokens" type="integer">
+  生成的最大token數量
+
+  不同模型有不同的最大值限制，請參考具體模型文件
+</ParamField>
+
+<ParamField body="stream" type="boolean">
+  是否使用串流輸出
+
+  * `true`: 串流回傳（SSE格式）
+  * `false`: 一次性回傳完整回應
+
+  預設值：false
+</ParamField>
+
+<ParamField body="top_p" type="number">
+  核取樣參數，範圍 0-1
+
+  控制生成文字的多樣性，建議與 temperature 二選一使用
+
+  預設值：1.0
+</ParamField>
+
+<ParamField body="frequency_penalty" type="number">
+  頻率懲罰，範圍 -2.0 到 2.0
+
+  正值會降低重複使用相同詞彙的可能性
+
+  預設值：0
+</ParamField>
+
+<ParamField body="presence_penalty" type="number">
+  存在懲罰，範圍 -2.0 到 2.0
+
+  正值會增加談論新主題的可能性
+
+  預設值：0
+</ParamField>
+
+<ParamField body="stop" type="string or array">
+  停止序列
+
+  最多4個序列，遇到這些序列時將停止生成
+</ParamField>
+
+<ParamField body="n" type="integer">
+  生成的回覆數量
+
+  預設值：1
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  回應的唯一識別碼
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  物件類型，固定為 `chat.completion`
+</ResponseField>
+
+<ResponseField name="created" type="integer">
+  建立時間戳
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  實際使用的模型名稱
+</ResponseField>
+
+<ResponseField name="choices" type="array">
+  生成的回覆列表
+
+  <Expandable title="屬性">
+    <ResponseField name="index" type="integer">
+      選項索引
+    </ResponseField>
+
+    <ResponseField name="message" type="object">
+      訊息內容
+
+      <Expandable title="屬性">
+        <ResponseField name="role" type="string">
+          角色類型（assistant）
+        </ResponseField>
+
+        <ResponseField name="content" type="string">
+          生成的文字內容
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="logprobs" type="object">
+      對數機率資訊（預設為 null）
+    </ResponseField>
+
+    <ResponseField name="finish_reason" type="string">
+      結束原因
+
+      可能的值：
+
+      * `stop` - 自然結束
+      * `length` - 達到最大長度
+      * `content_filter` - 內容過濾
+      * `function_call` - 函式呼叫
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  token使用統計
+
+  <Expandable title="屬性">
+    <ResponseField name="prompt_tokens" type="integer">
+      輸入訊息的 token 數
+    </ResponseField>
+
+    <ResponseField name="completion_tokens" type="integer">
+      生成內容的 token 數
+    </ResponseField>
+
+    <ResponseField name="total_tokens" type="integer">
+      總 token 數
+    </ResponseField>
+
+    <ResponseField name="prompt_tokens_details" type="object">
+      輸入 token 詳細資訊
+
+      <Expandable title="屬性">
+        <ResponseField name="cached_tokens" type="integer">
+          快取的 token 數
+        </ResponseField>
+
+        <ResponseField name="text_tokens" type="integer">
+          文字 token 數
+        </ResponseField>
+
+        <ResponseField name="audio_tokens" type="integer">
+          音訊 token 數
+        </ResponseField>
+
+        <ResponseField name="image_tokens" type="integer">
+          圖像 token 數
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="completion_tokens_details" type="object">
+      生成 token 詳細資訊
+
+      <Expandable title="屬性">
+        <ResponseField name="text_tokens" type="integer">
+          文字 token 數
+        </ResponseField>
+
+        <ResponseField name="audio_tokens" type="integer">
+          音訊 token 數
+        </ResponseField>
+
+        <ResponseField name="reasoning_tokens" type="integer">
+          推理 token 數（思考模型專用）
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="system_fingerprint" type="string">
+  系統指紋標識（用於追蹤後端配置）
+</ResponseField>
+
+## 支援的模型列表
+
+### OpenAI 系列
+
+* `gpt-5` - GPT-5 基礎模型
+* `gpt-5-chat-latest` - GPT-5 最新對話版本
+* `gpt-5-mini` - GPT-5 輕量級版本，性價比高
+* `gpt-5-nano` - GPT-5 超輕量版本
+* `gpt-5-pro` - GPT-5 專業增強版
+
+
+###X.ai 系列
+* `grok-4.1` - Grok 4.1 快速回應版本
+
+
+
+### Anthropic 系列
+
+* `claude-haiku-4-5-20251001` - Claude 4.5 快速回應版本
+* `claude-sonnet-4-5-20250929` - Claude 4.5 平衡版本
+* `claude-opus-4-1-20250805` - 最強大的 Claude 4.1 旗艦模型
+* `claude-opus-4-1-20250805-thinking` - Claude 4.1 Opus 深度思考版
+* `claude-sonnet-4-5-20250929-thinking` - Claude 4.5 Sonnet 深度思考版
+
+### Google 系列
+
+* `gemini-2.5-flash` - Gemini 2.5 快速版
+* `gemini-2.5-pro` - Gemini 2.5 專業版
+* `gemini-2.5-flash-lite` - Gemini 2.5 超輕量版
+* `gemini-2.5-pro-thinking` - Gemini 2.5 Pro 深度思考版
+* `gemini-3-pro-preview-thinking` - Gemini 3 Pro 深度思考版
+* `gemini-3-pro-preview` - Gemini 3 Pro 深度思考版
+
+### DeepSeek 系列
+
+* `deepseek-v3.1-250821` - DeepSeek V3.1 基礎版
+* `deepseek-v3.1-think-250821` - DeepSeek V3.1 思考版
+* `deepseek-v3-0324` - DeepSeek V3 標準版
+
+### Doubao 系列
+
+* `doubao-seed-1-6-flash-250828` - Doubao Seed 1.6 快速版
+* `doubao-seed-1-6-thinking-250715` - Doubao Seed 1.6 思考版
+* `doubao-seed-1-6-251015` - Doubao Seed 1.6 標準版
+
+## 使用範例
+
+### 基礎對話
+
+```json  theme={null}
+{
+  "model": "gpt-5",
+  "messages": [
+    {"role": "user", "content": "你好"}
+  ]
+}
+```
+
+### 系統提示詞
+
+```json  theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "messages": [
+    {"role": "system", "content": "你是一位专业的Python编程导师"},
+    {"role": "user", "content": "如何使用列表推导式？"}
+  ]
+}
+```
+
+### 多輪對話
+
+```json  theme={null}
+{
+  "model": "gemini-2.5-flash",
+  "messages": [
+    {"role": "user", "content": "什么是机器学习？"},
+    {"role": "assistant", "content": "机器学习是人工智能的一个分支..."},
+    {"role": "user", "content": "能举个例子吗？"}
+  ]
+}
+```
+
+### 串流輸出
+
+```json  theme={null}
+{
+  "model": "gpt-5",
+  "messages": [
+    {"role": "user", "content": "写一首关于春天的诗"}
+  ],
+  "stream": true
+}
+```
+
+## 進階功能
+
+<Note>
+  本介面支援基礎的文字對話。如需使用以下進階功能，請參考：
+
+  - **圖片/影片分析** — [多模態回應介面](/zh-Hant/api-reference/text/openai-multimodal)
+  - **工具呼叫 (Function Calling)** — [多模態回應介面](/zh-Hant/api-reference/text/openai-multimodal)
+  - **網路搜尋、檔案搜尋** — [多模態回應介面](/zh-Hant/api-reference/text/openai-multimodal)
+  - **串流輸出** — [串流輸出指南](/zh-Hant/docs/streaming)
+</Note>

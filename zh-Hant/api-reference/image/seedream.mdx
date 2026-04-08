@@ -1,0 +1,320 @@
+---
+title: "Seedream 系列"
+description: "位元組跳動 Seedream 圖像生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同步處理模式 — 提交請求後回傳任務 ID，透過 [查詢任務狀態](/zh-Hant/api-reference/task/status) 介面取得生成結果。圖片連結有效期 24 小時，請及時儲存。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "seedream-5.0",
+    "action": "generate",
+    "prompt": "一只柴犬穿宇航服站在月球上",
+    "size": "16:9",
+    "resolution": "2K",
+    "watermark": false
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "seedream-5.0",
+        "action": "generate",
+        "prompt": "一只柴犬穿宇航服站在月球上",
+        "size": "16:9",
+        "resolution": "2K",
+        "watermark": False
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"任務已提交: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'seedream-5.0',
+    action: 'generate',
+    prompt: '一只柴犬穿宇航服站在月球上',
+    size: '16:9',
+    resolution: '2K',
+    watermark: false
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`任務已提交: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "seedream-5.0",
+        "action":     "generate",
+        "prompt":     "一只柴犬穿宇航服站在月球上",
+        "size":       "16:9",
+        "resolution": "2K",
+        "watermark":  false,
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "seedream-5.0",
+          "action": "generate",
+          "prompt": "一只柴犬穿宇航服站在月球上",
+          "size": "16:9",
+          "resolution": "2K",
+          "watermark": false
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "seedream-5.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 說明 |
+|---------|------|
+| `seedream-5.0` | Seedream 5.0，支援組圖、聯網搜尋、串流輸出 |
+| `seedream-4.5` | Seedream 4.5，支援組圖、4K 解析度 |
+| `seedream-4.0` | Seedream 4.0，支援組圖、1K~4K 解析度 |
+
+## 統一參數
+
+<ParamField body="model" type="string" required>
+  模型組名稱：`seedream-5.0`、`seedream-4.5`、`seedream-4.0`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作類型
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  文字提示詞，支援中英文，建議不超過 300 個漢字
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  參考圖片 URL 陣列，最多 14 張，每張不超過 10MB
+</ParamField>
+
+<ParamField body="size" type="string" default="1:1">
+  寬高比：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`9:16`、`16:9`、`21:9`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="2K">
+  解析度，可選值取決於模型，見各模型 Tab
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成數量，大於 1 時啟用組圖模式
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="true">
+  是否新增浮水印
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  任務完成時的 Webhook 回呼位址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  透傳給上游的額外參數，詳見各模型 Tab
+</ParamField>
+
+## 模型特定參數
+
+<Tabs>
+  <Tab title="Seedream 5.0">
+    **resolution 可選值：** `2K`、`3K`
+
+    **size 額外支援：** `4:5`、`5:4`
+
+    <ParamField body="extra.output_format" type="string" default="jpeg">
+      輸出圖片格式：`png`、`jpeg`
+    </ParamField>
+
+    <ParamField body="extra.response_format" type="string" default="url">
+      回傳格式：`url`（下載連結）或 `b64_json`（Base64）
+    </ParamField>
+
+    <ParamField body="extra.stream" type="boolean" default="false">
+      串流輸出，即時回傳每張圖片結果
+    </ParamField>
+
+    <ParamField body="extra.optimize_prompt_options" type="object">
+      提示詞最佳化配置
+
+      <Expandable title="屬性">
+        <ParamField body="mode" type="string" default="standard">
+          - `standard` — 品質更高，耗時較長
+          - `fast` — 耗時更短，品質一般（5.0 暫不支援）
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="extra.tools" type="array">
+      模型工具，支援聯網搜尋提升時效性
+
+      ```json
+      "extra": { "tools": [{"type": "web_search"}] }
+      ```
+    </ParamField>
+  </Tab>
+
+  <Tab title="Seedream 4.5">
+    **resolution 可選值：** `2K`、`4K`
+
+    <ParamField body="extra.response_format" type="string" default="url">
+      回傳格式：`url` 或 `b64_json`
+    </ParamField>
+
+    <ParamField body="extra.stream" type="boolean" default="false">
+      串流輸出
+    </ParamField>
+
+    <ParamField body="extra.optimize_prompt_options" type="object">
+      提示詞最佳化
+
+      <Expandable title="屬性">
+        <ParamField body="mode" type="string" default="standard">
+          `standard` 或 `fast`
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+
+  <Tab title="Seedream 4.0">
+    **resolution 可選值：** `1K`、`2K`、`4K`
+
+    <ParamField body="extra.guidance_scale" type="float" default="2.5">
+      文字權重，值越大與提示詞相關性越強，範圍 [1, 10]
+    </ParamField>
+
+    <ParamField body="extra.response_format" type="string" default="url">
+      回傳格式：`url` 或 `b64_json`
+    </ParamField>
+
+    <ParamField body="extra.stream" type="boolean" default="false">
+      串流輸出
+    </ParamField>
+
+    <ParamField body="extra.optimize_prompt_options" type="object">
+      提示詞最佳化
+
+      <Expandable title="屬性">
+        <ParamField body="mode" type="string" default="standard">
+          `standard` 或 `fast`
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 生成模式
+
+| 模式 | 參數 | 說明 |
+|------|------|------|
+| 文生圖 | `prompt` | 純文字生成 |
+| 單圖生圖 | `prompt` + `image_urls`(1張) | 參考圖 + 文字 |
+| 多圖生圖 | `prompt` + `image_urls`(2-14張) | 多張參考圖融合 |
+| 組圖 | `n > 1` | 生成一組關聯圖片 |
+
+<Note>
+組圖模式下，輸入參考圖數量 + 生成圖片數量 ≤ 15。
+</Note>
+
+## 回應
+
+<ResponseField name="task_id" type="string">
+  任務 ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作類型
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任務狀態：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  建立時間（Unix 毫秒時間戳）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進度，初始為 `0`
+</ResponseField>

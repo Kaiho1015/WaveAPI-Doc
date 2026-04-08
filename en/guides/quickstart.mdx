@@ -3,98 +3,87 @@ title: "Quick Start"
 description: "Get started with WaveAPI in 5 minutes"
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
-Before you begin, you'll need:
-
-- A WaveAPI account
-- An API key (obtain from the [Dashboard](https://ai.kaiho.cc/token))
+- A WaveAPI account ([Sign up](https://ai.kaiho.cc/login))
+- An API key
 - Basic programming knowledge
 
-## 1️⃣ Get Your API Key
+## Obtain an API Key
 
 <Steps>
-  <Step title="Login to Console">
-    Visit [WaveAPI Dashboard](https://ai.kaiho.cc/token) and log in
+  <Step title="Log in to the Console">
+    Visit the [Dashboard](https://ai.kaiho.cc/dashboard/keys) and log in
   </Step>
-  <Step title="Generate Key">
-    Click "Create New Key" on the API Key Management page
+  <Step title="Create a Key">
+    Click "Create New Key" on the key management page
   </Step>
   <Step title="Save Your Key">
-    Copy and securely save your API key
+    Copy and securely store your API key — it is only displayed once
   </Step>
 </Steps>
 
 <Warning>
-  **Security Note:** Never expose your API key in public code or on the client side
+Do not expose your API key in front-end code or public repositories.
 </Warning>
 
-## 2️⃣ Make Your First Request
+## Send Your First Request
 
-### Using cURL
+WaveAPI is fully compatible with the OpenAI SDK — simply replace the `base_url` to get started.
 
-```bash
-curl https://ai.kaiho.cc/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "gpt-4o",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Hello, please introduce yourself"
-      }
-    ]
-  }'
-```
+<CodeGroup>
 
-### Using Python
+```python Python
+from openai import OpenAI
 
-```python
-import openai
-
-client = openai.OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="https://ai.kaiho.cc/v1"
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
 )
 
 response = client.chat.completions.create(
     model="gpt-4o",
     messages=[
-        {"role": "user", "content": "Hello, please introduce yourself"}
+        {"role": "user", "content": "你好，介绍一下你自己"}
     ]
 )
 
 print(response.choices[0].message.content)
 ```
 
-### Using JavaScript/Node.js
-
-```javascript
+```javascript JavaScript
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: 'YOUR_API_KEY',
-  baseURL: 'https://ai.kaiho.cc/v1'
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
 });
 
-async function main() {
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'user', content: 'Hello, please introduce yourself' }
-    ]
-  });
-  
-  console.log(response.choices[0].message.content);
-}
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [
+    { role: 'user', content: '你好，介绍一下你自己' }
+  ]
+});
 
-main();
+console.log(response.choices[0].message.content);
 ```
 
-## 3️⃣ Understanding the Response
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "你好，介绍一下你自己"}
+    ]
+  }'
+```
 
-A successful response looks like this:
+</CodeGroup>
+
+## Understanding the Response
 
 ```json
 {
@@ -106,7 +95,7 @@ A successful response looks like this:
     "index": 0,
     "message": {
       "role": "assistant",
-      "content": "Hello! I'm an AI assistant..."
+      "content": "你好！我是一个 AI 助手..."
     },
     "finish_reason": "stop"
   }],
@@ -118,49 +107,19 @@ A successful response looks like this:
 }
 ```
 
-## 4️⃣ Explore More Features
+## Next Steps
 
 <CardGroup cols={2}>
-  <Card
-    title="Text Generation API"
-    icon="comments"
-    href="/en/api-manual/text/general-chat"
-  >
-    Learn about complete Chat API parameters and options
+  <Card title="Authentication & Keys" href="/en/docs/authentication">
+    Learn about authentication methods and key management
   </Card>
-  <Card
-    title="Image Generation API"
-    icon="image"
-    href="/en/api-manual/image/gpt4o-image"
-  >
-    Generate images with AI
+  <Card title="Sync & Async" href="/en/docs/sync-async">
+    Understand different endpoint calling patterns
   </Card>
-  <Card
-    title="Video Generation API"
-    icon="video"
-    href="/en/api-manual/video/sora2"
-  >
-    Create AI video content
+  <Card title="Text Generation API" href="/en/api-reference/text/general-chat">
+    Complete chat API parameters and options
   </Card>
-  <Card
-    title="Task Management"
-    icon="tasks"
-    href="/en/api-manual/task/get-status"
-  >
-    Manage async generation tasks
+  <Card title="Task System" href="/en/docs/task-system">
+    Async generation workflow for images and videos
   </Card>
 </CardGroup>
-
-## 📚 Next Steps
-
-- Check the [API Manual](/en/api-manual/text/general-chat) to learn about all available models and parameters
-- Join our [Discord Community](https://discord.gg/your_invite_code) to connect with other developers
-- Visit [GitHub](https://github.com/Kaiho1015) for example code
-
-<Tip>
-  **Tip:** All APIs are compatible with OpenAI SDK, so you can use your existing OpenAI integration code directly!
-</Tip>
-
-
-
-

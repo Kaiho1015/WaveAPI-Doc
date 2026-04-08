@@ -1,0 +1,44 @@
+---
+title: "Request & Response Format"
+description: "Common request headers, response structures, and error codes"
+---
+
+## Request Format
+
+All requests use JSON format and require the following headers:
+
+```bash
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Success Response
+
+Response structures vary by endpoint, but each follows its respective API specification:
+
+- **Chat Completions** — OpenAI standard response format
+- **Claude Messages** — Anthropic standard response format
+- **Gemini** — Google standard response format
+- **Async Tasks** — WaveAPI unified task response format
+
+## Error Response
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_request",
+    "message": "Specific error description"
+  }
+}
+```
+
+## Error Codes
+
+| Status Code | Description | How to Handle |
+|-------------|-------------|---------------|
+| 400 | Invalid request parameters | Check request parameter format |
+| 401 | Authentication failed | Verify your API key is correct |
+| 402 | Insufficient balance | Top up your account |
+| 429 | Rate limit exceeded | Reduce request frequency |
+| 500 | Internal server error | Retry later |

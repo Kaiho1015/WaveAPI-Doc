@@ -3,98 +3,87 @@ title: "快速開始"
 description: "5 分鐘快速上手 WaveAPI"
 ---
 
-## 📋 前置要求
+## 前置要求
 
-在開始之前，您需要：
-
-- 一個 WaveAPI 帳戶
-- API 金鑰（在 [Dashboard](https://ai.kaiho.cc/token) 中取得）
+- 一個 WaveAPI 帳戶（[註冊](https://ai.kaiho.cc/login)）
+- API 金鑰
 - 基礎的程式設計知識
 
-## 1️⃣ 取得 API 金鑰
+## 取得 API 金鑰
 
 <Steps>
   <Step title="登入控制台">
-    造訪 [WaveAPI Dashboard](https://ai.kaiho.cc/token) 並登入
+    存取 [Dashboard](https://ai.kaiho.cc/dashboard/keys) 並登入
   </Step>
-  <Step title="生成金鑰">
-    在 API 金鑰管理頁面點擊「建立新金鑰」
+  <Step title="建立金鑰">
+    在金鑰管理頁面點擊「建立新金鑰」
   </Step>
   <Step title="儲存金鑰">
-    複製並安全儲存您的 API 金鑰
+    複製並安全儲存你的 API 金鑰，金鑰只顯示一次
   </Step>
 </Steps>
 
 <Warning>
-  **安全提示：** 請勿在公開程式碼或客戶端中暴露您的 API 金鑰
+請勿在前端程式碼或公開儲存庫中暴露 API Key。
 </Warning>
 
-## 2️⃣ 發送第一個請求
+## 傳送第一個請求
 
-### 使用 cURL
+WaveAPI 完全相容 OpenAI SDK，只需替換 `base_url` 即可使用。
 
-```bash
-curl https://ai.kaiho.cc/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "gpt-4o",
-    "messages": [
-      {
-        "role": "user",
-        "content": "你好，介紹一下你自己"
-      }
-    ]
-  }'
-```
+<CodeGroup>
 
-### 使用 Python
+```python Python
+from openai import OpenAI
 
-```python
-import openai
-
-client = openai.OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="https://ai.kaiho.cc/v1"
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
 )
 
 response = client.chat.completions.create(
     model="gpt-4o",
     messages=[
-        {"role": "user", "content": "你好，介紹一下你自己"}
+        {"role": "user", "content": "你好，介绍一下你自己"}
     ]
 )
 
 print(response.choices[0].message.content)
 ```
 
-### 使用 JavaScript/Node.js
-
-```javascript
+```javascript JavaScript
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: 'YOUR_API_KEY',
-  baseURL: 'https://ai.kaiho.cc/v1'
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
 });
 
-async function main() {
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'user', content: '你好，介紹一下你自己' }
-    ]
-  });
-  
-  console.log(response.choices[0].message.content);
-}
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [
+    { role: 'user', content: '你好，介绍一下你自己' }
+  ]
+});
 
-main();
+console.log(response.choices[0].message.content);
 ```
 
-## 3️⃣ 理解回應
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "你好，介绍一下你自己"}
+    ]
+  }'
+```
 
-成功的回應格式如下：
+</CodeGroup>
+
+## 理解回應
 
 ```json
 {
@@ -106,7 +95,7 @@ main();
     "index": 0,
     "message": {
       "role": "assistant",
-      "content": "你好！我是一個 AI 助手..."
+      "content": "你好！我是一个 AI 助手..."
     },
     "finish_reason": "stop"
   }],
@@ -118,46 +107,19 @@ main();
 }
 ```
 
-## 4️⃣ 探索更多功能
+## 下一步
 
 <CardGroup cols={2}>
-  <Card
-    title="文字生成 API"
-    icon="comments"
-    href="/zh-Hant/api-manual/text/general-chat"
-  >
-    了解完整的聊天 API 參數和選項
+  <Card title="認證與金鑰" href="/zh-Hant/docs/authentication">
+    了解認證方式和金鑰管理
   </Card>
-  <Card
-    title="圖像生成 API"
-    icon="image"
-    href="/zh-Hant/api-manual/image/gpt4o-image"
-  >
-    使用 AI 生成圖像
+  <Card title="同步與非同步" href="/zh-Hant/docs/sync-async">
+    了解不同端點的呼叫方式
   </Card>
-  <Card
-    title="影片生成 API"
-    icon="video"
-    href="/zh-Hant/api-manual/video/sora2"
-  >
-    建立 AI 影片內容
+  <Card title="文字生成 API" href="/zh-Hant/api-reference/text/general-chat">
+    完整的聊天 API 參數和選項
   </Card>
-  <Card
-    title="任務管理"
-    icon="tasks"
-    href="/zh-Hant/api-manual/task/get-status"
-  >
-    管理非同步生成任務
+  <Card title="任務系統" href="/zh-Hant/docs/task-system">
+    圖像和影片的非同步生成流程
   </Card>
 </CardGroup>
-
-## 📚 下一步
-
-- 查看 [API 手冊](/zh-Hant/api-manual/text/general-chat) 了解所有可用的模型和參數
-- 加入 [Discord 社群](https://discord.gg/你的邀請碼) 與其他開發者交流
-- 造訪 [GitHub](https://github.com/Kaiho1015) 查看範例程式碼
-
-<Tip>
-  **提示：** 所有 API 都相容 OpenAI SDK，您可以直接使用現有的 OpenAI 整合程式碼！
-</Tip>
-

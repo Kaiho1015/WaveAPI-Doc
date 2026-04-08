@@ -1,0 +1,178 @@
+---
+title: "Text Embeddings"
+description: "Convert text into vector representations"
+api: "POST https://ai.kaiho.cc/v1/embeddings"
+---
+
+Synchronous endpoint -- returns vector results directly upon completion.
+
+<RequestExample>
+```bash cURL
+curl https://ai.kaiho.cc/v1/embeddings \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "WaveAPI 是统一的 AI 模型网关"
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="WaveAPI 是统一的 AI 模型网关"
+)
+
+vector = response.data[0].embedding
+print(f"Vector dimensions: {len(vector)}")
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.embeddings.create({
+  model: 'text-embedding-3-small',
+  input: 'WaveAPI 是统一的 AI 模型网关'
+});
+
+console.log(`Vector dimensions: ${response.data[0].embedding.length}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]string{
+        "model": "text-embedding-3-small",
+        "input": "WaveAPI 是统一的 AI 模型网关",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/embeddings", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "text-embedding-3-small",
+          "input": "WaveAPI 是统一的 AI 模型网关"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/embeddings"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "object": "list",
+  "model": "text-embedding-3-small",
+  "data": [
+    {
+      "object": "embedding",
+      "index": 0,
+      "embedding": [0.0023, -0.0091, 0.0152, ...]
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 8,
+    "total_tokens": 8
+  }
+}
+```
+</ResponseExample>
+
+## Request Parameters
+
+<ParamField body="model" type="string" required>
+  Embedding model ID, e.g., `text-embedding-3-small`, `text-embedding-3-large`
+</ParamField>
+
+<ParamField body="input" type="string or array" required>
+  Text to embed, supports a string or string array (batch embedding)
+</ParamField>
+
+## Response
+
+<ResponseField name="object" type="string">
+  Always `"list"`
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model used
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Embedding results array
+
+  <Expandable title="Properties">
+    <ResponseField name="object" type="string">
+      Always `"embedding"`
+    </ResponseField>
+    <ResponseField name="index" type="integer">
+      Index of the input text
+    </ResponseField>
+    <ResponseField name="embedding" type="array">
+      Floating-point vector
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token usage
+
+  <Expandable title="Properties">
+    <ResponseField name="prompt_tokens" type="integer">
+      Number of input tokens
+    </ResponseField>
+    <ResponseField name="total_tokens" type="integer">
+      Total token count
+    </ResponseField>
+  </Expandable>
+</ResponseField>

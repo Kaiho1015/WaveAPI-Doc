@@ -1,0 +1,50 @@
+---
+title: "Sync & Async"
+description: "Understanding WaveAPI synchronous endpoints and the async task system"
+---
+
+## Overview
+
+WaveAPI endpoints fall into two categories:
+
+<CardGroup cols={2}>
+  <Card title="Synchronous Endpoints" icon="bolt">
+    The request blocks until completion and returns the result directly. Suitable for fast tasks such as text generation and speech synthesis.
+  </Card>
+  <Card title="Asynchronous Tasks" icon="clock-rotate-left">
+    The request returns a task_id immediately. Retrieve results via polling or webhook. Suitable for time-consuming tasks such as image and video generation.
+  </Card>
+</CardGroup>
+
+## Synchronous Endpoints
+
+The following endpoints operate in synchronous mode, returning results upon completion:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `/v1/chat/completions` | Text generation (OpenAI compatible) |
+| `/v1/messages` | Text generation (Claude native) |
+| `/v1/beta/models/{model}:generateContent` | Text generation (Gemini native) |
+| `/v1/audio/speech` | TTS text-to-speech |
+| `/v1/audio/transcriptions` | STT speech recognition |
+| `/v1/images/generations` | Synchronous image generation |
+| `/v1/embeddings` | Text embeddings |
+| `/v1/responses` | OpenAI Responses API |
+
+## Asynchronous Task Endpoints
+
+Image and video generation use a unified async task system:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /v1/tasks` | Submit an async task; returns a task_id immediately |
+| `POST /v1/tasks/sync` | Submit and wait for completion (falls back to polling on timeout) |
+| `GET /v1/tasks/{task_id}` | Query task status and results |
+| `POST /v1/tasks/{task_id}/cancel` | Cancel a queued task |
+
+## How to Choose
+
+- **Text conversations** — Use synchronous endpoints with streaming support (SSE)
+- **Image generation** — Use `/v1/images/generations` for simple cases, or `/v1/tasks` for advanced scenarios
+- **Video generation** — Must use `/v1/tasks` (long processing time)
+- **Callback notifications** — Use `/v1/tasks` with `callback_url`

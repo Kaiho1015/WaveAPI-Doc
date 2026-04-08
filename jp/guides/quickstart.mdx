@@ -1,100 +1,89 @@
 ---
 title: "クイックスタート"
-description: "5分で WaveAPI を使い始める"
+description: "5分で WaveAPI を始めましょう"
 ---
 
-## 📋 前提条件
+## 前提条件
 
-始める前に、以下が必要です：
-
-- WaveAPI アカウント
-- API キー（[ダッシュボード](https://ai.kaiho.cc/token)から取得）
+- WaveAPI アカウント（[登録](https://ai.kaiho.cc/login)）
+- API キー
 - 基本的なプログラミング知識
 
-## 1️⃣ API キーを取得
+## API キーの取得
 
 <Steps>
   <Step title="コンソールにログイン">
-    [WaveAPI Dashboard](https://ai.kaiho.cc/token) にアクセスしてログイン
+    [Dashboard](https://ai.kaiho.cc/dashboard/keys) にアクセスしてログインしてください
   </Step>
-  <Step title="キーを生成">
-    API キー管理ページで「新しいキーを作成」をクリック
+  <Step title="キーの作成">
+    キー管理ページで「新しいキーを作成」をクリックしてください
   </Step>
-  <Step title="キーを保存">
-    API キーをコピーして安全に保存
+  <Step title="キーの保存">
+    API キーをコピーして安全に保存してください。キーは一度しか表示されません
   </Step>
 </Steps>
 
 <Warning>
-  **セキュリティ注意：** 公開コードやクライアント側で API キーを露出しないでください
+フロントエンドのコードや公開リポジトリで API Key を公開しないでください。
 </Warning>
 
-## 2️⃣ 最初のリクエストを送信
+## 最初のリクエストを送信
 
-### cURL を使用
+WaveAPI は OpenAI SDK と完全に互換性があり、`base_url` を置き換えるだけで利用できます。
 
-```bash
-curl https://ai.kaiho.cc/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "gpt-4o",
-    "messages": [
-      {
-        "role": "user",
-        "content": "こんにちは、自己紹介してください"
-      }
-    ]
-  }'
-```
+<CodeGroup>
 
-### Python を使用
+```python Python
+from openai import OpenAI
 
-```python
-import openai
-
-client = openai.OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="https://ai.kaiho.cc/v1"
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
 )
 
 response = client.chat.completions.create(
     model="gpt-4o",
     messages=[
-        {"role": "user", "content": "こんにちは、自己紹介してください"}
+        {"role": "user", "content": "你好，介绍一下你自己"}
     ]
 )
 
 print(response.choices[0].message.content)
 ```
 
-### JavaScript/Node.js を使用
-
-```javascript
+```javascript JavaScript
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: 'YOUR_API_KEY',
-  baseURL: 'https://ai.kaiho.cc/v1'
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
 });
 
-async function main() {
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'user', content: 'こんにちは、自己紹介してください' }
-    ]
-  });
-  
-  console.log(response.choices[0].message.content);
-}
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [
+    { role: 'user', content: '你好，介绍一下你自己' }
+  ]
+});
 
-main();
+console.log(response.choices[0].message.content);
 ```
 
-## 3️⃣ レスポンスを理解する
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "你好，介绍一下你自己"}
+    ]
+  }'
+```
 
-成功したレスポンスの形式は以下のとおりです：
+</CodeGroup>
+
+## レスポンスの理解
 
 ```json
 {
@@ -106,7 +95,7 @@ main();
     "index": 0,
     "message": {
       "role": "assistant",
-      "content": "こんにちは！私は AI アシスタントです..."
+      "content": "你好！我是一个 AI 助手..."
     },
     "finish_reason": "stop"
   }],
@@ -118,46 +107,19 @@ main();
 }
 ```
 
-## 4️⃣ さらに機能を探索
+## 次のステップ
 
 <CardGroup cols={2}>
-  <Card
-    title="テキスト生成 API"
-    icon="comments"
-    href="/jp/api-manual/text/general-chat"
-  >
-    完全なチャット API のパラメータとオプションを学ぶ
+  <Card title="認証とキー" href="/jp/docs/authentication">
+    認証方式とキー管理について
   </Card>
-  <Card
-    title="画像生成 API"
-    icon="image"
-    href="/jp/api-manual/image/gpt4o-image"
-  >
-    AI で画像を生成
+  <Card title="同期と非同期" href="/jp/docs/sync-async">
+    各エンドポイントの呼び出し方式について
   </Card>
-  <Card
-    title="動画生成 API"
-    icon="video"
-    href="/jp/api-manual/video/sora2"
-  >
-    AI 動画コンテンツを作成
+  <Card title="テキスト生成 API" href="/jp/api-reference/text/general-chat">
+    チャット API の完全なパラメータとオプション
   </Card>
-  <Card
-    title="タスク管理"
-    icon="tasks"
-    href="/jp/api-manual/task/get-status"
-  >
-    非同期生成タスクを管理
+  <Card title="タスクシステム" href="/jp/docs/task-system">
+    画像・動画の非同期生成フロー
   </Card>
 </CardGroup>
-
-## 📚 次のステップ
-
-- [API マニュアル](/jp/api-manual/text/general-chat) で利用可能なすべてのモデルとパラメータを確認
-- [Discord コミュニティ](https://discord.gg/你的邀请码) に参加して他の開発者と交流
-- [GitHub](https://github.com/Kaiho1015) でサンプルコードを確認
-
-<Tip>
-  **ヒント：** すべての API は OpenAI SDK と互換性があるため、既存の OpenAI 統合コードを直接使用できます！
-</Tip>
-

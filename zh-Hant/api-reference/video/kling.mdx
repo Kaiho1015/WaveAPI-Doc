@@ -1,0 +1,340 @@
+---
+title: "可靈 Kling 系列"
+description: "快手可靈影片生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同步處理模式 — 提交請求後回傳任務 ID，透過 [查詢任務狀態](/zh-Hant/api-reference/task/status) 介面取得生成結果。影片連結有效期 24 小時。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v2-master",
+    "action": "generate",
+    "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "extra": {
+      "mode": "pro"
+    }
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "kling-v2-master",
+        "action": "generate",
+        "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "extra": {
+            "mode": "pro"
+        }
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"任務已提交: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'kling-v2-master',
+    action: 'generate',
+    prompt: '一条锦鲤在清澈的池塘中游动，水面波光粼粼',
+    aspect_ratio: '16:9',
+    duration: 5,
+    extra: {
+      mode: 'pro'
+    }
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`任務已提交: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "kling-v2-master",
+        "action":       "generate",
+        "prompt":       "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+        "extra": map[string]interface{}{
+            "mode": "pro",
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "kling-v2-master",
+          "action": "generate",
+          "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+          "aspect_ratio": "16:9",
+          "duration": 5,
+          "extra": {
+            "mode": "pro"
+          }
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "kling-v2-master",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 說明 |
+|---------|------|
+| `kling-v3` | 可靈 V3，支援 3-15 秒、多鏡頭、原生音訊 |
+| `kling-v2-master` | 可靈 V2 Master |
+| `kling-v1-6` | 可靈 V1.6，支援鏡頭控制 |
+| `kling-v1` | 可靈 V1 |
+
+## 統一參數
+
+<ParamField body="model" type="string" required>
+  模型 ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作類型
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  影片描述文字，最多 2500 字元
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  寬高比：`16:9`、`9:16`、`1:1`
+
+  圖生影片時忽略此參數，寬高比由輸入圖片決定
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  影片時長（秒）：`5`、`10`
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  不希望出現的內容，最多 2500 字元。僅 V1 / V1.6 支援
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  參考圖片 URL（首幀），用於圖生影片。JPEG/PNG/WebP，≤ 10MB
+</ParamField>
+
+<ParamField body="last_frame" type="string">
+  尾幀圖片 URL，需配合 `image_urls` 使用
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回呼位址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  透傳給可靈的額外參數，詳見各模型 Tab
+</ParamField>
+
+## 模型特定參數
+
+<Tabs>
+  <Tab title="Kling V3">
+    **duration 範圍：** 3-15 秒
+
+    <ParamField body="extra.mode" type="string" default="std">
+      生成模式：`std`（720P）或 `pro`（1080P）
+    </ParamField>
+
+    <ParamField body="extra.enable_audio" type="boolean" default="true">
+      原生音訊生成，預設開啟
+    </ParamField>
+
+    **多鏡頭模式：**
+
+    支援 2-6 個鏡頭分段生成，使用 `shot_N_prompt` + `shot_N_duration` 替代 `prompt` + `duration`：
+
+    ```json
+    "extra": {
+      "shot_1_prompt": "特写：一杯咖啡在桌上冒着热气",
+      "shot_1_duration": 5,
+      "shot_2_prompt": "镜头拉远，展示整个咖啡馆的场景",
+      "shot_2_duration": 5
+    }
+    ```
+
+    各鏡頭 duration 總和須在 3-15 秒範圍內。
+  </Tab>
+
+  <Tab title="Kling V2 Master">
+    <ParamField body="extra.mode" type="string" default="std">
+      生成模式：`std`（720P，更快）或 `pro`（1080P，更高畫質）
+    </ParamField>
+
+    <Note>
+    V2 不支援 `negative_prompt`、`cfg_scale` 和 `camera_control`。
+    </Note>
+  </Tab>
+
+  <Tab title="Kling V1.6">
+    <ParamField body="extra.mode" type="string" default="std">
+      生成模式：`std` 或 `pro`
+    </ParamField>
+
+    <ParamField body="extra.cfg_scale" type="number" default="0.5">
+      創意度控制，範圍 0-1。值越高越貼近提示詞
+    </ParamField>
+
+    <ParamField body="extra.camera_control" type="object">
+      鏡頭運動控制
+
+      <Expandable title="預設模式">
+        `type` 可選值：`down_back`（下降後退）、`forward_up`（前進上升）、`right_turn_forward`（右轉前進）、`left_turn_forward`（左轉前進）
+      </Expandable>
+
+      <Expandable title="自訂模式">
+        設定 `type: "simple"`，透過 `config` 精確控制六軸運動（範圍 -10 ~ 10）：
+
+        - `horizontal` — X 平移，負值左移，正值右移
+        - `vertical` — Y 平移，負值下移，正值上移
+        - `pan` — X 旋轉，負值下轉，正值上轉
+        - `tilt` — Y 旋轉，負值左轉，正值右轉
+        - `roll` — Z 旋轉，負值逆時針，正值順時針
+        - `zoom` — 焦距，負值拉近，正值拉遠
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="extra.static_mask" type="string">
+      靜態遮罩圖片 URL（PNG），定義不運動的區域。僅圖生影片可用
+    </ParamField>
+
+    <ParamField body="extra.dynamic_masks" type="array">
+      動態遮罩陣列（最多 6 個），定義按軌跡運動的區域。僅圖生影片可用
+
+      <Expandable title="屬性">
+        <ParamField body="mask_url" type="string">
+          遮罩圖片 URL（PNG with alpha）
+        </ParamField>
+        <ParamField body="trajectories" type="array">
+          軌跡座標點陣列，每個點包含 x 和 y 座標，2-77 個點
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+
+  <Tab title="Kling V1">
+    <ParamField body="extra.mode" type="string" default="std">
+      生成模式：`std` 或 `pro`
+    </ParamField>
+
+    <ParamField body="extra.cfg_scale" type="number" default="0.5">
+      創意度控制，範圍 0-1
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 生成模式
+
+| 模式 | 參數 | 說明 |
+|------|------|------|
+| 文生影片 | `prompt` | 純文字生成 |
+| 圖生影片 | `prompt` + `image_urls`(1張) | 首幀圖 + 文字描述 |
+| 首尾幀 | `image_urls`(1張) + `last_frame` | 起止畫面過渡 |
+
+<Note>
+圖生影片時 `aspect_ratio` 由輸入圖片決定，無需指定。
+</Note>
+
+## 回應
+
+<ResponseField name="task_id" type="string">
+  任務 ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作類型
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任務狀態：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  建立時間（Unix 毫秒時間戳）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進度，初始為 `0`
+</ResponseField>

@@ -1,0 +1,55 @@
+---
+title: "Synchronous Wait"
+description: "POST /v1/tasks/sync -- Submit a task and wait for completion"
+---
+
+## Endpoint
+
+```
+POST https://ai.kaiho.cc/v1/tasks/sync
+```
+
+Submit a task and block until the result is ready. If the task completes within the timeout period, the result is returned directly; otherwise a `poll_url` is returned for continued polling.
+
+## Request Parameters
+
+Same as `POST /v1/tasks`.
+
+## Response
+
+### Completed Within Timeout
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "gpt-4o-image",
+  "status": "completed",
+  "created_at": 1720000000,
+  "completed_at": 1720000010,
+  "progress": 100,
+  "result": {
+    "images": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+### Timeout Exceeded
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "processing",
+  "progress": 45,
+  "poll_url": "/v1/tasks/task_xxx"
+}
+```
+
+After receiving a `poll_url`, continue polling with `GET /v1/tasks/{task_id}`.
+
+## Use Cases
+
+- Image generation and other tasks that complete relatively quickly
+- Simple scenarios where you prefer not to implement polling logic
+- Prototyping and testing

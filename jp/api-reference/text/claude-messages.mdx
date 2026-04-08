@@ -1,0 +1,454 @@
+---
+title: "Claude メッセージインターフェース"
+api: "POST https://ai.kaiho.cc/v1/messages"
+---
+
+- Claude Messages API フォーマットと完全互換
+- マルチターン対話および単発クエリに対応
+- テキスト、画像などのマルチモーダルコンテンツに対応
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/messages \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-sonnet-4-5-20250929",
+    "max_tokens": 1024,
+    "system": "你是一个专业的AI助手。",
+    "messages": [
+      {
+        "role": "user",
+        "content": "解释一下冒泡排序算法。"
+      }
+    ]
+  }'
+```
+
+```python Python
+import anthropic
+
+client = anthropic.Anthropic(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+message = client.messages.create(
+    model="claude-sonnet-4-5-20250929",
+    max_tokens=1024,
+    system="你是一个专业的AI助手。",
+    messages=[
+        {"role": "user", "content": "解释一下冒泡排序算法。"}
+    ]
+)
+
+print(message.content[0].text)
+```
+
+```javascript JavaScript
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const message = await client.messages.create({
+  model: 'claude-sonnet-4-5-20250929',
+  max_tokens: 1024,
+  system: '你是一个专业的AI助手。',
+  messages: [
+    { role: 'user', content: '解释一下冒泡排序算法。' }
+  ]
+});
+
+console.log(message.content[0].text);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "claude-sonnet-4-5-20250929",
+        "max_tokens": 1024,
+        "system":     "你是一个专业的AI助手。",
+        "messages": []map[string]string{
+            {"role": "user", "content": "解释一下冒泡排序算法。"},
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/messages", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("anthropic-version", "2023-06-01")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "claude-sonnet-4-5-20250929",
+          "max_tokens": 1024,
+          "system": "你是一个专业的AI助手。",
+          "messages": [
+            {"role": "user", "content": "解释一下冒泡排序算法。"}
+          ]
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/messages"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .header("anthropic-version", "2023-06-01")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "id": "msg_013Zva2CMHLNnXjNJJKqJ2EF",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+        "text": "你好！我是Claude。很高兴见到你。"
+    }
+  ],
+    "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "end_turn",
+    "stop_sequence": null,
+  "usage": {
+      "input_tokens": 12,
+      "output_tokens": 18
+  }
+}
+```
+
+  ```json 400 theme={null}
+  {
+    "error": {
+      "code": 400,
+      "message": "リクエストパラメータが無効です",
+      "type": "invalid_request_error"
+    }
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "error": {
+      "code": 401,
+      "message": "認証に失敗しました。API キーを確認してください",
+      "type": "authentication_error"
+    }
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "error": {
+      "code": 429,
+      "message": "リクエストが多すぎます。しばらく後にお試しください",
+      "type": "rate_limit_error"
+    }
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "error": {
+      "code": 500,
+      "message": "サーバー内部エラーです。しばらく後に再試行してください",
+      "type": "server_error"
+    }
+  }
+  ```
+</ResponseExample>
+
+## Authorizations
+
+<ParamField header="x-api-key" type="string" required>
+  API キーは認証に使用されます
+
+  [API Key 管理ページ](https://ai.kaiho.cc/dashboard/keys) にアクセスして API Key を取得してください
+
+  リクエストヘッダーに以下を追加してください：
+
+  ```
+  x-api-key: YOUR_API_KEY
+  ```
+</ParamField>
+
+<ParamField header="anthropic-version" type="string" required>
+  API バージョン番号
+
+  使用する Claude API バージョンを指定してください
+
+  例：`2023-06-01`
+</ParamField>
+
+## Body
+
+<ParamField body="model" type="string" required>
+  モデル名
+
+  * `claude-haiku-4-5-20251001` - Claude 4.5 高速レスポンスバージョン
+  * `claude-sonnet-4-5-20250929` - Claude 4.5 バランスバージョン
+  * `claude-opus-4-1-20250805` - 最も強力な Claude 4.1 フラッグシップモデル
+  * `claude-opus-4-1-20250805-thinking` - Claude 4.1 Opus 深層思考版
+  * `claude-sonnet-4-5-20250929-thinking` - Claude 4.5 Sonnet 深層思考版
+</ParamField>
+
+<ParamField body="messages" type="array" required>
+  メッセージリスト、`user` と `assistant` ロールを交互に使用
+
+  <Expandable title="メッセージオブジェクトの属性">
+    <ParamField body="role" type="string" required>
+      ロール：`user`（ユーザー入力）または `assistant`（モデル応答、マルチターン対話やプレフィルに使用）
+    </ParamField>
+
+    <ParamField body="content" type="string" required>
+      メッセージ内容、文字列またはコンテンツブロック配列（マルチモーダル）に対応
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="max_tokens" type="integer" required>
+  最大生成 Token 数
+
+  生成が停止するまでの最大 Token 数。モデルはこの制限に達する前に停止する場合があります。
+
+  モデルごとに最大値が異なります。モデルのドキュメントを参照してください。
+
+  最小値：1
+</ParamField>
+
+<ParamField body="system" type="string | array">
+  システムプロンプト
+
+  システムプロンプトは Claude のロール、パーソナリティ、目標、指示を設定するために使用されます。
+
+  **文字列形式：**
+
+  ```json
+  {
+    "system": "你是一位专业的Python编程导师"
+  }
+  ```
+
+  **構造化形式：**
+
+  ```json
+  {
+    "system": 
+    [
+      {
+        "type": "text",
+        "text": "你是一位专业的Python编程导师"
+      }
+    ]
+  }
+  ```
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  温度パラメータ、範囲 0-1
+
+  出力のランダム性を制御します：
+
+  * 低い値（例：0.2）：より確定的、より保守的
+  * 高い値（例：0.8）：よりランダム、より創造的
+
+  デフォルト値：1.0
+</ParamField>
+
+<ParamField body="top_p" type="number">
+  核サンプリングパラメータ、範囲 0-1
+
+  nucleus sampling を使用します。`temperature` または `top_p` のどちらか一方のみを使用し、同時に使用しないことを推奨します。
+
+  デフォルト値：1.0
+</ParamField>
+
+<ParamField body="top_k" type="integer">
+  Top-K サンプリング
+
+  確率が最も高い K 個の選択肢からのみサンプリングし、「ロングテール」の低確率レスポンスを除去するために使用します。
+
+  高度なユースケースでのみ使用することを推奨します。
+</ParamField>
+
+<ParamField body="stream" type="boolean">
+  ストリーミング出力を有効にするかどうか
+
+  * `true`: Server-Sent Events (SSE) で段階的にレスポンスを返します
+  * `false`: 完全なレスポンスを一括で返します
+
+  デフォルト値：false
+</ParamField>
+
+<ParamField body="stop_sequences" type="array">
+  停止シーケンス
+
+  カスタムテキストシーケンスで、遭遇時に生成が停止します。最大4つのシーケンス、各最大32 Token。
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  メタデータ
+
+  リクエストの追跡や識別に使用されるオブジェクトです。
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  メッセージの一意識別子
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  オブジェクトタイプ、固定値 `message`
+</ResponseField>
+
+<ResponseField name="role" type="string">
+  ロールタイプ、固定値 `assistant`
+</ResponseField>
+
+<ResponseField name="content" type="array">
+  メッセージコンテンツ配列
+
+  <Expandable title="属性">
+    <ResponseField name="type" type="string">
+      コンテンツタイプ
+
+      * `text` - テキストコンテンツ
+      * `tool_use` - ツール使用（ツールが有効な場合）
+    </ResponseField>
+
+    <ResponseField name="text" type="string">
+      テキストコンテンツ（type が text の場合）
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  実際に使用されたモデル名
+</ResponseField>
+
+<ResponseField name="stop_reason" type="string">
+  停止理由
+
+  可能な値：
+
+  * `end_turn` - 自然終了
+  * `max_tokens` - 最大 Token 制限に到達
+  * `stop_sequence` - 停止シーケンスに遭遇
+  * `tool_use` - ツール使用
+</ResponseField>
+
+<ResponseField name="stop_sequence" type="string">
+  停止をトリガーしたシーケンス（該当する場合）
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token 使用統計
+
+  <Expandable title="属性">
+    <ResponseField name="input_tokens" type="integer">
+      入力 Token 数
+    </ResponseField>
+
+    <ResponseField name="output_tokens" type="integer">
+      出力 Token 数
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## 使用例
+
+### 単発対話
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "解释一下量子计算"}
+  ]
+}
+```
+
+### マルチターン対話
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "你好"},
+    {"role": "assistant", "content": "你好！我是Claude。"},
+    {"role": "user", "content": "能解释一下AI吗？"}
+  ]
+}
+```
+
+### システムプロンプトの使用
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "system": "你是一位经验丰富的数据科学家，专长包括统计分析和机器学习。",
+  "messages": [
+    {"role": "user", "content": "如何选择合适的机器学习算法？"}
+  ]
+}
+```
+
+### レスポンスのプレフィル
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "列出5个Python最佳实践"},
+    {"role": "assistant", "content": "以下是5个Python最佳实践：\n\n1."}
+  ]
+}
+```

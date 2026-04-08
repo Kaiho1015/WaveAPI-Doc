@@ -1,0 +1,401 @@
+---
+title: "Gemini 原生格式"
+description: "使用 Google Gemini 原生 API 格式"
+api: "POST https://ai.kaiho.cc/v1/models/{model}:generateContent"
+---
+
+Gemini 原生格式 API 提供了與 Google Gemini 模型互動的原生介面，支援多模態輸入和進階功能。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent \
+  -H "x-goog-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [
+      {
+        "role": "user",
+        "parts": [
+          {"text": "解释一下冒泡排序算法。"}
+        ]
+      }
+    ],
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1024
+    }
+  }'
+```
+
+```python Python
+import google.generativeai as genai
+
+genai.configure(
+    api_key="YOUR_API_KEY",
+    transport="rest",
+    client_options={"api_endpoint": "https://ai.kaiho.cc/v1"}
+)
+
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+response = model.generate_content(
+    "解释一下冒泡排序算法。",
+    generation_config={
+        "temperature": 0.7,
+        "max_output_tokens": 1024
+    }
+)
+
+print(response.text)
+```
+
+```javascript JavaScript
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+const model = genAI.getGenerativeModel({
+  model: 'gemini-2.5-flash',
+  baseUrl: 'https://ai.kaiho.cc/v1'
+});
+
+const result = await model.generateContent({
+  contents: [{
+    role: 'user',
+    parts: [{ text: '解释一下冒泡排序算法。' }]
+  }],
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 1024
+  }
+});
+
+console.log(result.response.text());
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "contents": []map[string]interface{}{
+            {
+                "role": "user",
+                "parts": []map[string]string{
+                    {"text": "解释一下冒泡排序算法。"},
+                },
+            },
+        },
+        "generationConfig": map[string]interface{}{
+            "temperature":    0.7,
+            "maxOutputTokens": 1024,
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    url := "https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent"
+    req, _ := http.NewRequest("POST", url, bytes.NewBuffer(body))
+    req.Header.Set("x-goog-api-key", "YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [{"text": "解释一下冒泡排序算法。"}]
+            }
+          ],
+          "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 1024
+          }
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent"))
+            .header("x-goog-api-key", "YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+## 概述
+
+## 支援的模型
+
+<CardGroup cols={2}>
+  <Card title="Gemini 2.5 Pro">
+    專業版，強大的推理能力
+  </Card>
+  <Card title="Gemini 2.5 Flash">
+    快速版，速度與效能平衡
+  </Card>
+  <Card title="Gemini 2.5 Flash Lite">
+    超輕量版，極致回應速度
+  </Card>
+  <Card title="Gemini 3 Pro Preview">
+    最新一代預覽版，支援深度思考
+  </Card>
+</CardGroup>
+
+## 請求參數
+
+<ParamField path="model" type="string" required>
+  模型 ID，作為 URL 路徑參數：
+  - `gemini-2.5-pro`
+  - `gemini-2.5-flash`
+  - `gemini-2.5-flash-lite`
+  - `gemini-2.5-pro-thinking`
+  - `gemini-3-pro-preview`
+  - `gemini-3-pro-preview-thinking`
+</ParamField>
+
+<ParamField body="contents" type="array" required>
+  對話內容陣列。
+  
+  <Expandable title="內容物件">
+    <ParamField body="role" type="string">
+      角色，可選值：`user`、`model`
+    </ParamField>
+    <ParamField body="parts" type="array">
+      內容部分陣列，可包含文字、圖像等
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="generationConfig" type="object">
+  生成配置。
+  
+  <Expandable title="配置選項">
+    <ParamField body="temperature" type="number">
+      取樣溫度，範圍 0-2
+    </ParamField>
+    <ParamField body="maxOutputTokens" type="integer">
+      最大輸出 token 數
+    </ParamField>
+    <ParamField body="topP" type="number">
+      核取樣參數
+    </ParamField>
+    <ParamField body="topK" type="integer">
+      Top-K 取樣參數
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## 請求範例
+
+<CodeGroup>
+
+```bash cURL
+curl https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent \
+  -H "Content-Type: application/json" \
+  -H "x-goog-api-key: YOUR_API_KEY" \
+  -d '{
+    "contents": [
+      {
+        "role": "user",
+        "parts": [
+          {
+            "text": "解释量子计算的基本原理"
+          }
+        ]
+      }
+    ],
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1000,
+      "topP": 0.95
+    }
+  }'
+```
+
+```python Python
+import google.generativeai as genai
+
+genai.configure(
+    api_key="YOUR_API_KEY",
+    transport="rest",
+    client_options={"api_endpoint": "https://ai.kaiho.cc/v1"}
+)
+
+model = genai.GenerativeModel('gemini-2.5-flash')
+
+response = model.generate_content(
+    "解释量子计算的基本原理",
+    generation_config={
+        "temperature": 0.7,
+        "max_output_tokens": 1000,
+        "top_p": 0.95
+    }
+)
+
+print(response.text)
+```
+
+```javascript JavaScript
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+const model = genAI.getGenerativeModel({ 
+  model: 'gemini-2.5-flash',
+  baseUrl: 'https://ai.kaiho.cc/v1'
+});
+
+const result = await model.generateContent({
+  contents: [{
+    role: 'user',
+    parts: [{ text: '解释量子计算的基本原理' }]
+  }],
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 1000,
+    topP: 0.95
+  }
+});
+
+console.log(result.response.text());
+```
+
+</CodeGroup>
+
+## 回應格式
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "量子计算是一种利用量子力学原理..."
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "safetyRatings": [...]
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 12,
+    "candidatesTokenCount": 156,
+    "totalTokenCount": 168
+  }
+}
+```
+
+## 多模態輸入
+
+Gemini 支援文字和圖像的混合輸入：
+
+<CodeGroup>
+
+```python Python
+import PIL.Image
+
+# 載入圖像
+img = PIL.Image.open('image.jpg')
+
+# 傳送文字和圖像
+response = model.generate_content([
+    "描述这张图片中的内容",
+    img
+])
+
+print(response.text)
+```
+
+```javascript JavaScript
+// 使用 base64 編碼的圖像
+const result = await model.generateContent({
+  contents: [{
+    role: 'user',
+    parts: [
+      { text: '描述这张图片中的内容' },
+      {
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: base64ImageData
+        }
+      }
+    ]
+  }]
+});
+```
+
+</CodeGroup>
+
+## 串流輸出
+
+```python
+response = model.generate_content(
+    "写一个关于AI的故事",
+    stream=True
+)
+
+for chunk in response:
+    print(chunk.text, end="")
+```
+
+## 安全設定
+
+控制內容過濾級別：
+
+```python
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
+response = model.generate_content(
+    "你的提示词",
+    safety_settings={
+        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    }
+)
+```
+
+## 特性對比
+
+| 特性 | Gemini 2.0 Flash | Gemini 1.5 Pro | Gemini 1.5 Flash |
+|------|------------------|----------------|------------------|
+| 上下文視窗 | 100萬 tokens | 200萬 tokens | 100萬 tokens |
+| 多模態輸入 | ✅ | ✅ | ✅ |
+| 程式碼生成 | ✅ | ✅ | ✅ |
+| 速度 | 極快 | 快 | 極快 |
+
+<Tip>
+  **長上下文處理：** Gemini 1.5 Pro 支援最多 200 萬 tokens 的上下文，適合處理長文件和影片分析。
+</Tip>

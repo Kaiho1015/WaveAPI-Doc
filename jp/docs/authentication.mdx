@@ -1,0 +1,38 @@
+---
+title: "認証とキー"
+description: "API キー管理と認証方式"
+---
+
+## 認証方式
+
+全ての WaveAPI リクエストは Bearer Token 認証を使用します：
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+## API Key の取得
+
+<Steps>
+  <Step title="アカウント登録">
+    [Dashboard](https://ai.kaiho.cc/dashboard/keys) にアクセスして登録してください
+  </Step>
+  <Step title="キーの作成">
+    キー管理ページで「新しいキーを作成」をクリックしてください
+  </Step>
+  <Step title="キーの保存">
+    コピーして安全に保存してください。キーは一度しか表示されません
+  </Step>
+</Steps>
+
+## Base URL
+
+```
+https://ai.kaiho.cc/v1
+```
+
+全てのエンドポイントはこの URL を基準としています。既に OpenAI SDK をご利用の場合は、`base_url` を置き換えるだけで利用できます。
+
+<Warning>
+フロントエンドのコードや公開リポジトリで API Key を公開しないでください。
+</Warning>

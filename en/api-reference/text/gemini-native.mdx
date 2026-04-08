@@ -1,0 +1,401 @@
+---
+title: "Gemini Native Format"
+description: "Use the Google Gemini native API format"
+api: "POST https://ai.kaiho.cc/v1/models/{model}:generateContent"
+---
+
+The Gemini native format API provides a native interface for interacting with Google Gemini models, supporting multimodal input and advanced features.
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent \
+  -H "x-goog-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [
+      {
+        "role": "user",
+        "parts": [
+          {"text": "解释一下冒泡排序算法。"}
+        ]
+      }
+    ],
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1024
+    }
+  }'
+```
+
+```python Python
+import google.generativeai as genai
+
+genai.configure(
+    api_key="YOUR_API_KEY",
+    transport="rest",
+    client_options={"api_endpoint": "https://ai.kaiho.cc/v1"}
+)
+
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+response = model.generate_content(
+    "解释一下冒泡排序算法。",
+    generation_config={
+        "temperature": 0.7,
+        "max_output_tokens": 1024
+    }
+)
+
+print(response.text)
+```
+
+```javascript JavaScript
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+const model = genAI.getGenerativeModel({
+  model: 'gemini-2.5-flash',
+  baseUrl: 'https://ai.kaiho.cc/v1'
+});
+
+const result = await model.generateContent({
+  contents: [{
+    role: 'user',
+    parts: [{ text: '解释一下冒泡排序算法。' }]
+  }],
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 1024
+  }
+});
+
+console.log(result.response.text());
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "contents": []map[string]interface{}{
+            {
+                "role": "user",
+                "parts": []map[string]string{
+                    {"text": "解释一下冒泡排序算法。"},
+                },
+            },
+        },
+        "generationConfig": map[string]interface{}{
+            "temperature":    0.7,
+            "maxOutputTokens": 1024,
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    url := "https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent"
+    req, _ := http.NewRequest("POST", url, bytes.NewBuffer(body))
+    req.Header.Set("x-goog-api-key", "YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [{"text": "解释一下冒泡排序算法。"}]
+            }
+          ],
+          "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 1024
+          }
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent"))
+            .header("x-goog-api-key", "YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+## Overview
+
+## Supported Models
+
+<CardGroup cols={2}>
+  <Card title="Gemini 2.5 Pro">
+    Professional version with powerful reasoning capabilities
+  </Card>
+  <Card title="Gemini 2.5 Flash">
+    Fast version, balancing speed and performance
+  </Card>
+  <Card title="Gemini 2.5 Flash Lite">
+    Ultra-lightweight version for maximum response speed
+  </Card>
+  <Card title="Gemini 3 Pro Preview">
+    Latest generation preview with deep thinking support
+  </Card>
+</CardGroup>
+
+## Request Parameters
+
+<ParamField path="model" type="string" required>
+  Model ID, as a URL path parameter:
+  - `gemini-2.5-pro`
+  - `gemini-2.5-flash`
+  - `gemini-2.5-flash-lite`
+  - `gemini-2.5-pro-thinking`
+  - `gemini-3-pro-preview`
+  - `gemini-3-pro-preview-thinking`
+</ParamField>
+
+<ParamField body="contents" type="array" required>
+  Conversation content array.
+  
+  <Expandable title="Content object">
+    <ParamField body="role" type="string">
+      Role, possible values: `user`, `model`
+    </ParamField>
+    <ParamField body="parts" type="array">
+      Content parts array, can include text, images, etc.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="generationConfig" type="object">
+  Generation configuration.
+  
+  <Expandable title="Configuration options">
+    <ParamField body="temperature" type="number">
+      Sampling temperature, range 0-2
+    </ParamField>
+    <ParamField body="maxOutputTokens" type="integer">
+      Maximum output token count
+    </ParamField>
+    <ParamField body="topP" type="number">
+      Nucleus sampling parameter
+    </ParamField>
+    <ParamField body="topK" type="integer">
+      Top-K sampling parameter
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Request Examples
+
+<CodeGroup>
+
+```bash cURL
+curl https://ai.kaiho.cc/v1/models/gemini-2.5-flash:generateContent \
+  -H "Content-Type: application/json" \
+  -H "x-goog-api-key: YOUR_API_KEY" \
+  -d '{
+    "contents": [
+      {
+        "role": "user",
+        "parts": [
+          {
+            "text": "解释量子计算的基本原理"
+          }
+        ]
+      }
+    ],
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1000,
+      "topP": 0.95
+    }
+  }'
+```
+
+```python Python
+import google.generativeai as genai
+
+genai.configure(
+    api_key="YOUR_API_KEY",
+    transport="rest",
+    client_options={"api_endpoint": "https://ai.kaiho.cc/v1"}
+)
+
+model = genai.GenerativeModel('gemini-2.5-flash')
+
+response = model.generate_content(
+    "解释量子计算的基本原理",
+    generation_config={
+        "temperature": 0.7,
+        "max_output_tokens": 1000,
+        "top_p": 0.95
+    }
+)
+
+print(response.text)
+```
+
+```javascript JavaScript
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+const model = genAI.getGenerativeModel({ 
+  model: 'gemini-2.5-flash',
+  baseUrl: 'https://ai.kaiho.cc/v1'
+});
+
+const result = await model.generateContent({
+  contents: [{
+    role: 'user',
+    parts: [{ text: '解释量子计算的基本原理' }]
+  }],
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 1000,
+    topP: 0.95
+  }
+});
+
+console.log(result.response.text());
+```
+
+</CodeGroup>
+
+## Response Format
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "量子计算是一种利用量子力学原理..."
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "safetyRatings": [...]
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 12,
+    "candidatesTokenCount": 156,
+    "totalTokenCount": 168
+  }
+}
+```
+
+## Multimodal Input
+
+Gemini supports mixed text and image input:
+
+<CodeGroup>
+
+```python Python
+import PIL.Image
+
+# Load image
+img = PIL.Image.open('image.jpg')
+
+# Send text and image
+response = model.generate_content([
+    "描述这张图片中的内容",
+    img
+])
+
+print(response.text)
+```
+
+```javascript JavaScript
+// Using base64-encoded image
+const result = await model.generateContent({
+  contents: [{
+    role: 'user',
+    parts: [
+      { text: '描述这张图片中的内容' },
+      {
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: base64ImageData
+        }
+      }
+    ]
+  }]
+});
+```
+
+</CodeGroup>
+
+## Streaming Output
+
+```python
+response = model.generate_content(
+    "写一个关于AI的故事",
+    stream=True
+)
+
+for chunk in response:
+    print(chunk.text, end="")
+```
+
+## Safety Settings
+
+Control content filtering levels:
+
+```python
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
+response = model.generate_content(
+    "你的提示词",
+    safety_settings={
+        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    }
+)
+```
+
+## Feature Comparison
+
+| Feature | Gemini 2.0 Flash | Gemini 1.5 Pro | Gemini 1.5 Flash |
+|---------|------------------|----------------|------------------|
+| Context window | 1M tokens | 2M tokens | 1M tokens |
+| Multimodal input | Yes | Yes | Yes |
+| Code generation | Yes | Yes | Yes |
+| Speed | Very fast | Fast | Very fast |
+
+<Tip>
+  **Long context processing:** Gemini 1.5 Pro supports up to 2 million tokens of context, making it ideal for processing long documents and video analysis.
+</Tip>

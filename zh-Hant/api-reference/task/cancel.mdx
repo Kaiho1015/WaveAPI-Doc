@@ -1,0 +1,32 @@
+---
+title: "取消任務"
+description: "POST /v1/tasks/{task_id}/cancel — 取消排隊中的任務"
+---
+
+## 端點
+
+```
+POST https://ai.kaiho.cc/v1/tasks/{task_id}/cancel
+```
+
+取消一個處於 `queued` 狀態的任務，配額自動退還。
+
+<Note>
+只有 `queued` 狀態的任務可以取消。`processing` 狀態的任務已經開始處理，無法取消。
+</Note>
+
+## 回應
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "cancelled",
+  "refunded": true,
+  "refunded_quota": 50000
+}
+```
+
+| 欄位 | 說明 |
+|------|------|
+| `refunded` | 是否已退還配額 |
+| `refunded_quota` | 退還的配額數量 |

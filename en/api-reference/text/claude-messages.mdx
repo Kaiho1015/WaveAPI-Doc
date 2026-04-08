@@ -1,0 +1,454 @@
+---
+title: "Claude Messages"
+api: "POST https://ai.kaiho.cc/v1/messages"
+---
+
+- Fully compatible with the Claude Messages API format
+- Supports multi-turn conversations and single queries
+- Supports text, images, and other multimodal content
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/messages \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-sonnet-4-5-20250929",
+    "max_tokens": 1024,
+    "system": "你是一个专业的AI助手。",
+    "messages": [
+      {
+        "role": "user",
+        "content": "解释一下冒泡排序算法。"
+      }
+    ]
+  }'
+```
+
+```python Python
+import anthropic
+
+client = anthropic.Anthropic(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+message = client.messages.create(
+    model="claude-sonnet-4-5-20250929",
+    max_tokens=1024,
+    system="你是一个专业的AI助手。",
+    messages=[
+        {"role": "user", "content": "解释一下冒泡排序算法。"}
+    ]
+)
+
+print(message.content[0].text)
+```
+
+```javascript JavaScript
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const message = await client.messages.create({
+  model: 'claude-sonnet-4-5-20250929',
+  max_tokens: 1024,
+  system: '你是一个专业的AI助手。',
+  messages: [
+    { role: 'user', content: '解释一下冒泡排序算法。' }
+  ]
+});
+
+console.log(message.content[0].text);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "claude-sonnet-4-5-20250929",
+        "max_tokens": 1024,
+        "system":     "你是一个专业的AI助手。",
+        "messages": []map[string]string{
+            {"role": "user", "content": "解释一下冒泡排序算法。"},
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/messages", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("anthropic-version", "2023-06-01")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "claude-sonnet-4-5-20250929",
+          "max_tokens": 1024,
+          "system": "你是一个专业的AI助手。",
+          "messages": [
+            {"role": "user", "content": "解释一下冒泡排序算法。"}
+          ]
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/messages"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .header("anthropic-version", "2023-06-01")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "id": "msg_013Zva2CMHLNnXjNJJKqJ2EF",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+        "text": "你好！我是Claude。很高兴见到你。"
+    }
+  ],
+    "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "end_turn",
+    "stop_sequence": null,
+  "usage": {
+      "input_tokens": 12,
+      "output_tokens": 18
+  }
+}
+```
+
+  ```json 400 theme={null}
+  {
+    "error": {
+      "code": 400,
+      "message": "Invalid request parameters",
+      "type": "invalid_request_error"
+    }
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "error": {
+      "code": 401,
+      "message": "Authentication failed. Please check your API key",
+      "type": "authentication_error"
+    }
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "error": {
+      "code": 429,
+      "message": "Too many requests. Please try again later",
+      "type": "rate_limit_error"
+    }
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "error": {
+      "code": 500,
+      "message": "Internal server error. Please retry later",
+      "type": "server_error"
+    }
+  }
+  ```
+</ResponseExample>
+
+## Authorizations
+
+<ParamField header="x-api-key" type="string" required>
+  API key for authentication
+
+  Visit the [API Key management page](https://ai.kaiho.cc/dashboard/keys) to get your API Key
+
+  Add the following to your request headers:
+
+  ```
+  x-api-key: YOUR_API_KEY
+  ```
+</ParamField>
+
+<ParamField header="anthropic-version" type="string" required>
+  API version
+
+  Specifies the Claude API version to use
+
+  Example: `2023-06-01`
+</ParamField>
+
+## Body
+
+<ParamField body="model" type="string" required>
+  Model name
+
+  * `claude-haiku-4-5-20251001` - Claude 4.5 fast response version
+  * `claude-sonnet-4-5-20250929` - Claude 4.5 balanced version
+  * `claude-opus-4-1-20250805` - Most powerful Claude 4.1 flagship model
+  * `claude-opus-4-1-20250805-thinking` - Claude 4.1 Opus deep thinking version
+  * `claude-sonnet-4-5-20250929-thinking` - Claude 4.5 Sonnet deep thinking version
+</ParamField>
+
+<ParamField body="messages" type="array" required>
+  Message list, supports alternating `user` and `assistant` roles
+
+  <Expandable title="Message object properties">
+    <ParamField body="role" type="string" required>
+      Role: `user` (user input) or `assistant` (model response, for multi-turn conversations or prefilling)
+    </ParamField>
+
+    <ParamField body="content" type="string" required>
+      Message content, supports a string or content block array (multimodal)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="max_tokens" type="integer" required>
+  Maximum tokens to generate
+
+  The maximum number of tokens before generation stops. The model may stop before reaching this limit.
+
+  Different models have different maximums. Refer to the model documentation.
+
+  Minimum: 1
+</ParamField>
+
+<ParamField body="system" type="string | array">
+  System prompt
+
+  The system prompt sets Claude's role, personality, goals, and instructions.
+
+  **String format:**
+
+  ```json
+  {
+    "system": "你是一位专业的Python编程导师"
+  }
+  ```
+
+  **Structured format:**
+
+  ```json
+  {
+    "system": 
+    [
+      {
+        "type": "text",
+        "text": "你是一位专业的Python编程导师"
+      }
+    ]
+  }
+  ```
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  Temperature parameter, range 0-1
+
+  Controls output randomness:
+
+  * Low values (e.g., 0.2): More deterministic, more conservative
+  * High values (e.g., 0.8): More random, more creative
+
+  Default: 1.0
+</ParamField>
+
+<ParamField body="top_p" type="number">
+  Nucleus sampling parameter, range 0-1
+
+  Uses nucleus sampling. It is recommended to use either `temperature` or `top_p`, not both.
+
+  Default: 1.0
+</ParamField>
+
+<ParamField body="top_k" type="integer">
+  Top-K sampling
+
+  Samples only from the top K most probable options, removing "long tail" low-probability responses.
+
+  Recommended for advanced use cases only.
+</ParamField>
+
+<ParamField body="stream" type="boolean">
+  Whether to enable streaming output
+
+  * `true`: Stream responses progressively via Server-Sent Events (SSE)
+  * `false`: Return the complete response at once
+
+  Default: false
+</ParamField>
+
+<ParamField body="stop_sequences" type="array">
+  Stop sequences
+
+  Custom text sequences that stop generation when encountered. Up to 4 sequences, each up to 32 tokens.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Metadata
+
+  An object for tracking or identifying requests.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Unique identifier for the message
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Object type, always `message`
+</ResponseField>
+
+<ResponseField name="role" type="string">
+  Role type, always `assistant`
+</ResponseField>
+
+<ResponseField name="content" type="array">
+  Message content array
+
+  <Expandable title="Properties">
+    <ResponseField name="type" type="string">
+      Content type
+
+      * `text` - Text content
+      * `tool_use` - Tool use (if tools are enabled)
+    </ResponseField>
+
+    <ResponseField name="text" type="string">
+      Text content (when type is text)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  The model name actually used
+</ResponseField>
+
+<ResponseField name="stop_reason" type="string">
+  Stop reason
+
+  Possible values:
+
+  * `end_turn` - Natural completion
+  * `max_tokens` - Maximum token limit reached
+  * `stop_sequence` - Stop sequence encountered
+  * `tool_use` - Tool use
+</ResponseField>
+
+<ResponseField name="stop_sequence" type="string">
+  The stop sequence that triggered the stop (if applicable)
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token usage statistics
+
+  <Expandable title="Properties">
+    <ResponseField name="input_tokens" type="integer">
+      Number of input tokens
+    </ResponseField>
+
+    <ResponseField name="output_tokens" type="integer">
+      Number of output tokens
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Usage Examples
+
+### Single Conversation
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "解释一下量子计算"}
+  ]
+}
+```
+
+### Multi-Turn Conversation
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "你好"},
+    {"role": "assistant", "content": "你好！我是Claude。"},
+    {"role": "user", "content": "能解释一下AI吗？"}
+  ]
+}
+```
+
+### Using a System Prompt
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "system": "你是一位经验丰富的数据科学家，专长包括统计分析和机器学习。",
+  "messages": [
+    {"role": "user", "content": "如何选择合适的机器学习算法？"}
+  ]
+}
+```
+
+### Prefilling the Response
+
+```json theme={null}
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "列出5个Python最佳实践"},
+    {"role": "assistant", "content": "以下是5个Python最佳实践：\n\n1."}
+  ]
+}
+```

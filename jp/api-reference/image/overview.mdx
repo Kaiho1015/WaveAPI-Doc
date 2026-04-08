@@ -1,0 +1,75 @@
+---
+title: "画像生成の概要"
+description: "/v1/tasks 統一エンドポイントで画像を生成、複数モデルに対応"
+---
+
+## 概要
+
+WaveAPI は複数の画像生成モデルに対応しており、統一された非同期タスクインターフェース `/v1/tasks` で呼び出します。
+
+<Note>
+シンプルな同期画像生成には `/v1/tasks`（OpenAI 互換フォーマット）も使用できますが、より多くのモデルとパラメータに対応する `/v1/tasks` の使用を推奨します。
+</Note>
+
+## リクエストエンドポイント
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+## 共通リクエストパラメータ
+
+| パラメータ | タイプ | 必須 | 説明 |
+|------|------|------|------|
+| `model` | string | はい | モデル名 |
+| `action` | string | いいえ | 操作タイプ、デフォルト `"generate"`、`"edit"`, `"upscale"`, `"variation"` も選択可能 |
+| `prompt` | string | はい | 画像の説明テキスト |
+| `negative_prompt` | string | いいえ | 表示させたくない内容 |
+| `n` | integer | いいえ | 生成数、デフォルト 1 |
+| `size` | string | いいえ | 画像サイズ、例：`"1024x1024"` |
+| `aspect_ratio` | string | いいえ | アスペクト比、例：`"16:9"` |
+| `quality` | string | いいえ | 品質、例：`"standard"`, `"hd"` |
+| `image_url` | string | いいえ | 参照画像 URL（画像から画像生成） |
+| `image_urls` | array | いいえ | 複数の参照画像 URL |
+| `callback_url` | string | いいえ | 完了後のコールバックアドレス |
+| `extra` | object | いいえ | モデル固有のパススルーパラメータ |
+
+## レスポンス形式
+
+タスク送信後に `task_id` が返され、`GET /v1/tasks/{task_id}` で結果を照会します：
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "completed",
+  "result": {
+    "images": [
+      {
+        "url": "https://...",
+        "expires_at": 1720000000
+      }
+    ]
+  }
+}
+```
+
+## 対応モデル
+
+<CardGroup cols={2}>
+  <Card title="GPT-4o Image" href="/jp/api-reference/image/gpt4o-image">
+    OpenAI 画像生成モデル
+  </Card>
+  <Card title="FLUX Kontext" href="/jp/api-reference/image/flux-kontext">
+    FLUX シリーズ画像生成
+  </Card>
+  <Card title="Seedream" href="/jp/api-reference/image/seedream-4">
+    ByteDance Seedream シリーズ
+  </Card>
+  <Card title="その他のモデル" icon="ellipsis">
+    Nano Banana、Gemini Flash など
+  </Card>
+</CardGroup>
+
+<Tip>
+各モデルで対応するパラメータが異なります。`extra` フィールドはモデル固有のパラメータを渡すために使用します。各モデルのドキュメントページで詳細なパラメータサポートをご確認ください。
+</Tip>

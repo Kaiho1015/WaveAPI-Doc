@@ -1,0 +1,97 @@
+---
+title: "タスクシステム詳解"
+description: "画像・動画生成の非同期タスクの完全なフロー"
+---
+
+## タスクのライフサイクル
+
+```
+送信 → キュー待ち(queued) → 処理中(processing) → 完了(completed) / 失敗(failed)
+                ↓
+          キャンセル可能(cancelled)、クォータ返還
+```
+
+## タスクのステータス
+
+| ステータス | 説明 |
+|------|------|
+| `queued` | タスクが送信済み、処理待ち |
+| `processing` | 生成中、進捗を確認可能 |
+| `completed` | 生成成功、結果が利用可能 |
+| `failed` | 生成失敗、error 情報を確認してください |
+| `cancelled` | ユーザーがキャンセル済み、クォータは返還済み |
+
+## タスクの送信
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
+
+# 非同期タスクを送信
+response = client.post("/tasks", body={
+    "model": "veo3",
+    "action": "generate",
+    "prompt": "A cat walking on the beach",
+    "duration": 5
+})
+
+task_id = response["task_id"]
+print(f"タスクを送信しました: {task_id}")
+```
+
+## ステータスのポーリング
+
+```python
+import time
+
+def wait_for_task(client, task_id, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        result = client.get(f"/tasks/{task_id}")
+        status = result["status"]
+
+        if status == "completed":
+            return result["result"]
+        elif status == "failed":
+            raise Exception(f"タスク失敗: {result['error']['message']}")
+
+        time.sleep(2)  # 2秒ごとにポーリング
+    raise TimeoutError("タスクがタイムアウトしました")
+```
+
+## 同期待機モード
+
+手動でのポーリングを避けたい場合は、`/v1/tasks/sync` を使用できます：
+
+- タスクがタイムアウト時間内に完了 → 結果を直接返します
+- タイムアウトで未完了 → `poll_url` を返し、ポーリングを続行します
+
+## Webhook コールバック
+
+タスク送信時に `callback_url` を設定すると、タスク完了後に WaveAPI が結果をプッシュ通知します：
+
+```json
+{
+  "model": "veo3",
+  "action": "generate",
+  "prompt": "...",
+  "callback_url": "https://your-server.com/webhook/task-done"
+}
+```
+
+## タスクのキャンセル
+
+`queued` ステータスのタスクのみキャンセル可能で、キャンセル後にクォータが自動的に返還されます：
+
+```bash
+curl -X POST https://ai.kaiho.cc/v1/tasks/{task_id}/cancel \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+生成結果に含まれる画像/動画 URL には有効期限があります。速やかにダウンロードして保存してください。
+</Note>

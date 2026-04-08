@@ -1,0 +1,255 @@
+---
+title: "Vidu Series"
+description: "Shengshu Technology Vidu video generation series models"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+Async processing mode -- submit a request and receive a task ID. Use the [Query Task Status](/en/api-reference/task/status) endpoint to retrieve generation results. Video links are valid for 24 hours.
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3",
+    "action": "generate",
+    "prompt": "城市夜景延时摄影，霓虹灯光流转",
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "viduq3",
+        "action": "generate",
+        "prompt": "城市夜景延时摄影，霓虹灯光流转",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'viduq3',
+    action: 'generate',
+    prompt: '城市夜景延时摄影，霓虹灯光流转',
+    aspect_ratio: '16:9',
+    duration: 5,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`Task submitted: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "viduq3",
+        "action":       "generate",
+        "prompt":       "城市夜景延时摄影，霓虹灯光流转",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+        "resolution":   "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "viduq3",
+          "action": "generate",
+          "prompt": "城市夜景延时摄影，霓虹灯光流转",
+          "aspect_ratio": "16:9",
+          "duration": 5,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "viduq3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## Available Models
+
+| Model ID | Description |
+|----------|-------------|
+| `viduq3` | Vidu Q3, native audio, 16 seconds, 1080p |
+| `viduq3-pro` | Vidu Q3 Pro, highest quality |
+| `viduq3-turbo` | Vidu Q3 Turbo, speed-optimized |
+| `viduq3-mix` | Vidu Q3 Mix, multi-reference multi-entity consistency |
+| `viduq2` | Vidu Q2 |
+| `viduq1` | Vidu Q1 |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Aspect ratio: `16:9`, `9:16`, `1:1`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Video duration (seconds)
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1080p">
+  Resolution: `720p`, `1080p`
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  Random seed, `0` for random
+</ParamField>
+
+<ParamField body="watermark" type="boolean">
+  Whether to add a watermark. Supports custom watermark images and positioning (via extra)
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array. The number of images determines the generation mode:
+  - 1 image: Image-to-video
+  - 2 images: First/last frame mode
+  - 3+ images: Reference-guided generation (automatically uses viduq2)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Pass-through parameters
+</ParamField>
+
+## Model-Specific Parameters
+
+<ParamField body="extra.movement_amplitude" type="string" default="auto">
+  Motion amplitude: `auto`, `small`, `medium`, `large`
+</ParamField>
+
+<ParamField body="extra.bgm" type="boolean" default="false">
+  Whether to add background music
+</ParamField>
+
+<ParamField body="extra.wm_url" type="string">
+  Custom watermark image URL (requires `watermark: true`)
+</ParamField>
+
+<ParamField body="extra.wm_position" type="integer">
+  Watermark position: `1` (top-left), `2` (top-right), `3` (bottom-left), `4` (bottom-right)
+</ParamField>
+
+## Generation Modes
+
+| Mode | Parameters | Description |
+|------|-----------|-------------|
+| Text-to-video | `prompt` | Pure text generation |
+| Image-to-video | `prompt` + `image_urls` (1 image) | Single image reference |
+| First/Last frame | `image_urls` (2 images) | Transition between start and end frames |
+| Reference-guided | `image_urls` (3+ images) | Multi-image reference (auto-switches to viduq2) |
+
+## Response
+
+<ResponseField name="task_id" type="string">
+  Task ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model ID used
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Operation type
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Task status: `queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation time (Unix millisecond timestamp)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  Progress, initially `0`
+</ResponseField>

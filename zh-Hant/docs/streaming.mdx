@@ -1,0 +1,72 @@
+---
+title: "串流輸出"
+description: "使用 SSE 即時接收文字生成結果"
+---
+
+## 概述
+
+文字生成端點支援 Server-Sent Events (SSE) 串流輸出，設定 `stream: true` 即可逐 token 接收結果。
+
+## 支援串流的端點
+
+- `/v1/chat/completions` — OpenAI 相容
+- `/v1/messages` — Claude Messages
+- `/v1/responses` — OpenAI Responses API
+
+## 使用範例
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "写一首短诗"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'your-api-key'
+});
+
+const stream = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: '写一首短诗' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}
+```
+
+</CodeGroup>
+
+## SSE 資料格式
+
+每個 chunk 是一行 `data: {json}` 格式的 SSE 事件：
+
+```
+data: {"id":"chatcmpl-xxx","choices":[{"delta":{"content":"你"},"index":0}]}
+
+data: {"id":"chatcmpl-xxx","choices":[{"delta":{"content":"好"},"index":0}]}
+
+data: [DONE]
+```
+
+串流結束時會收到 `data: [DONE]`。

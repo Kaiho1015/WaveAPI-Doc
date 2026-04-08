@@ -1,0 +1,320 @@
+---
+title: "Seedream シリーズ"
+description: "ByteDance Seedream 画像生成シリーズモデル"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同期処理モード — リクエスト送信後にタスク ID が返されます。[タスクステータス照会](/jp/api-reference/task/status) インターフェースで生成結果を取得してください。画像リンクの有効期限は24時間です。速やかに保存してください。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "seedream-5.0",
+    "action": "generate",
+    "prompt": "一只柴犬穿宇航服站在月球上",
+    "size": "16:9",
+    "resolution": "2K",
+    "watermark": false
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "seedream-5.0",
+        "action": "generate",
+        "prompt": "一只柴犬穿宇航服站在月球上",
+        "size": "16:9",
+        "resolution": "2K",
+        "watermark": False
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"タスクを送信しました: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'seedream-5.0',
+    action: 'generate',
+    prompt: '一只柴犬穿宇航服站在月球上',
+    size: '16:9',
+    resolution: '2K',
+    watermark: false
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`タスクを送信しました: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "seedream-5.0",
+        "action":     "generate",
+        "prompt":     "一只柴犬穿宇航服站在月球上",
+        "size":       "16:9",
+        "resolution": "2K",
+        "watermark":  false,
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "seedream-5.0",
+          "action": "generate",
+          "prompt": "一只柴犬穿宇航服站在月球上",
+          "size": "16:9",
+          "resolution": "2K",
+          "watermark": false
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "seedream-5.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 利用可能なモデル
+
+| モデル ID | 説明 |
+|---------|------|
+| `seedream-5.0` | Seedream 5.0、グループ画像、ウェブ検索、ストリーミング出力に対応 |
+| `seedream-4.5` | Seedream 4.5、グループ画像、4K 解像度に対応 |
+| `seedream-4.0` | Seedream 4.0、グループ画像、1K~4K 解像度に対応 |
+
+## 統一パラメータ
+
+<ParamField body="model" type="string" required>
+  モデルグループ名：`seedream-5.0`、`seedream-4.5`、`seedream-4.0`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作タイプ
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  テキストプロンプト、中国語・英語に対応、300文字以内を推奨
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参照画像 URL 配列、最大14枚、1枚あたり10MB以下
+</ParamField>
+
+<ParamField body="size" type="string" default="1:1">
+  アスペクト比：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`9:16`、`16:9`、`21:9`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="2K">
+  解像度、選択可能な値はモデルにより異なります。各モデルの Tab を参照
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数、1より大きい場合はグループ画像モードが有効になります
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="true">
+  透かしを追加するかどうか
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  タスク完了時の Webhook コールバックアドレス
+</ParamField>
+
+<ParamField body="extra" type="object">
+  上流にパススルーされる追加パラメータ、各モデルの Tab を参照
+</ParamField>
+
+## モデル固有のパラメータ
+
+<Tabs>
+  <Tab title="Seedream 5.0">
+    **resolution の選択可能な値：** `2K`、`3K`
+
+    **size の追加対応：** `4:5`、`5:4`
+
+    <ParamField body="extra.output_format" type="string" default="jpeg">
+      出力画像フォーマット：`png`、`jpeg`
+    </ParamField>
+
+    <ParamField body="extra.response_format" type="string" default="url">
+      返却フォーマット：`url`（ダウンロードリンク）または `b64_json`（Base64）
+    </ParamField>
+
+    <ParamField body="extra.stream" type="boolean" default="false">
+      ストリーミング出力、各画像の結果を即時返却
+    </ParamField>
+
+    <ParamField body="extra.optimize_prompt_options" type="object">
+      プロンプト最適化設定
+
+      <Expandable title="属性">
+        <ParamField body="mode" type="string" default="standard">
+          - `standard` — 品質が高いが、処理に時間がかかる
+          - `fast` — 処理が速いが、品質は普通（5.0 では未対応）
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="extra.tools" type="array">
+      モデルツール、ウェブ検索で最新情報の精度を向上
+
+      ```json
+      "extra": { "tools": [{"type": "web_search"}] }
+      ```
+    </ParamField>
+  </Tab>
+
+  <Tab title="Seedream 4.5">
+    **resolution の選択可能な値：** `2K`、`4K`
+
+    <ParamField body="extra.response_format" type="string" default="url">
+      返却フォーマット：`url` または `b64_json`
+    </ParamField>
+
+    <ParamField body="extra.stream" type="boolean" default="false">
+      ストリーミング出力
+    </ParamField>
+
+    <ParamField body="extra.optimize_prompt_options" type="object">
+      プロンプト最適化
+
+      <Expandable title="属性">
+        <ParamField body="mode" type="string" default="standard">
+          `standard` または `fast`
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+
+  <Tab title="Seedream 4.0">
+    **resolution の選択可能な値：** `1K`、`2K`、`4K`
+
+    <ParamField body="extra.guidance_scale" type="float" default="2.5">
+      テキスト重み、値が大きいほどプロンプトとの関連性が高くなります。範囲 [1, 10]
+    </ParamField>
+
+    <ParamField body="extra.response_format" type="string" default="url">
+      返却フォーマット：`url` または `b64_json`
+    </ParamField>
+
+    <ParamField body="extra.stream" type="boolean" default="false">
+      ストリーミング出力
+    </ParamField>
+
+    <ParamField body="extra.optimize_prompt_options" type="object">
+      プロンプト最適化
+
+      <Expandable title="属性">
+        <ParamField body="mode" type="string" default="standard">
+          `standard` または `fast`
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 生成モード
+
+| モード | パラメータ | 説明 |
+|------|------|------|
+| テキストから画像 | `prompt` | テキストのみで生成 |
+| 単一画像から画像 | `prompt` + `image_urls`(1枚) | 参照画像 + テキスト |
+| 複数画像から画像 | `prompt` + `image_urls`(2-14枚) | 複数の参照画像を融合 |
+| グループ画像 | `n > 1` | 一連の関連画像を生成 |
+
+<Note>
+グループ画像モードでは、入力参照画像数 + 生成画像数 ≤ 15 です。
+</Note>
+
+## レスポンス
+
+<ResponseField name="task_id" type="string">
+  タスク ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用されたモデル ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作タイプ
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  タスクステータス：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  作成時間（Unix ミリ秒タイムスタンプ）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進捗、初期値は `0`
+</ResponseField>

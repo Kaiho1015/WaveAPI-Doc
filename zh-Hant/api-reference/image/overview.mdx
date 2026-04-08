@@ -1,0 +1,75 @@
+---
+title: "圖像生成概述"
+description: "透過 /v1/tasks 統一端點生成圖像，支援多種模型"
+---
+
+## 概述
+
+WaveAPI 支援多種圖像生成模型，統一透過非同步任務介面 `/v1/tasks` 呼叫。
+
+<Note>
+簡單的同步圖像生成也可以使用 `/v1/tasks`（OpenAI 相容格式），但建議使用 `/v1/tasks` 以獲得更多模型和參數支援。
+</Note>
+
+## 請求端點
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+## 通用請求參數
+
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `model` | string | 是 | 模型名稱 |
+| `action` | string | 否 | 操作類型，預設 `"generate"`，可選 `"edit"`, `"upscale"`, `"variation"` |
+| `prompt` | string | 是 | 圖像描述文字 |
+| `negative_prompt` | string | 否 | 不希望出現的內容 |
+| `n` | integer | 否 | 生成數量，預設 1 |
+| `size` | string | 否 | 圖像尺寸，如 `"1024x1024"` |
+| `aspect_ratio` | string | 否 | 寬高比，如 `"16:9"` |
+| `quality` | string | 否 | 品質，如 `"standard"`, `"hd"` |
+| `image_url` | string | 否 | 參考圖片 URL（圖生圖） |
+| `image_urls` | array | 否 | 多張參考圖片 URL |
+| `callback_url` | string | 否 | 完成後的回呼位址 |
+| `extra` | object | 否 | 模型特定的透傳參數 |
+
+## 回應格式
+
+任務提交後回傳 `task_id`，透過 `GET /v1/tasks/{task_id}` 查詢結果：
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "completed",
+  "result": {
+    "images": [
+      {
+        "url": "https://...",
+        "expires_at": 1720000000
+      }
+    ]
+  }
+}
+```
+
+## 支援的模型
+
+<CardGroup cols={2}>
+  <Card title="GPT-4o Image" href="/zh-Hant/api-reference/image/gpt4o-image">
+    OpenAI 圖像生成模型
+  </Card>
+  <Card title="FLUX Kontext" href="/zh-Hant/api-reference/image/flux-kontext">
+    FLUX 系列圖像生成
+  </Card>
+  <Card title="Seedream" href="/zh-Hant/api-reference/image/seedream-4">
+    位元組跳動 Seedream 系列
+  </Card>
+  <Card title="更多模型" icon="ellipsis">
+    Nano Banana、Gemini Flash 等
+  </Card>
+</CardGroup>
+
+<Tip>
+每個模型支援的參數不同，`extra` 欄位用於傳遞模型特有的參數。請查看各模型的文件頁面了解詳細的參數支援。
+</Tip>

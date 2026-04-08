@@ -1,0 +1,44 @@
+---
+title: "請求與回應格式"
+description: "通用請求標頭、回應結構與錯誤碼說明"
+---
+
+## 請求格式
+
+所有請求使用 JSON 格式，需要以下 headers：
+
+```bash
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+```
+
+## 成功回應
+
+不同端點的回應結構有所不同，但都遵循各自的 API 規範：
+
+- **Chat Completions** — OpenAI 標準回應格式
+- **Claude Messages** — Anthropic 標準回應格式
+- **Gemini** — Google 標準回應格式
+- **非同步任務** — WaveAPI 統一任務回應格式
+
+## 錯誤回應
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_request",
+    "message": "具體的錯誤描述資訊"
+  }
+}
+```
+
+## 錯誤碼
+
+| 狀態碼 | 說明 | 處理方式 |
+|--------|------|----------|
+| 400 | 請求參數無效 | 檢查請求參數格式 |
+| 401 | 認證失敗 | 檢查 API Key 是否正確 |
+| 402 | 餘額不足 | 儲值帳戶 |
+| 429 | 請求頻率超限 | 降低請求頻率 |
+| 500 | 伺服器內部錯誤 | 稍後重試 |

@@ -1,0 +1,84 @@
+---
+title: "提交任務"
+description: "POST /v1/tasks — 提交非同步生成任務"
+---
+
+## 端點
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+提交圖像、影片或音訊生成任務，立即回傳 `task_id`。
+
+## 請求參數
+
+<ParamField body="model" type="string" required>
+  模型名稱，如 `"veo3"`, `"gpt-4o-image"`, `"sora2"`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作類型：`generate`, `edit`, `upscale`, `variation`, `blend`
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  生成描述文字
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  任務完成時的 Webhook 回呼位址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  模型特定參數的透傳欄位，直接傳遞給上游模型
+</ParamField>
+
+更多參數請參考 [圖像生成概述](/zh-Hant/api-reference/image/overview) 或 [影片生成概述](/zh-Hant/api-reference/video/overview)。
+
+## 回應
+
+```json
+{
+  "task_id": "task_01K8SGYNNNVBQTXNR4MM964S7K",
+  "model": "veo3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1720000000,
+  "progress": 0
+}
+```
+
+## 範例
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3",
+    "action": "generate",
+    "prompt": "A cat walking on the beach at sunset",
+    "duration": 5
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "veo3",
+        "action": "generate",
+        "prompt": "A cat walking on the beach at sunset",
+        "duration": 5
+    }
+)
+
+task_id = response.json()["task_id"]
+```
+
+</CodeGroup>

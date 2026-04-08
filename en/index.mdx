@@ -1,9 +1,9 @@
 ---
 title: "WaveAPI"
-description: "Unified AI Model API Gateway — Access all leading AI models through one endpoint"
+description: "Unified AI Model API Gateway — Access all major AI models through a single interface"
 ---
 
-OpenAI-compatible unified API endpoint for GPT-4o, Claude, Gemini, Sora, VEO, and more. Migrate in under 5 minutes — just change your `base_url`, no code rewrite needed.
+An OpenAI-compatible unified API endpoint to call GPT-4o, Claude, Gemini, Sora, VEO, and other leading models with a single line of code. Simply replace the `base_url` — no changes to your existing code required.
 
 <CodeGroup>
 
@@ -53,53 +53,53 @@ curl https://ai.kaiho.cc/v1/chat/completions \
 
 ## AI Model Capabilities
 
-Call various AI models through WaveAPI.
+Access a wide range of AI models through WaveAPI.
 
 <CardGroup cols={3}>
   <Card
     title="Text Generation"
     img="/images/cards/text-generation.svg"
-    href="/en/api-manual/text/general-chat"
+    href="/en/api-reference/text/general-chat"
   >
-    GPT-4o, Claude Sonnet, Gemini and more LLMs with streaming support
+    Leading LLMs including GPT-4o, Claude Sonnet, and Gemini with streaming support
   </Card>
   <Card
     title="Image Generation"
     img="/images/cards/image-generation.svg"
-    href="/en/api-manual/image/gpt4o-image"
+    href="/en/api-reference/image/gpt4o-image"
   >
-    GPT-4o Image, FLUX Kontext, Seedream and more image models
+    Image generation models including GPT-4o Image, FLUX Kontext, and Seedream
   </Card>
   <Card
     title="Video Generation"
     img="/images/cards/video-generation.svg"
-    href="/en/api-manual/video/sora2"
+    href="/en/api-reference/video/veo3"
   >
-    VEO3, Sora2, Kling, Hailuo and more video models
+    Video generation models including VEO3, Sora2, Kling, and Hailuo
   </Card>
 </CardGroup>
 
 <CardGroup cols={3}>
   <Card
-    title="Audio"
+    title="Audio Processing"
     img="/images/cards/audio.svg"
-    href="/en/api-manual/audio/tts"
+    href="/en/api-reference/audio/tts"
   >
     Whisper speech recognition and TTS text-to-speech
   </Card>
   <Card
     title="Task Management"
     img="/images/cards/task-management.svg"
-    href="/en/api-manual/task/get-status"
+    href="/en/api-reference/task/get-status"
   >
-    Async task status tracking for image and video generation
+    Async task status queries to track image and video generation progress
   </Card>
   <Card
     title="OpenAI Compatible"
     img="/images/cards/openai-compatible.svg"
     href="/en/guides/quickstart"
   >
-    Drop-in replacement for OpenAI SDK — just change the URL
+    Fully compatible with the OpenAI SDK — just change the URL to get started
   </Card>
 </CardGroup>
 
@@ -107,29 +107,29 @@ Call various AI models through WaveAPI.
 
 <CardGroup cols={2}>
   <Card title="Zero-Cost Migration" icon="rotate">
-    OpenAI-compatible API format — change only the base URL to get started
+    Compatible with the OpenAI API format — simply change the base_url in your existing code
   </Card>
-  <Card title="Multi-Model Access" icon="layer-group">
-    One API key for all leading AI models, switch via the model parameter
+  <Card title="Multi-Model Aggregation" icon="layer-group">
+    Access all major AI models with a single API key, and switch flexibly via the model parameter
   </Card>
   <Card title="Async Task System" icon="clock-rotate-left">
-    Image and video generation with async processing and real-time status tracking
+    Image and video generation support async processing with real-time task status and progress tracking
   </Card>
-  <Card title="Reliable Infrastructure" icon="shield-check">
-    High-performance API gateway with intelligent routing for service stability
+  <Card title="Stable & Reliable" icon="shield-check">
+    High-performance API gateway with intelligent routing to ensure service reliability
   </Card>
 </CardGroup>
 
 ## Quick Start
 
 <Steps>
-  <Step title="Get Your API Key">
-    Sign up at the [Dashboard](https://ai.kaiho.cc/token) to get your API key
+  <Step title="Get an API Key">
+    Go to the [Dashboard](https://ai.kaiho.cc/dashboard/keys) to sign up and obtain your API key
   </Step>
-  <Step title="Replace Base URL">
-    Point your OpenAI SDK base URL to `https://ai.kaiho.cc/v1`
+  <Step title="Replace the Base URL">
+    Replace the base URL in your OpenAI SDK with `https://ai.kaiho.cc/v1`
   </Step>
-  <Step title="Choose a Model and Go">
-    Set the `model` parameter to your desired model and send your request
+  <Step title="Choose a Model and Make a Request">
+    Specify the desired model via the `model` parameter and send your request
   </Step>
 </Steps>

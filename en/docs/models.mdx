@@ -1,0 +1,49 @@
+---
+title: "Model List"
+description: "View available models and pricing information"
+---
+
+## List Available Models
+
+```bash
+curl https://ai.kaiho.cc/v1/models \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Query a Single Model
+
+```bash
+curl https://ai.kaiho.cc/v1/models/{model_name} \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Billing Types
+
+| Type | Description | Applies To |
+|------|-------------|------------|
+| Token-based | Charged by input/output token count | Text generation, embeddings |
+| Per-request | Fixed cost per request | Certain special endpoints |
+| Image-based | Charged by quantity and resolution | Image generation |
+| Video-based | Charged by duration and resolution | Video generation |
+| Audio-based | Charged by audio duration | TTS, STT |
+
+## Supported Model Categories
+
+<CardGroup cols={2}>
+  <Card title="Text Generation" icon="comments" href="/en/api-reference/text/general-chat">
+    GPT-4o, Claude Sonnet, Gemini, and more
+  </Card>
+  <Card title="Image Generation" icon="image" href="/en/api-reference/image/overview">
+    GPT-4o Image, FLUX, Seedream, and more
+  </Card>
+  <Card title="Video Generation" icon="video" href="/en/api-reference/video/overview">
+    VEO3, Sora2, Kling, and more
+  </Card>
+  <Card title="Audio Processing" icon="headphones" href="/en/api-reference/audio/tts">
+    Whisper, TTS
+  </Card>
+</CardGroup>
+
+<Tip>
+For the latest model list and pricing, visit [Explore](https://ai.kaiho.cc/explore).
+</Tip>

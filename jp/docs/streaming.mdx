@@ -1,0 +1,72 @@
+---
+title: "ストリーミング出力"
+description: "SSE を使用してテキスト生成結果をリアルタイムに受信"
+---
+
+## 概要
+
+テキスト生成エンドポイントは Server-Sent Events (SSE) によるストリーミング出力に対応しており、`stream: true` を設定するだけで Token ごとに結果を受信できます。
+
+## ストリーミング対応エンドポイント
+
+- `/v1/chat/completions` — OpenAI 互換
+- `/v1/messages` — Claude Messages
+- `/v1/responses` — OpenAI Responses API
+
+## 使用例
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "写一首短诗"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'your-api-key'
+});
+
+const stream = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: '写一首短诗' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}
+```
+
+</CodeGroup>
+
+## SSE データ形式
+
+各 chunk は `data: {json}` 形式の SSE イベントです：
+
+```
+data: {"id":"chatcmpl-xxx","choices":[{"delta":{"content":"你"},"index":0}]}
+
+data: {"id":"chatcmpl-xxx","choices":[{"delta":{"content":"好"},"index":0}]}
+
+data: [DONE]
+```
+
+ストリーム終了時に `data: [DONE]` を受信します。

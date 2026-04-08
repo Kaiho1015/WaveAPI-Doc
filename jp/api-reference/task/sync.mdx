@@ -1,0 +1,55 @@
+---
+title: "同期待機"
+description: "POST /v1/tasks/sync — タスクを送信して完了を待機"
+---
+
+## エンドポイント
+
+```
+POST https://ai.kaiho.cc/v1/tasks/sync
+```
+
+タスクを送信し、結果が返されるまでブロッキングで待機します。タイムアウト時間内に完了した場合は結果を直接返し、それ以外の場合は `poll_url` を返してポーリングを継続します。
+
+## リクエストパラメータ
+
+`POST /v1/tasks` と同じです。
+
+## レスポンス
+
+### タイムアウト内に完了
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "gpt-4o-image",
+  "status": "completed",
+  "created_at": 1720000000,
+  "completed_at": 1720000010,
+  "progress": 100,
+  "result": {
+    "images": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+### タイムアウトで未完了
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "processing",
+  "progress": 45,
+  "poll_url": "/v1/tasks/task_xxx"
+}
+```
+
+`poll_url` を受信した後は、`GET /v1/tasks/{task_id}` でポーリングを継続してください。
+
+## 適用シーン
+
+- 画像生成など比較的速く完了するタスク
+- ポーリングロジックを実装したくないシンプルなケース
+- プロトタイプ開発やテスト

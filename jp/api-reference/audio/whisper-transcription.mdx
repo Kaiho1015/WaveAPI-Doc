@@ -1,0 +1,171 @@
+---
+title: "音声認識と翻訳"
+description: "音声からテキストへの変換 (STT) と音声翻訳"
+api: "POST https://ai.kaiho.cc/v1/audio/transcriptions"
+---
+
+同期インターフェース — リクエスト完了後に認識結果を直接返します。
+
+<RequestExample>
+```bash cURL
+curl https://ai.kaiho.cc/v1/audio/transcriptions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F file="@audio.mp3" \
+  -F model="whisper-1"
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+with open("audio.mp3", "rb") as f:
+    transcript = client.audio.transcriptions.create(
+        model="whisper-1",
+        file=f
+    )
+
+print(transcript.text)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+import fs from 'fs';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const transcript = await client.audio.transcriptions.create({
+  model: 'whisper-1',
+  file: fs.createReadStream('audio.mp3')
+});
+
+console.log(transcript.text);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "fmt"
+    "io"
+    "mime/multipart"
+    "net/http"
+    "os"
+)
+
+func main() {
+    file, _ := os.Open("audio.mp3")
+    defer file.Close()
+
+    body := &bytes.Buffer{}
+    writer := multipart.NewWriter(body)
+    part, _ := writer.CreateFormFile("file", "audio.mp3")
+    io.Copy(part, file)
+    writer.WriteField("model", "whisper-1")
+    writer.Close()
+
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/audio/transcriptions", body)
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", writer.FormDataContentType())
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+import java.nio.file.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String boundary = "----FormBoundary" + System.currentTimeMillis();
+        byte[] fileBytes = Files.readAllBytes(Path.of("audio.mp3"));
+
+        String body = "--" + boundary + "\r\n"
+            + "Content-Disposition: form-data; name=\"file\"; filename=\"audio.mp3\"\r\n"
+            + "Content-Type: audio/mpeg\r\n\r\n";
+        String fieldPart = "\r\n--" + boundary + "\r\n"
+            + "Content-Disposition: form-data; name=\"model\"\r\n\r\nwhisper-1\r\n"
+            + "--" + boundary + "--\r\n";
+
+        byte[] requestBody = new byte[body.getBytes().length + fileBytes.length + fieldPart.getBytes().length];
+        System.arraycopy(body.getBytes(), 0, requestBody, 0, body.getBytes().length);
+        System.arraycopy(fileBytes, 0, requestBody, body.getBytes().length, fileBytes.length);
+        System.arraycopy(fieldPart.getBytes(), 0, requestBody, body.getBytes().length + fileBytes.length, fieldPart.getBytes().length);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/audio/transcriptions"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+            .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "text": "欢迎使用 WaveAPI 语音识别服务。"
+}
+```
+</ResponseExample>
+
+## 利用可能なモデル
+
+| モデル ID | 説明 |
+|---------|------|
+| `whisper-1` | OpenAI Whisper、多言語認識に対応 |
+
+## 2つのエンドポイント
+
+### 音声からテキスト
+
+```
+POST /v1/audio/transcriptions
+```
+
+音声を元の言語のテキストに書き起こします。
+
+### 音声翻訳
+
+```
+POST /v1/audio/translations
+```
+
+音声を英語テキストに翻訳します。パラメータは書き起こしエンドポイントと同じです。
+
+## リクエストパラメータ
+
+`multipart/form-data` フォーマットを使用：
+
+<ParamField body="file" type="file" required>
+  音声ファイル、mp3、mp4、mpeg、mpga、m4a、wav、webm フォーマットに対応
+</ParamField>
+
+<ParamField body="model" type="string" required>
+  モデル ID：`whisper-1`
+</ParamField>
+
+## レスポンス
+
+<ResponseField name="text" type="string">
+  認識または翻訳されたテキスト内容
+</ResponseField>

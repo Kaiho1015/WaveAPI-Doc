@@ -1,0 +1,51 @@
+---
+title: "ステータス照会"
+description: "GET /v1/tasks/{task_id} — タスクのステータスと結果を照会"
+---
+
+## エンドポイント
+
+```
+GET https://ai.kaiho.cc/v1/tasks/{task_id}
+```
+
+## レスポンス
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "veo3",
+  "action": "generate",
+  "status": "completed",
+  "created_at": 1720000000,
+  "start_time": 1720000002,
+  "completed_at": 1720000030,
+  "progress": 100,
+  "result": {
+    "images": [],
+    "videos": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+## ステータス値
+
+| ステータス | 説明 |
+|------|------|
+| `queued` | 処理待ち |
+| `processing` | 生成中、`progress` フィールドで進捗を表示 |
+| `completed` | 完了、`result` に生成結果を含む |
+| `failed` | 失敗、`error` にエラー情報を含む |
+| `cancelled` | キャンセル済み |
+
+## ポーリングの推奨事項
+
+- ポーリング間隔：2-5秒
+- 最大待機時間を設定（5分を推奨）
+- `progress` フィールドで生成の進捗を確認
+
+<Warning>
+生成結果の URL には有効期限（`expires_at`）があります。速やかにダウンロードして保存してください。
+</Warning>

@@ -1,0 +1,97 @@
+---
+title: "Task System"
+description: "Complete workflow for async image and video generation tasks"
+---
+
+## Task Lifecycle
+
+```
+Submit → Queued(queued) → Processing(processing) → Completed(completed) / Failed(failed)
+               ↓
+         Cancellable(cancelled), quota refunded
+```
+
+## Task Statuses
+
+| Status | Description |
+|--------|-------------|
+| `queued` | Task submitted, waiting to be processed |
+| `processing` | Generation in progress, progress can be tracked |
+| `completed` | Generation succeeded, results available |
+| `failed` | Generation failed, check the error message |
+| `cancelled` | Cancelled by user, quota refunded |
+
+## Submitting a Task
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
+
+# Submit an async task
+response = client.post("/tasks", body={
+    "model": "veo3",
+    "action": "generate",
+    "prompt": "A cat walking on the beach",
+    "duration": 5
+})
+
+task_id = response["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+## Polling for Status
+
+```python
+import time
+
+def wait_for_task(client, task_id, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        result = client.get(f"/tasks/{task_id}")
+        status = result["status"]
+
+        if status == "completed":
+            return result["result"]
+        elif status == "failed":
+            raise Exception(f"Task failed: {result['error']['message']}")
+
+        time.sleep(2)  # Poll every 2 seconds
+    raise TimeoutError("Task timed out")
+```
+
+## Synchronous Wait Mode
+
+If you prefer not to poll manually, use `/v1/tasks/sync`:
+
+- Task completes within the timeout period — returns the result directly
+- Timeout exceeded — returns a `poll_url` for continued polling
+
+## Webhook Callbacks
+
+Set `callback_url` when submitting a task, and WaveAPI will push the result to your server upon completion:
+
+```json
+{
+  "model": "veo3",
+  "action": "generate",
+  "prompt": "...",
+  "callback_url": "https://your-server.com/webhook/task-done"
+}
+```
+
+## Cancelling a Task
+
+Only tasks in `queued` status can be cancelled. Quota is automatically refunded upon cancellation:
+
+```bash
+curl -X POST https://ai.kaiho.cc/v1/tasks/{task_id}/cancel \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+Image/video URLs in generation results have an expiration period. Please download and save them promptly.
+</Note>

@@ -1,0 +1,284 @@
+---
+title: "Wan Series"
+description: "Alibaba Wan video generation series models"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+Async processing mode -- submit a request and receive a task ID. Use the [Query Task Status](/en/api-reference/task/status) endpoint to retrieve generation results. Video links are valid for 24 hours.
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.5-t2v",
+    "action": "generate",
+    "prompt": "春天的樱花树下，花瓣随风飘落",
+    "aspect_ratio": "16:9",
+    "duration": 5
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "wan2.5-t2v",
+        "action": "generate",
+        "prompt": "春天的樱花树下，花瓣随风飘落",
+        "aspect_ratio": "16:9",
+        "duration": 5
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'wan2.5-t2v',
+    action: 'generate',
+    prompt: '春天的樱花树下，花瓣随风飘落',
+    aspect_ratio: '16:9',
+    duration: 5
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`Task submitted: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "wan2.5-t2v",
+        "action":       "generate",
+        "prompt":       "春天的樱花树下，花瓣随风飘落",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "wan2.5-t2v",
+          "action": "generate",
+          "prompt": "春天的樱花树下，花瓣随风飘落",
+          "aspect_ratio": "16:9",
+          "duration": 5
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "wan2.5-t2v",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## Available Models
+
+| Model ID | Description |
+|----------|-------------|
+| `wan2.5-t2v` | Wan 2.5 text-to-video |
+| `wan2.5-i2v` | Wan 2.5 image-to-video |
+| `wan2.2-i2v-flash` | Wan 2.2 image-to-video fast version |
+| `wan2.2-i2v-plus` | Wan 2.2 image-to-video enhanced version |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Aspect ratio, automatically mapped to optimal resolution by the backend
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Video duration (seconds)
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  Resolution: `480p`, `720p`, `1080p`
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  Random seed, range 0-2147483647
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  Whether to add a watermark
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL (for image-to-video models)
+</ParamField>
+
+<ParamField body="first_frame" type="string">
+  First frame image URL
+</ParamField>
+
+<ParamField body="last_frame" type="string">
+  Last frame image URL
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  Content you do not want to appear, maximum 500 characters
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Pass-through parameters
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="Wan 2.5 Text-to-Video">
+    Model ID: `wan2.5-t2v`
+
+    <ParamField body="extra.prompt_extend" type="boolean" default="true">
+      Whether to enable prompt optimization and expansion
+    </ParamField>
+
+    <ParamField body="extra.audio" type="boolean" default="false">
+      Whether to generate audio
+    </ParamField>
+  </Tab>
+
+  <Tab title="Wan 2.5 Image-to-Video">
+    Model ID: `wan2.5-i2v`
+
+    Supports first/last frame mode (`first_frame` + `last_frame`).
+
+    <ParamField body="extra.prompt_extend" type="boolean" default="true">
+      Whether to enable prompt optimization and expansion
+    </ParamField>
+
+    <ParamField body="extra.audio" type="boolean" default="false">
+      Whether to generate audio
+    </ParamField>
+
+    <ParamField body="extra.audio_url" type="string">
+      Reference audio URL
+    </ParamField>
+
+    <ParamField body="extra.template" type="string">
+      Video template
+    </ParamField>
+  </Tab>
+
+  <Tab title="Wan 2.2 Image-to-Video">
+    Model IDs: `wan2.2-i2v-flash` (fast), `wan2.2-i2v-plus` (enhanced)
+
+    <ParamField body="extra.prompt_extend" type="boolean" default="true">
+      Whether to enable prompt optimization and expansion
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Generation Modes
+
+| Mode | Model | Parameters |
+|------|-------|-----------|
+| Text-to-video | `wan2.5-t2v` | `prompt` |
+| Image-to-video | `wan2.5-i2v` / `wan2.2-i2v-*` | `prompt` + `image_urls` |
+| First/Last frame | `wan2.5-i2v` | `first_frame` + `last_frame` |
+
+## Response
+
+<ResponseField name="task_id" type="string">
+  Task ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model ID used
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Operation type
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Task status: `queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation time (Unix millisecond timestamp)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  Progress, initially `0`
+</ResponseField>

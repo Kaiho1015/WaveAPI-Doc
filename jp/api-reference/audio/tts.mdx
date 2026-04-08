@@ -1,0 +1,144 @@
+---
+title: "TTS テキスト読み上げ"
+description: "テキストを自然で流暢な音声に変換"
+api: "POST https://ai.kaiho.cc/v1/audio/speech"
+---
+
+同期インターフェース — リクエスト完了後に音声ストリームを直接返します。
+
+<RequestExample>
+```bash cURL
+curl https://ai.kaiho.cc/v1/audio/speech \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "tts-1",
+    "voice": "nova",
+    "input": "欢迎使用 WaveAPI 文字转语音服务。"
+  }' \
+  --output output.mp3
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.audio.speech.create(
+    model="tts-1",
+    voice="nova",
+    input="欢迎使用 WaveAPI 文字转语音服务。"
+)
+
+response.stream_to_file("output.mp3")
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+import fs from 'fs';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.audio.speech.create({
+  model: 'tts-1',
+  voice: 'nova',
+  input: '欢迎使用 WaveAPI 文字转语音服务。'
+});
+
+const buffer = Buffer.from(await response.arrayBuffer());
+fs.writeFileSync('output.mp3', buffer);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "io"
+    "net/http"
+    "os"
+)
+
+func main() {
+    payload := map[string]string{
+        "model": "tts-1",
+        "voice": "nova",
+        "input": "欢迎使用 WaveAPI 文字转语音服务。",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/audio/speech", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+
+    out, _ := os.Create("output.mp3")
+    defer out.Close()
+    io.Copy(out, resp.Body)
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+import java.nio.file.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "tts-1",
+          "voice": "nova",
+          "input": "欢迎使用 WaveAPI 文字转语音服务。"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/audio/speech"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<byte[]> response = client.send(request,
+            HttpResponse.BodyHandlers.ofByteArray());
+        Files.write(Path.of("output.mp3"), response.body());
+    }
+}
+```
+</RequestExample>
+
+## 利用可能なモデル
+
+| モデル ID | 説明 |
+|---------|------|
+| `tts-1` | 標準品質、低レイテンシー |
+| `tts-1-hd` | 高品質 |
+
+## リクエストパラメータ
+
+<ParamField body="model" type="string" required>
+  モデル ID：`tts-1`、`tts-1-hd`
+</ParamField>
+
+<ParamField body="input" type="string" required>
+  変換するテキスト内容
+</ParamField>
+
+<ParamField body="voice" type="string" default="alloy">
+  音声タイプ：`alloy`、`echo`、`fable`、`onyx`、`nova`、`shimmer`
+</ParamField>
+
+## レスポンス
+
+音声ファイルストリーム（MP3 フォーマット）を返します。そのままファイルとして保存してください。

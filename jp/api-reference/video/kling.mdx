@@ -1,0 +1,340 @@
+---
+title: "Kling シリーズ"
+description: "Kuaishou Kling 動画生成シリーズモデル"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同期処理モード — リクエスト送信後にタスク ID が返されます。[タスクステータス照会](/jp/api-reference/task/status) インターフェースで生成結果を取得してください。動画リンクの有効期限は24時間です。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v2-master",
+    "action": "generate",
+    "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "extra": {
+      "mode": "pro"
+    }
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "kling-v2-master",
+        "action": "generate",
+        "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "extra": {
+            "mode": "pro"
+        }
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"タスクを送信しました: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'kling-v2-master',
+    action: 'generate',
+    prompt: '一条锦鲤在清澈的池塘中游动，水面波光粼粼',
+    aspect_ratio: '16:9',
+    duration: 5,
+    extra: {
+      mode: 'pro'
+    }
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`タスクを送信しました: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "kling-v2-master",
+        "action":       "generate",
+        "prompt":       "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+        "extra": map[string]interface{}{
+            "mode": "pro",
+        },
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "kling-v2-master",
+          "action": "generate",
+          "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
+          "aspect_ratio": "16:9",
+          "duration": 5,
+          "extra": {
+            "mode": "pro"
+          }
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "kling-v2-master",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 利用可能なモデル
+
+| モデル ID | 説明 |
+|---------|------|
+| `kling-v3` | Kling V3、3-15秒・マルチショット・ネイティブ音声に対応 |
+| `kling-v2-master` | Kling V2 Master |
+| `kling-v1-6` | Kling V1.6、カメラ制御に対応 |
+| `kling-v1` | Kling V1 |
+
+## 統一パラメータ
+
+<ParamField body="model" type="string" required>
+  モデル ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作タイプ
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  動画の説明テキスト、最大2500文字
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  アスペクト比：`16:9`、`9:16`、`1:1`
+
+  画像から動画生成時はこのパラメータは無視され、アスペクト比は入力画像に従います
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  動画の長さ（秒）：`5`、`10`
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  表示させたくない内容、最大2500文字。V1 / V1.6 のみ対応
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参照画像 URL（先頭フレーム）、画像から動画生成に使用。JPEG/PNG/WebP、≤ 10MB
+</ParamField>
+
+<ParamField body="last_frame" type="string">
+  末尾フレーム画像 URL、`image_urls` と併用が必要
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook コールバックアドレス
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Kling にパススルーされる追加パラメータ、各モデルの Tab を参照
+</ParamField>
+
+## モデル固有のパラメータ
+
+<Tabs>
+  <Tab title="Kling V3">
+    **duration の範囲：** 3-15秒
+
+    <ParamField body="extra.mode" type="string" default="std">
+      生成モード：`std`（720P）または `pro`（1080P）
+    </ParamField>
+
+    <ParamField body="extra.enable_audio" type="boolean" default="true">
+      ネイティブ音声生成、デフォルトで有効
+    </ParamField>
+
+    **マルチショットモード：**
+
+    2-6ショットの分割生成に対応。`prompt` + `duration` の代わりに `shot_N_prompt` + `shot_N_duration` を使用します：
+
+    ```json
+    "extra": {
+      "shot_1_prompt": "特写：一杯咖啡在桌上冒着热气",
+      "shot_1_duration": 5,
+      "shot_2_prompt": "镜头拉远，展示整个咖啡馆的场景",
+      "shot_2_duration": 5
+    }
+    ```
+
+    各ショットの duration の合計は3-15秒の範囲内である必要があります。
+  </Tab>
+
+  <Tab title="Kling V2 Master">
+    <ParamField body="extra.mode" type="string" default="std">
+      生成モード：`std`（720P、高速）または `pro`（1080P、高品質）
+    </ParamField>
+
+    <Note>
+    V2 は `negative_prompt`、`cfg_scale`、`camera_control` に非対応です。
+    </Note>
+  </Tab>
+
+  <Tab title="Kling V1.6">
+    <ParamField body="extra.mode" type="string" default="std">
+      生成モード：`std` または `pro`
+    </ParamField>
+
+    <ParamField body="extra.cfg_scale" type="number" default="0.5">
+      創造性制御、範囲 0-1。値が高いほどプロンプトに忠実
+    </ParamField>
+
+    <ParamField body="extra.camera_control" type="object">
+      カメラモーション制御
+
+      <Expandable title="プリセットモード">
+        `type` の選択可能な値：`down_back`（下降後退）、`forward_up`（前進上昇）、`right_turn_forward`（右旋回前進）、`left_turn_forward`（左旋回前進）
+      </Expandable>
+
+      <Expandable title="カスタムモード">
+        `type: "simple"` を設定し、`config` で6軸モーションを精密制御（範囲 -10 ~ 10）：
+
+        - `horizontal` — X 移動、負値で左、正値で右
+        - `vertical` — Y 移動、負値で下、正値で上
+        - `pan` — X 回転、負値で下向き、正値で上向き
+        - `tilt` — Y 回転、負値で左向き、正値で右向き
+        - `roll` — Z 回転、負値で反時計回り、正値で時計回り
+        - `zoom` — 焦点距離、負値でズームイン、正値でズームアウト
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="extra.static_mask" type="string">
+      静的マスク画像 URL（PNG）、動かない領域を定義。画像から動画生成時のみ使用可能
+    </ParamField>
+
+    <ParamField body="extra.dynamic_masks" type="array">
+      動的マスク配列（最大6個）、軌道に沿って動く領域を定義。画像から動画生成時のみ使用可能
+
+      <Expandable title="属性">
+        <ParamField body="mask_url" type="string">
+          マスク画像 URL（PNG with alpha）
+        </ParamField>
+        <ParamField body="trajectories" type="array">
+          軌道座標点配列、各点は x と y 座標を含み、2-77 ポイント
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Tab>
+
+  <Tab title="Kling V1">
+    <ParamField body="extra.mode" type="string" default="std">
+      生成モード：`std` または `pro`
+    </ParamField>
+
+    <ParamField body="extra.cfg_scale" type="number" default="0.5">
+      創造性制御、範囲 0-1
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 生成モード
+
+| モード | パラメータ | 説明 |
+|------|------|------|
+| テキストから動画 | `prompt` | テキストのみで生成 |
+| 画像から動画 | `prompt` + `image_urls`(1枚) | 先頭フレーム画像 + テキスト説明 |
+| 先頭末尾フレーム | `image_urls`(1枚) + `last_frame` | 開始・終了画面の遷移 |
+
+<Note>
+画像から動画生成時、`aspect_ratio` は入力画像に従うため、指定不要です。
+</Note>
+
+## レスポンス
+
+<ResponseField name="task_id" type="string">
+  タスク ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用されたモデル ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作タイプ
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  タスクステータス：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  作成時間（Unix ミリ秒タイムスタンプ）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進捗、初期値は `0`
+</ResponseField>

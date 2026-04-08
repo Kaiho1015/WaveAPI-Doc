@@ -1,0 +1,49 @@
+---
+title: "モデル一覧"
+description: "利用可能なモデルと料金情報の確認"
+---
+
+## 利用可能なモデルの照会
+
+```bash
+curl https://ai.kaiho.cc/v1/models \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## 個別モデルの照会
+
+```bash
+curl https://ai.kaiho.cc/v1/models/{model_name} \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## 課金タイプ
+
+| タイプ | 説明 | 対象 |
+|------|------|------|
+| Token 課金 | 入力/出力 Token 数に基づく | テキスト生成、埋め込み |
+| 回数課金 | リクエストごとの固定料金 | 一部の特殊エンドポイント |
+| 画像課金 | 生成数と解像度に基づく | 画像生成 |
+| 動画課金 | 長さと解像度に基づく | 動画生成 |
+| 音声課金 | 音声の長さに基づく | TTS、STT |
+
+## 対応モデルカテゴリ
+
+<CardGroup cols={2}>
+  <Card title="テキスト生成" icon="comments" href="/jp/api-reference/text/general-chat">
+    GPT-4o、Claude Sonnet、Gemini など
+  </Card>
+  <Card title="画像生成" icon="image" href="/jp/api-reference/image/overview">
+    GPT-4o Image、FLUX、Seedream など
+  </Card>
+  <Card title="動画生成" icon="video" href="/jp/api-reference/video/overview">
+    VEO3、Sora2、Kling など
+  </Card>
+  <Card title="音声処理" icon="headphones" href="/jp/api-reference/audio/tts">
+    Whisper、TTS
+  </Card>
+</CardGroup>
+
+<Tip>
+具体的なモデル一覧と料金は [Explore](https://ai.kaiho.cc/explore) で最新情報をご確認ください。
+</Tip>

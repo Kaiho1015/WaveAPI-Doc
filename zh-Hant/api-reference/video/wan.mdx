@@ -1,0 +1,284 @@
+---
+title: "萬象 Wan 系列"
+description: "阿里巴巴萬象影片生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同步處理模式 — 提交請求後回傳任務 ID，透過 [查詢任務狀態](/zh-Hant/api-reference/task/status) 介面取得生成結果。影片連結有效期 24 小時。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.5-t2v",
+    "action": "generate",
+    "prompt": "春天的樱花树下，花瓣随风飘落",
+    "aspect_ratio": "16:9",
+    "duration": 5
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "wan2.5-t2v",
+        "action": "generate",
+        "prompt": "春天的樱花树下，花瓣随风飘落",
+        "aspect_ratio": "16:9",
+        "duration": 5
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"任務已提交: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'wan2.5-t2v',
+    action: 'generate',
+    prompt: '春天的樱花树下，花瓣随风飘落',
+    aspect_ratio: '16:9',
+    duration: 5
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`任務已提交: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "wan2.5-t2v",
+        "action":       "generate",
+        "prompt":       "春天的樱花树下，花瓣随风飘落",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "wan2.5-t2v",
+          "action": "generate",
+          "prompt": "春天的樱花树下，花瓣随风飘落",
+          "aspect_ratio": "16:9",
+          "duration": 5
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "wan2.5-t2v",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 說明 |
+|---------|------|
+| `wan2.5-t2v` | 萬象 2.5 文生影片 |
+| `wan2.5-i2v` | 萬象 2.5 圖生影片 |
+| `wan2.2-i2v-flash` | 萬象 2.2 圖生影片快速版 |
+| `wan2.2-i2v-plus` | 萬象 2.2 圖生影片增強版 |
+
+## 統一參數
+
+<ParamField body="model" type="string" required>
+  模型 ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作類型
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  影片描述文字
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  寬高比，後台自動對應為最佳解析度
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  影片時長（秒）
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  解析度：`480p`、`720p`、`1080p`
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  隨機種子，範圍 0-2147483647
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  是否新增浮水印
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  參考圖片 URL（圖生影片模型使用）
+</ParamField>
+
+<ParamField body="first_frame" type="string">
+  首幀圖片 URL
+</ParamField>
+
+<ParamField body="last_frame" type="string">
+  尾幀圖片 URL
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  不希望出現的內容，最多 500 字元
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回呼位址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  透傳參數
+</ParamField>
+
+## 模型特定參數
+
+<Tabs>
+  <Tab title="Wan 2.5 文生影片">
+    模型 ID：`wan2.5-t2v`
+
+    <ParamField body="extra.prompt_extend" type="boolean" default="true">
+      是否啟用提示詞最佳化擴展
+    </ParamField>
+
+    <ParamField body="extra.audio" type="boolean" default="false">
+      是否生成音訊
+    </ParamField>
+  </Tab>
+
+  <Tab title="Wan 2.5 圖生影片">
+    模型 ID：`wan2.5-i2v`
+
+    支援首尾幀模式（`first_frame` + `last_frame`）。
+
+    <ParamField body="extra.prompt_extend" type="boolean" default="true">
+      是否啟用提示詞最佳化擴展
+    </ParamField>
+
+    <ParamField body="extra.audio" type="boolean" default="false">
+      是否生成音訊
+    </ParamField>
+
+    <ParamField body="extra.audio_url" type="string">
+      參考音訊 URL
+    </ParamField>
+
+    <ParamField body="extra.template" type="string">
+      影片範本
+    </ParamField>
+  </Tab>
+
+  <Tab title="Wan 2.2 圖生影片">
+    模型 ID：`wan2.2-i2v-flash`（快速）、`wan2.2-i2v-plus`（增強）
+
+    <ParamField body="extra.prompt_extend" type="boolean" default="true">
+      是否啟用提示詞最佳化擴展
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 生成模式
+
+| 模式 | 模型 | 參數 |
+|------|------|------|
+| 文生影片 | `wan2.5-t2v` | `prompt` |
+| 圖生影片 | `wan2.5-i2v` / `wan2.2-i2v-*` | `prompt` + `image_urls` |
+| 首尾幀 | `wan2.5-i2v` | `first_frame` + `last_frame` |
+
+## 回應
+
+<ResponseField name="task_id" type="string">
+  任務 ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作類型
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任務狀態：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  建立時間（Unix 毫秒時間戳）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進度，初始為 `0`
+</ResponseField>

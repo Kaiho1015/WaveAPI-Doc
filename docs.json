@@ -173,47 +173,80 @@
                 "group": "Getting Started",
                 "pages": [
                   "en/index",
-                  "en/guides/quickstart"
+                  "en/guides/quickstart",
+                  "en/docs/authentication"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "en/docs/request-response",
+                  "en/docs/sync-async",
+                  "en/docs/task-system",
+                  "en/docs/streaming",
+                  "en/docs/models"
                 ]
               }
             ]
           },
           {
-            "tab": "AI Model APIs",
-            "icon": "cube",
+            "tab": "API Reference",
+            "icon": "code",
             "groups": [
               {
                 "group": "Text Generation",
                 "pages": [
-                  "en/api-manual/text/general-chat",
-                  "en/api-manual/text/claude-messages",
-                  "en/api-manual/text/gemini-native",
-                  "en/api-manual/text/openai-multimodal"
+                  "en/api-reference/text/general-chat",
+                  "en/api-reference/text/claude-messages",
+                  "en/api-reference/text/gemini-native",
+                  "en/api-reference/text/openai-multimodal"
                 ]
               },
               {
                 "group": "Image Generation",
                 "pages": [
-                  "en/api-manual/image/gpt4o-image"
+                  "en/api-reference/image/overview",
+                  "en/api-reference/image/gpt4o-image",
+                  "en/api-reference/image/gemini",
+                  "en/api-reference/image/flux",
+                  "en/api-reference/image/seedream"
                 ]
               },
               {
                 "group": "Video Generation",
                 "pages": [
-                  "en/api-manual/video/sora2"
+                  "en/api-reference/video/overview",
+                  "en/api-reference/video/veo",
+                  "en/api-reference/video/seedance",
+                  "en/api-reference/video/sora",
+                  "en/api-reference/video/kling",
+                  "en/api-reference/video/hailuo",
+                  "en/api-reference/video/vidu",
+                  "en/api-reference/video/wan"
                 ]
               },
               {
                 "group": "Audio",
                 "pages": [
-                  "en/api-manual/audio/whisper-transcription",
-                  "en/api-manual/audio/tts"
+                  "en/api-reference/audio/tts",
+                  "en/api-reference/audio/whisper-transcription"
+                ]
+              },
+              {
+                "group": "Tools & Embeddings",
+                "pages": [
+                  "en/api-reference/tools/embeddings",
+                  "en/api-reference/tools/moderations",
+                  "en/api-reference/tools/rerank"
                 ]
               },
               {
                 "group": "Task Management",
                 "pages": [
-                  "en/api-manual/task/get-status"
+                  "en/api-reference/task/submit",
+                  "en/api-reference/task/sync",
+                  "en/api-reference/task/status",
+                  "en/api-reference/task/cancel"
                 ]
               }
             ]
@@ -231,7 +264,80 @@
                 "group": "開始",
                 "pages": [
                   "zh-Hant/index",
-                  "zh-Hant/guides/quickstart"
+                  "zh-Hant/guides/quickstart",
+                  "zh-Hant/docs/authentication"
+                ]
+              },
+              {
+                "group": "核心概念",
+                "pages": [
+                  "zh-Hant/docs/request-response",
+                  "zh-Hant/docs/sync-async",
+                  "zh-Hant/docs/task-system",
+                  "zh-Hant/docs/streaming",
+                  "zh-Hant/docs/models"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API 參考",
+            "icon": "code",
+            "groups": [
+              {
+                "group": "文字生成",
+                "pages": [
+                  "zh-Hant/api-reference/text/general-chat",
+                  "zh-Hant/api-reference/text/claude-messages",
+                  "zh-Hant/api-reference/text/gemini-native",
+                  "zh-Hant/api-reference/text/openai-multimodal"
+                ]
+              },
+              {
+                "group": "圖像生成",
+                "pages": [
+                  "zh-Hant/api-reference/image/overview",
+                  "zh-Hant/api-reference/image/gpt4o-image",
+                  "zh-Hant/api-reference/image/gemini",
+                  "zh-Hant/api-reference/image/flux",
+                  "zh-Hant/api-reference/image/seedream"
+                ]
+              },
+              {
+                "group": "影片生成",
+                "pages": [
+                  "zh-Hant/api-reference/video/overview",
+                  "zh-Hant/api-reference/video/veo",
+                  "zh-Hant/api-reference/video/seedance",
+                  "zh-Hant/api-reference/video/sora",
+                  "zh-Hant/api-reference/video/kling",
+                  "zh-Hant/api-reference/video/hailuo",
+                  "zh-Hant/api-reference/video/vidu",
+                  "zh-Hant/api-reference/video/wan"
+                ]
+              },
+              {
+                "group": "音訊處理",
+                "pages": [
+                  "zh-Hant/api-reference/audio/tts",
+                  "zh-Hant/api-reference/audio/whisper-transcription"
+                ]
+              },
+              {
+                "group": "工具與嵌入",
+                "pages": [
+                  "zh-Hant/api-reference/tools/embeddings",
+                  "zh-Hant/api-reference/tools/moderations",
+                  "zh-Hant/api-reference/tools/rerank"
+                ]
+              },
+              {
+                "group": "任務管理",
+                "pages": [
+                  "zh-Hant/api-reference/task/submit",
+                  "zh-Hant/api-reference/task/sync",
+                  "zh-Hant/api-reference/task/status",
+                  "zh-Hant/api-reference/task/cancel"
                 ]
               }
             ]
@@ -249,47 +355,80 @@
                 "group": "はじめに",
                 "pages": [
                   "jp/index",
-                  "jp/guides/quickstart"
+                  "jp/guides/quickstart",
+                  "jp/docs/authentication"
+                ]
+              },
+              {
+                "group": "コアコンセプト",
+                "pages": [
+                  "jp/docs/request-response",
+                  "jp/docs/sync-async",
+                  "jp/docs/task-system",
+                  "jp/docs/streaming",
+                  "jp/docs/models"
                 ]
               }
             ]
           },
           {
-            "tab": "AI モデル API",
-            "icon": "cube",
+            "tab": "API リファレンス",
+            "icon": "code",
             "groups": [
               {
                 "group": "テキスト生成",
                 "pages": [
-                  "jp/api-manual/text/general-chat",
-                  "jp/api-manual/text/claude-messages",
-                  "jp/api-manual/text/gemini-native",
-                  "jp/api-manual/text/openai-multimodal"
+                  "jp/api-reference/text/general-chat",
+                  "jp/api-reference/text/claude-messages",
+                  "jp/api-reference/text/gemini-native",
+                  "jp/api-reference/text/openai-multimodal"
                 ]
               },
               {
                 "group": "画像生成",
                 "pages": [
-                  "jp/api-manual/image/gpt4o-image"
+                  "jp/api-reference/image/overview",
+                  "jp/api-reference/image/gpt4o-image",
+                  "jp/api-reference/image/gemini",
+                  "jp/api-reference/image/flux",
+                  "jp/api-reference/image/seedream"
                 ]
               },
               {
                 "group": "動画生成",
                 "pages": [
-                  "jp/api-manual/video/sora2"
+                  "jp/api-reference/video/overview",
+                  "jp/api-reference/video/veo",
+                  "jp/api-reference/video/seedance",
+                  "jp/api-reference/video/sora",
+                  "jp/api-reference/video/kling",
+                  "jp/api-reference/video/hailuo",
+                  "jp/api-reference/video/vidu",
+                  "jp/api-reference/video/wan"
                 ]
               },
               {
                 "group": "音声",
                 "pages": [
-                  "jp/api-manual/audio/whisper-transcription",
-                  "jp/api-manual/audio/tts"
+                  "jp/api-reference/audio/tts",
+                  "jp/api-reference/audio/whisper-transcription"
+                ]
+              },
+              {
+                "group": "ツール・埋め込み",
+                "pages": [
+                  "jp/api-reference/tools/embeddings",
+                  "jp/api-reference/tools/moderations",
+                  "jp/api-reference/tools/rerank"
                 ]
               },
               {
                 "group": "タスク管理",
                 "pages": [
-                  "jp/api-manual/task/get-status"
+                  "jp/api-reference/task/submit",
+                  "jp/api-reference/task/sync",
+                  "jp/api-reference/task/status",
+                  "jp/api-reference/task/cancel"
                 ]
               }
             ]

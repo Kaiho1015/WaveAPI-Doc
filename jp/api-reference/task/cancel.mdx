@@ -1,0 +1,32 @@
+---
+title: "タスクのキャンセル"
+description: "POST /v1/tasks/{task_id}/cancel — キュー中のタスクをキャンセル"
+---
+
+## エンドポイント
+
+```
+POST https://ai.kaiho.cc/v1/tasks/{task_id}/cancel
+```
+
+`queued` ステータスのタスクをキャンセルし、クォータを自動的に返還します。
+
+<Note>
+`queued` ステータスのタスクのみキャンセル可能です。`processing` ステータスのタスクは既に処理が開始されているため、キャンセルできません。
+</Note>
+
+## レスポンス
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "cancelled",
+  "refunded": true,
+  "refunded_quota": 50000
+}
+```
+
+| フィールド | 説明 |
+|------|------|
+| `refunded` | クォータが返還されたかどうか |
+| `refunded_quota` | 返還されたクォータの数量 |

@@ -1,0 +1,38 @@
+---
+title: "認證與金鑰"
+description: "API 金鑰管理與認證方式"
+---
+
+## 認證方式
+
+所有 WaveAPI 請求使用 Bearer Token 認證：
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+## 取得 API Key
+
+<Steps>
+  <Step title="註冊帳戶">
+    存取 [Dashboard](https://ai.kaiho.cc/dashboard/keys) 註冊
+  </Step>
+  <Step title="建立金鑰">
+    在金鑰管理頁面點擊「建立新金鑰」
+  </Step>
+  <Step title="儲存金鑰">
+    複製並安全儲存，金鑰只顯示一次
+  </Step>
+</Steps>
+
+## Base URL
+
+```
+https://ai.kaiho.cc/v1
+```
+
+所有端點都基於此 URL。如果你已經在使用 OpenAI SDK，只需替換 `base_url` 即可。
+
+<Warning>
+請勿在前端程式碼或公開儲存庫中暴露 API Key。
+</Warning>

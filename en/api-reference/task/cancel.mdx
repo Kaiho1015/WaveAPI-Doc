@@ -1,0 +1,32 @@
+---
+title: "Cancel Task"
+description: "POST /v1/tasks/{task_id}/cancel -- Cancel a queued task"
+---
+
+## Endpoint
+
+```
+POST https://ai.kaiho.cc/v1/tasks/{task_id}/cancel
+```
+
+Cancel a task in `queued` status. Quota is automatically refunded.
+
+<Note>
+Only tasks in `queued` status can be cancelled. Tasks in `processing` status have already started and cannot be cancelled.
+</Note>
+
+## Response
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "cancelled",
+  "refunded": true,
+  "refunded_quota": 50000
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `refunded` | Whether quota has been refunded |
+| `refunded_quota` | Amount of quota refunded |

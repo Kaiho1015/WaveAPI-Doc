@@ -1,0 +1,268 @@
+---
+title: "Hailuo Series"
+description: "MiniMax Hailuo video generation series models"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+Async processing mode -- submit a request and receive a task ID. Use the [Query Task Status](/en/api-reference/task/status) endpoint to retrieve generation results. Video links are valid for 24 hours.
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hailuo-2.3",
+    "action": "generate",
+    "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
+    "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "hailuo-2.3",
+        "action": "generate",
+        "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
+        "duration": 6,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'hailuo-2.3',
+    action: 'generate',
+    prompt: '一只白猫慵懒地躺在阳光下的窗台上',
+    duration: 6,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`Task submitted: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "hailuo-2.3",
+        "action":     "generate",
+        "prompt":     "一只白猫慵懒地躺在阳光下的窗台上",
+        "duration":   6,
+        "resolution": "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "hailuo-2.3",
+          "action": "generate",
+          "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
+          "duration": 6,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "hailuo-2.3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## Available Models
+
+| Model ID | Default Resolution | Supported Duration | Description |
+|----------|-------------------|-------------------|-------------|
+| `hailuo-2.3` | 768P | 6s / 10s | Hailuo 2.3, supports 4K and character reference |
+| `hailuo-2.3-fast` | 768P | 6s / 10s | Hailuo 2.3 fast version |
+| `hailuo-02` | 768P | 6s / 10s | Hailuo 02, supports first/last frame |
+| `T2V-01-Director` | 768P | 6s | Director mode with camera language control |
+| `I2V-01-Director` | 720P | 6s | Image-to-video director mode |
+| `S2V-01` | 720P | 6s | Character reference mode for character consistency |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text
+</ParamField>
+
+<ParamField body="duration" type="integer" default="6">
+  Video duration (seconds): `6`, `10`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="768p">
+  Output resolution, available values depend on the model (see model tabs)
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  First frame image URL for image-to-video
+</ParamField>
+
+<ParamField body="last_frame" type="string">
+  Last frame image URL, requires `image_urls`. `hailuo-02` only
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Additional parameters passed through to Hailuo (see model tabs)
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="Hailuo 2.3 / 2.3 Fast">
+    **resolution options:** `768p`, `1080p`
+
+    <ParamField body="extra.prompt_optimizer" type="boolean" default="true">
+      Whether to enable prompt optimization
+    </ParamField>
+
+    <ParamField body="extra.fast_pretreatment" type="boolean">
+      Fast preprocessing mode
+    </ParamField>
+
+    <ParamField body="extra.subject_reference" type="array">
+      Character reference for character consistency
+
+      ```json
+      "extra": {
+        "subject_reference": [{
+          "type": "character",
+          "image": ["https://example.com/character.jpg"]
+        }]
+      }
+      ```
+    </ParamField>
+  </Tab>
+
+  <Tab title="Hailuo 02">
+    **resolution options:** `512p`, `768p`, `1080p`
+
+    Supports first/last frame mode (via `image_urls` + `last_frame`).
+
+    <ParamField body="extra.prompt_optimizer" type="boolean" default="true">
+      Whether to enable prompt optimization
+    </ParamField>
+
+    <ParamField body="extra.fast_pretreatment" type="boolean">
+      Fast preprocessing mode
+    </ParamField>
+
+    <ParamField body="extra.aigc_watermark" type="boolean">
+      Whether to add an AIGC watermark
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Generation Modes
+
+| Mode | Parameters | Supported Models |
+|------|-----------|-----------------|
+| Text-to-video | `prompt` | All |
+| Image-to-video | `prompt` + `image_urls` (1 image) | All |
+| First/Last frame | `image_urls` (1 image) + `last_frame` | hailuo-02 |
+| Character reference | `prompt` + `extra.subject_reference` | hailuo-2.3 series |
+
+## Response
+
+<ResponseField name="task_id" type="string">
+  Task ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model ID used
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Operation type
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Task status: `queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation time (Unix millisecond timestamp)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  Progress, initially `0`
+</ResponseField>

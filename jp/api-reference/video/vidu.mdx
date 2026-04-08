@@ -1,0 +1,255 @@
+---
+title: "Vidu シリーズ"
+description: "Shengshu Technology Vidu 動画生成シリーズモデル"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同期処理モード — リクエスト送信後にタスク ID が返されます。[タスクステータス照会](/jp/api-reference/task/status) インターフェースで生成結果を取得してください。動画リンクの有効期限は24時間です。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3",
+    "action": "generate",
+    "prompt": "城市夜景延时摄影，霓虹灯光流转",
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "viduq3",
+        "action": "generate",
+        "prompt": "城市夜景延时摄影，霓虹灯光流转",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"タスクを送信しました: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'viduq3',
+    action: 'generate',
+    prompt: '城市夜景延时摄影，霓虹灯光流转',
+    aspect_ratio: '16:9',
+    duration: 5,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`タスクを送信しました: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "viduq3",
+        "action":       "generate",
+        "prompt":       "城市夜景延时摄影，霓虹灯光流转",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+        "resolution":   "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "viduq3",
+          "action": "generate",
+          "prompt": "城市夜景延时摄影，霓虹灯光流转",
+          "aspect_ratio": "16:9",
+          "duration": 5,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "viduq3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 利用可能なモデル
+
+| モデル ID | 説明 |
+|---------|------|
+| `viduq3` | Vidu Q3、ネイティブ音声・16秒・1080p |
+| `viduq3-pro` | Vidu Q3 Pro、最高画質 |
+| `viduq3-turbo` | Vidu Q3 Turbo、速度優先 |
+| `viduq3-mix` | Vidu Q3 Mix、複数参照画像・複数エンティティの一貫性 |
+| `viduq2` | Vidu Q2 |
+| `viduq1` | Vidu Q1 |
+
+## 統一パラメータ
+
+<ParamField body="model" type="string" required>
+  モデル ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作タイプ
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  動画の説明テキスト
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  アスペクト比：`16:9`、`9:16`、`1:1`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  動画の長さ（秒）
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1080p">
+  解像度：`720p`、`1080p`
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  ランダムシード、`0` はランダム
+</ParamField>
+
+<ParamField body="watermark" type="boolean">
+  透かしを追加するかどうか。カスタム透かし画像と位置にも対応（extra 経由）
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参照画像 URL 配列、枚数により生成モードが決まります：
+  - 1枚 → 画像から動画
+  - 2枚 → 先頭末尾フレームモード
+  - 3枚以上 → 参照画像ガイド（自動的に viduq2 に切り替え）
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook コールバックアドレス
+</ParamField>
+
+<ParamField body="extra" type="object">
+  パススルーパラメータ
+</ParamField>
+
+## モデル固有のパラメータ
+
+<ParamField body="extra.movement_amplitude" type="string" default="auto">
+  動きの幅：`auto`、`small`、`medium`、`large`
+</ParamField>
+
+<ParamField body="extra.bgm" type="boolean" default="false">
+  BGM を追加するかどうか
+</ParamField>
+
+<ParamField body="extra.wm_url" type="string">
+  カスタム透かし画像 URL（`watermark: true` が必要）
+</ParamField>
+
+<ParamField body="extra.wm_position" type="integer">
+  透かし位置：`1`（左上）、`2`（右上）、`3`（左下）、`4`（右下）
+</ParamField>
+
+## 生成モード
+
+| モード | パラメータ | 説明 |
+|------|------|------|
+| テキストから動画 | `prompt` | テキストのみで生成 |
+| 画像から動画 | `prompt` + `image_urls`(1枚) | 単一画像参照 |
+| 先頭末尾フレーム | `image_urls`(2枚) | 開始・終了画面の遷移 |
+| 参照画像ガイド | `image_urls`(3枚以上) | 複数画像参照（自動的に viduq2 に切り替え） |
+
+## レスポンス
+
+<ResponseField name="task_id" type="string">
+  タスク ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用されたモデル ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作タイプ
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  タスクステータス：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  作成時間（Unix ミリ秒タイムスタンプ）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進捗、初期値は `0`
+</ResponseField>

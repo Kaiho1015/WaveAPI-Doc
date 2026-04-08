@@ -1,0 +1,50 @@
+---
+title: "同期と非同期"
+description: "WaveAPI の同期エンドポイントと非同期タスクシステムについて"
+---
+
+## 概要
+
+WaveAPI のエンドポイントは2種類に分かれています：
+
+<CardGroup cols={2}>
+  <Card title="同期エンドポイント" icon="bolt">
+    リクエスト後にブロッキングで待機し、結果を直接返します。テキスト生成、音声合成などの高速タスクに適しています。
+  </Card>
+  <Card title="非同期タスク" icon="clock-rotate-left">
+    リクエスト後すぐに task_id を返し、ポーリングまたは Webhook で結果を取得します。画像・動画生成などの時間のかかるタスクに適しています。
+  </Card>
+</CardGroup>
+
+## 同期エンドポイント
+
+以下のエンドポイントは同期モードで、リクエスト完了後に結果を直接返します：
+
+| エンドポイント | 用途 |
+|------|------|
+| `/v1/chat/completions` | テキスト生成（OpenAI 互換） |
+| `/v1/messages` | テキスト生成（Claude ネイティブ） |
+| `/v1/beta/models/{model}:generateContent` | テキスト生成（Gemini ネイティブ） |
+| `/v1/audio/speech` | TTS テキスト読み上げ |
+| `/v1/audio/transcriptions` | STT 音声認識 |
+| `/v1/images/generations` | 同期画像生成 |
+| `/v1/embeddings` | テキスト埋め込み |
+| `/v1/responses` | OpenAI Responses API |
+
+## 非同期タスクエンドポイント
+
+画像・動画生成は統一の非同期タスクシステムを使用します：
+
+| エンドポイント | 用途 |
+|------|------|
+| `POST /v1/tasks` | 非同期タスクを送信し、すぐに task_id を返します |
+| `POST /v1/tasks/sync` | 送信して完了を待機（タイムアウト時はポーリングにフォールバック） |
+| `GET /v1/tasks/{task_id}` | タスクのステータスと結果を照会 |
+| `POST /v1/tasks/{task_id}/cancel` | キュー中のタスクをキャンセル |
+
+## 選択方法
+
+- **テキスト対話** → 同期エンドポイントを使用、ストリーミング出力（SSE）対応
+- **画像生成** → シンプルな場合は `/v1/images/generations`、複雑な場合は `/v1/tasks`
+- **動画生成** → `/v1/tasks` のみ使用可能（処理時間が長いため）
+- **コールバック通知が必要** → `/v1/tasks` + `callback_url` を使用

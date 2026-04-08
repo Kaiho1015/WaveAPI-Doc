@@ -1,0 +1,82 @@
+---
+title: "影片生成概述"
+description: "透過 /v1/tasks 統一端點生成影片，支援多種模型"
+---
+
+## 概述
+
+WaveAPI 支援多種影片生成模型，統一透過非同步任務介面 `/v1/tasks` 呼叫。影片生成通常耗時較長，請使用輪詢或 Webhook 回呼取得結果。
+
+## 請求端點
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+## 通用請求參數
+
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `model` | string | 是 | 模型名稱 |
+| `action` | string | 否 | 預設 `"generate"` |
+| `prompt` | string | 是 | 影片描述文字 |
+| `duration` | integer | 否 | 影片時長（秒） |
+| `aspect_ratio` | string | 否 | 寬高比，如 `"16:9"` |
+| `first_frame` | string | 否 | 首幀圖片 URL（圖生影片） |
+| `last_frame` | string | 否 | 尾幀圖片 URL（需配合 first_frame） |
+| `video_url` | string | 否 | 參考影片 URL |
+| `video_urls` | array | 否 | 多個參考影片 URL |
+| `image_url` | string | 否 | 參考圖片 URL |
+| `image_urls` | array | 否 | 多張參考圖片 URL |
+| `generate_audio` | boolean | 否 | 是否同時生成音訊 |
+| `watermark` | boolean | 否 | 是否新增浮水印 |
+| `callback_url` | string | 否 | 完成後的回呼位址 |
+| `extra` | object | 否 | 模型特定的透傳參數 |
+
+## 回應格式
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "completed",
+  "result": {
+    "videos": [
+      {
+        "url": "https://...",
+        "expires_at": 1720000000
+      }
+    ]
+  }
+}
+```
+
+## 支援的模型
+
+<CardGroup cols={2}>
+  <Card title="VEO3" href="/zh-Hant/api-reference/video/veo3">
+    Google 影片生成模型
+  </Card>
+  <Card title="Sora2" href="/zh-Hant/api-reference/video/sora2">
+    OpenAI 影片生成模型
+  </Card>
+  <Card title="Kling" href="/zh-Hant/api-reference/video/kling-v2-6">
+    快手可靈系列
+  </Card>
+  <Card title="更多模型" icon="ellipsis">
+    海螺、豆包、Vidu、萬象 等
+  </Card>
+</CardGroup>
+
+## 生成模式
+
+大部分影片模型支援以下模式：
+
+| 模式 | 參數 | 說明 |
+|------|------|------|
+| 文生影片 | `prompt` | 純文字描述生成影片 |
+| 圖生影片 | `prompt` + `first_frame` 或 `image_url` | 基於圖片生成影片 |
+| 首尾幀 | `first_frame` + `last_frame` | 指定首尾畫面生成過渡影片 |
+
+<Note>
+並非所有模型都支援全部模式，請查看各模型文件了解具體支援情況。
+</Note>

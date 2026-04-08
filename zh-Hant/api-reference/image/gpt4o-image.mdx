@@ -1,0 +1,286 @@
+---
+title: "GPT-4o 圖像生成"
+description: "使用 GPT-4o-image 模型生成高品質圖像，支援文生圖、圖生圖和圖像編輯"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+<Note>
+  **非同步處理模式：** 提交請求後回傳任務 ID，請透過 [查詢任務狀態](/zh-Hant/api-reference/task/get-status) 介面取得生成結果。生成的圖片連結有效期為 24 小時，請及時儲存。
+</Note>
+
+<RequestExample>
+  ```bash cURL theme={null}
+  curl --request POST \
+    --url https://ai.kaiho.cc/v1/tasks \
+    --header 'Authorization: Bearer <token>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "model": "gpt-4o-image",
+      "prompt": "星空下的古老城堡，数字艺术风格",
+      "size": "1:1",
+      "n": 1,
+      "image_urls": [
+        "https://example.com/reference.png"
+      ]
+    }'
+  ```
+
+  ```python Python theme={null}
+  import requests
+
+  url = "https://ai.kaiho.cc/v1/tasks"
+
+  payload = {
+      "model": "gpt-4o-image",
+      "prompt": "星空下的古老城堡，数字艺术风格",
+      "size": "1:1",
+      "n": 1,
+      "image_urls": [
+          "https://example.com/reference.png"
+      ]
+  }
+
+  headers = {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+  }
+
+  response = requests.post(url, json=payload, headers=headers)
+
+  print(response.json())
+  ```
+
+  ```javascript JavaScript theme={null}
+  const url = "https://ai.kaiho.cc/v1/tasks";
+
+  const payload = {
+    model: "gpt-4o-image",
+    prompt: "星空下的古老城堡，数字艺术风格",
+    size: "1:1",
+    n: 1,
+    image_urls: [
+      "https://example.com/reference.png"
+    ]
+  };
+
+  const headers = {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  };
+
+  fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+  ```
+
+  ```go Go theme={null}
+  package main
+
+  import (
+      "bytes"
+      "encoding/json"
+      "fmt"
+      "io/ioutil"
+      "net/http"
+  )
+
+  func main() {
+      url := "https://ai.kaiho.cc/v1/tasks"
+
+      payload := map[string]interface{}{
+          "model":  "gpt-4o-image",
+          "prompt": "星空下的古老城堡，数字艺术风格",
+          "size":   "1:1",
+          "n":      1,
+          "image_urls": []string{
+              "https://example.com/reference.png",
+          },
+      }
+
+      jsonData, _ := json.Marshal(payload)
+
+      req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+      req.Header.Set("Authorization", "Bearer <token>")
+      req.Header.Set("Content-Type", "application/json")
+
+      client := &http.Client{}
+      resp, err := client.Do(req)
+      if err != nil {
+          panic(err)
+      }
+      defer resp.Body.Close()
+
+      body, _ := ioutil.ReadAll(resp.Body)
+      fmt.Println(string(body))
+  }
+  ```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "code": "success",
+    "data": "task-wave17486161910001884721"
+  }
+  ```
+
+  ```json 400 theme={null}
+  {
+    "code": "invalid_request",
+    "message": "請求參數無效",
+    "data": null
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "code": "authentication_error",
+    "message": "身份驗證失敗，請檢查您的API金鑰",
+    "data": null
+  }
+  ```
+
+  ```json 402 theme={null}
+  {
+    "code": "payment_required",
+    "message": "帳戶餘額不足，請儲值後再試",
+    "data": null
+  }
+  ```
+
+  ```json 403 theme={null}
+  {
+    "code": "quota_not_enough",
+    "message": "使用者額度不足",
+    "data": null
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "code": "rate_limit_error",
+    "message": "請求過於頻繁，請稍後再試",
+    "data": null
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "code": "server_error",
+    "message": "伺服器內部錯誤，請稍後重試",
+    "data": null
+  }
+  ```
+</ResponseExample>
+
+## 認證方式
+
+<ParamField header="Authorization" type="string" required>
+  所有介面均需要使用 Bearer Token 進行認證
+
+  取得 API Key：
+
+  存取 [API Key 管理頁面](https://ai.kaiho.cc/dashboard/keys) 取得您的 API Key
+
+  使用時在請求標頭中新增：
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## 請求參數
+
+<ParamField body="model" type="string" default="gpt-4o-image" required>
+  圖像生成模型名稱
+
+  範例：`"gpt-4o-image"`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  圖像生成的文字描述
+
+  最大 1000 個字元
+</ParamField>
+
+<ParamField body="size" type="string">
+  圖像生成尺寸
+
+  支援的比例：
+
+  * `1:1` - 正方形
+  * `2:3` - 直版
+  * `3:2` - 橫版
+</ParamField>
+
+<ParamField body="n" type="integer">
+  生成圖像的數量
+
+  支援 1、2、4，費用將按數量預扣
+
+  預設值：1
+
+  **注意：** 必須輸入純數字（如 `1`），不要使用引號包裹
+</ParamField>
+
+<ParamField body="image_urls" type="array<url>">
+  參考圖像 URL 列表，用於圖生圖或圖片編輯
+
+  <Expandable title="詳細說明">
+    陣列中的每個元素為字串，支援兩種格式：
+
+    **1. 完整圖像 URL**
+
+    * 公開可存取的圖像 URL（http:// 或 https://）
+    * 範例：`"https://example.com/image.jpg"`
+
+    **2. Base64 編碼格式**
+
+    * **必須使用完整的 Data URI 格式**
+    * 格式：`data:image/{format};base64,{base64data}`
+    * 支援的圖像格式：jpeg、png、webp
+    * 範例：`"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABg..."`
+    * 注意：必須包含 `data:image/jpeg;base64,` 前綴
+
+    **限制：**
+
+    * 單張圖片最大 10MB
+    * 支援格式：.jpeg、.jpg、.png、.webp
+  </Expandable>
+
+  **限制：** 最多 5 張圖片
+</ParamField>
+
+<ParamField body="mask_url" type="string">
+  遮罩圖像 URL
+
+  * 必須為 PNG 格式
+  * 尺寸必須與參考圖像一致
+  * 最大 4MB
+</ParamField>
+
+## 回應參數
+
+<ResponseField name="code" type="string">
+  回應狀態碼
+
+  * `success` - 請求成功，任務已提交
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  任務 ID，格式為 `task-wave{timestamp}{userId}{random}`
+
+  用於透過 [查詢任務狀態](/zh-Hant/api-reference/task/get-status) 介面取得生成結果
+</ResponseField>
+
+## 注意事項
+
+1. **非同步處理：** 任務提交後非同步處理，請透過 [查詢任務狀態](/zh-Hant/api-reference/task/get-status) 取得生成結果
+2. **連結有效期：** 生成的圖片連結有效期為 24 小時，請及時下載儲存
+3. **圖片 URL 要求：** 輸入的參考圖片必須為公開可存取的 URL 或 Base64 格式
+4. **費用說明：** 當 `n` 大於 1 時，費用將按數量預扣

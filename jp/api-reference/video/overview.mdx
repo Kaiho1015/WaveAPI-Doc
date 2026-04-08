@@ -1,0 +1,82 @@
+---
+title: "動画生成の概要"
+description: "/v1/tasks 統一エンドポイントで動画を生成、複数モデルに対応"
+---
+
+## 概要
+
+WaveAPI は複数の動画生成モデルに対応しており、統一された非同期タスクインターフェース `/v1/tasks` で呼び出します。動画生成は通常時間がかかるため、ポーリングまたは Webhook コールバックで結果を取得してください。
+
+## リクエストエンドポイント
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+## 共通リクエストパラメータ
+
+| パラメータ | タイプ | 必須 | 説明 |
+|------|------|------|------|
+| `model` | string | はい | モデル名 |
+| `action` | string | いいえ | デフォルト `"generate"` |
+| `prompt` | string | はい | 動画の説明テキスト |
+| `duration` | integer | いいえ | 動画の長さ（秒） |
+| `aspect_ratio` | string | いいえ | アスペクト比、例：`"16:9"` |
+| `first_frame` | string | いいえ | 先頭フレーム画像 URL（画像から動画生成） |
+| `last_frame` | string | いいえ | 末尾フレーム画像 URL（first_frame と併用が必要） |
+| `video_url` | string | いいえ | 参照動画 URL |
+| `video_urls` | array | いいえ | 複数の参照動画 URL |
+| `image_url` | string | いいえ | 参照画像 URL |
+| `image_urls` | array | いいえ | 複数の参照画像 URL |
+| `generate_audio` | boolean | いいえ | 音声も同時に生成するかどうか |
+| `watermark` | boolean | いいえ | 透かしを追加するかどうか |
+| `callback_url` | string | いいえ | 完了後のコールバックアドレス |
+| `extra` | object | いいえ | モデル固有のパススルーパラメータ |
+
+## レスポンス形式
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "completed",
+  "result": {
+    "videos": [
+      {
+        "url": "https://...",
+        "expires_at": 1720000000
+      }
+    ]
+  }
+}
+```
+
+## 対応モデル
+
+<CardGroup cols={2}>
+  <Card title="VEO3" href="/jp/api-reference/video/veo3">
+    Google 動画生成モデル
+  </Card>
+  <Card title="Sora2" href="/jp/api-reference/video/sora2">
+    OpenAI 動画生成モデル
+  </Card>
+  <Card title="Kling" href="/jp/api-reference/video/kling-v2-6">
+    Kuaishou Kling シリーズ
+  </Card>
+  <Card title="その他のモデル" icon="ellipsis">
+    Hailuo、Doubao、Vidu、Wan など
+  </Card>
+</CardGroup>
+
+## 生成モード
+
+ほとんどの動画モデルは以下のモードに対応しています：
+
+| モード | パラメータ | 説明 |
+|------|------|------|
+| テキストから動画 | `prompt` | テキスト説明から動画を生成 |
+| 画像から動画 | `prompt` + `first_frame` または `image_url` | 画像に基づいて動画を生成 |
+| 先頭末尾フレーム | `first_frame` + `last_frame` | 先頭と末尾の画面を指定して遷移動画を生成 |
+
+<Note>
+全てのモデルが全モードに対応しているわけではありません。各モデルのドキュメントで具体的な対応状況をご確認ください。
+</Note>

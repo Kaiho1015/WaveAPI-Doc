@@ -1,0 +1,201 @@
+---
+title: "FLUX シリーズ"
+description: "FLUX 画像生成シリーズモデル"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同期処理モード — リクエスト送信後にタスク ID が返されます。[タスクステータス照会](/jp/api-reference/task/status) インターフェースで生成結果を取得してください。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-kontext-pro",
+    "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
+    "size": "16:9"
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.images.generate(
+    model="flux-kontext-pro",
+    prompt="一只橘猫趴在窗台上晒太阳，水彩画风格",
+    size="16:9"
+)
+
+print(response.data[0])
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.images.generate({
+  model: 'flux-kontext-pro',
+  prompt: '一只橘猫趴在窗台上晒太阳，水彩画风格',
+  size: '16:9'
+});
+
+console.log(response.data[0]);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":  "flux-kontext-pro",
+        "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
+        "size":   "16:9",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "flux-kontext-pro",
+          "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
+          "size": "16:9"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "code": "success",
+  "data": "task-wave17200000001234567890abcdef"
+}
+```
+</ResponseExample>
+
+## 利用可能なモデル
+
+| モデル ID | 説明 |
+|---------|------|
+| `flux-kontext-pro` | FLUX Kontext Pro、画像編集とスタイル転送が得意 |
+| `flux-kontext-max` | FLUX Kontext Max、強化版 |
+| `flux-2-pro` | FLUX 2.0 Pro、汎用画像生成 |
+| `flux-2-dev` | FLUX 2.0 Dev、開発版 |
+
+## 共通パラメータ
+
+<ParamField body="model" type="string" required>
+  モデル ID、上記のモデルリストを参照
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  画像の説明テキスト、最大1000文字
+</ParamField>
+
+<ParamField body="image_urls" type="array">
+  参照画像 URL 配列
+</ParamField>
+
+## 各モデルの差異パラメータ
+
+<Tabs>
+  <Tab title="FLUX Kontext">
+    `flux-kontext-pro` と `flux-kontext-max` に適用
+
+    <ParamField body="size" type="string" default="match_input_image">
+      画像サイズ
+
+      対応：`match_input_image`、`auto`、`1:1`、`4:3`、`3:4`、`16:9`、`9:16`、`3:2`、`2:3`、`21:9`、`9:21`
+    </ParamField>
+
+    <ParamField body="response_format" type="string" default="png">
+      出力フォーマット：`png`、`jpg`
+    </ParamField>
+
+    <ParamField body="safety_tolerance" type="integer" default="2">
+      コンテンツセーフティレベル、範囲 0-6、値が高いほど緩和
+    </ParamField>
+
+    <ParamField body="prompt_upsampling" type="boolean" default="false">
+      プロンプト最適化強化を有効にする
+    </ParamField>
+
+    <Note>
+    Kontext シリーズは**画像編集**に特化しており、`image_urls` は最大1枚の参照画像を指定できます。
+    </Note>
+  </Tab>
+
+  <Tab title="FLUX 2.0">
+    `flux-2-pro` と `flux-2-dev` に適用
+
+    <ParamField body="size" type="string" default="1:1">
+      画像サイズ比率
+
+      対応：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`
+    </ParamField>
+
+    <Note>
+    FLUX 2.0 シリーズは**汎用画像生成**に特化しており、`image_urls` は画像から画像生成の参照として使用できます。
+    </Note>
+  </Tab>
+</Tabs>
+
+## レスポンス
+
+タスク ID を返します。[タスクステータス照会](/jp/api-reference/task/status) で最終的な画像結果を取得してください。
+
+<ResponseField name="code" type="string">
+  ステータスコード、成功時は `"success"`
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  タスク ID、形式は `task-wave{timestamp}{userId}{random}`
+</ResponseField>

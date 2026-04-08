@@ -1,0 +1,75 @@
+---
+title: "Image Generation Overview"
+description: "Generate images through the unified /v1/tasks endpoint with support for multiple models"
+---
+
+## Overview
+
+WaveAPI supports multiple image generation models, all accessible through the unified async task endpoint `/v1/tasks`.
+
+<Note>
+Simple synchronous image generation can also use `/v1/tasks` (OpenAI compatible format), but `/v1/tasks` is recommended for broader model and parameter support.
+</Note>
+
+## Request Endpoint
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+## Common Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `model` | string | Yes | Model name |
+| `action` | string | No | Operation type, defaults to `"generate"`, options include `"edit"`, `"upscale"`, `"variation"` |
+| `prompt` | string | Yes | Image description text |
+| `negative_prompt` | string | No | Content you do not want to appear |
+| `n` | integer | No | Number of images to generate, default 1 |
+| `size` | string | No | Image size, e.g., `"1024x1024"` |
+| `aspect_ratio` | string | No | Aspect ratio, e.g., `"16:9"` |
+| `quality` | string | No | Quality level, e.g., `"standard"`, `"hd"` |
+| `image_url` | string | No | Reference image URL (image-to-image) |
+| `image_urls` | array | No | Multiple reference image URLs |
+| `callback_url` | string | No | Webhook callback URL upon completion |
+| `extra` | object | No | Model-specific pass-through parameters |
+
+## Response Format
+
+After task submission, a `task_id` is returned. Query results via `GET /v1/tasks/{task_id}`:
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "completed",
+  "result": {
+    "images": [
+      {
+        "url": "https://...",
+        "expires_at": 1720000000
+      }
+    ]
+  }
+}
+```
+
+## Supported Models
+
+<CardGroup cols={2}>
+  <Card title="GPT-4o Image" href="/en/api-reference/image/gpt4o-image">
+    OpenAI image generation model
+  </Card>
+  <Card title="FLUX Kontext" href="/en/api-reference/image/flux-kontext">
+    FLUX series image generation
+  </Card>
+  <Card title="Seedream" href="/en/api-reference/image/seedream-4">
+    ByteDance Seedream series
+  </Card>
+  <Card title="More Models" icon="ellipsis">
+    Nano Banana, Gemini Flash, and more
+  </Card>
+</CardGroup>
+
+<Tip>
+Each model supports different parameters. The `extra` field is used to pass model-specific parameters. Refer to each model's documentation page for detailed parameter support.
+</Tip>

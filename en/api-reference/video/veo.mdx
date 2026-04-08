@@ -1,0 +1,269 @@
+---
+title: "VEO Series"
+description: "Google VEO video generation series models"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+Async processing mode -- submit a request and receive a task ID. Use the [Query Task Status](/en/api-reference/task/status) endpoint to retrieve generation results. Video links are valid for 24 hours -- please download promptly.
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo-3.1",
+    "action": "generate",
+    "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+    "aspect_ratio": "16:9",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "veo-3.1",
+        "action": "generate",
+        "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'veo-3.1',
+    action: 'generate',
+    prompt: 'A golden retriever running on a beach at sunset, cinematic lighting, slow motion',
+    aspect_ratio: '16:9',
+    duration: 8,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`Task submitted: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "veo-3.1",
+        "action":     "generate",
+        "prompt":     "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+        "aspect_ratio": "16:9",
+        "duration":   8,
+        "resolution": "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "veo-3.1",
+          "action": "generate",
+          "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+          "aspect_ratio": "16:9",
+          "duration": 8,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo-3.1",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## Available Models
+
+| Model ID | Description |
+|----------|-------------|
+| `veo-3.1` | VEO 3.1, supports 4K and native audio |
+| `veo-3.1-fast` | VEO 3.1 fast version |
+| `veo-3.0` | VEO 3.0 |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text. VEO 3+ supports describing sound effects and dialogue in the prompt, and the model will automatically generate corresponding audio
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Aspect ratio: `16:9`, `9:16`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="8">
+  Video duration (seconds): `4`, `6`, `8`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution, available values depend on the model (see model tabs)
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  Content you do not want to appear. Describe directly (do not use negation statements)
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  Random seed for improved reproducibility (exact results not guaranteed). VEO 3.1 series only
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Additional parameters passed through to Google VEO (see model tabs)
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="VEO 3.1">
+    **resolution options:** `720p`, `1080p`, `4k`
+
+    <ParamField body="extra.personGeneration" type="string" default="allow_all">
+      Person generation control:
+
+      - `allow_all` — Allow all persons
+      - `allow_adult` — Allow adults only
+      - `dont_allow` — Disallow person generation
+    </ParamField>
+
+    **Unique capabilities:**
+    - Native audio generation (dialogue + ambient sound + sound effects, no additional parameters required)
+    - 4K resolution output
+  </Tab>
+
+  <Tab title="VEO 3.1 Fast">
+    **resolution options:** `720p`, `1080p`, `4k`
+
+    Same parameters as VEO 3.1, with faster processing.
+
+    <ParamField body="extra.personGeneration" type="string" default="allow_all">
+      Person generation control: `allow_all`, `allow_adult`, `dont_allow`
+    </ParamField>
+  </Tab>
+
+  <Tab title="VEO 3.0">
+    **resolution options:** `720p`, `1080p`
+
+    <ParamField body="extra.personGeneration" type="string" default="allow_all">
+      Person generation control: `allow_all`, `allow_adult`, `dont_allow`
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Constraints
+
+| Constraint | Requirement |
+|------------|-------------|
+| Resolution `1080p` or `4k` | `duration` must be `8` |
+| Resolution `4k` | VEO 3.1 and 3.1 Fast only |
+| Output frame rate | 24 FPS |
+| Output format | MP4 |
+
+<Note>
+VEO 3+ natively supports audio generation with no additional parameters required. Describe sound effects in the prompt (e.g., "the sound of waves crashing").
+</Note>
+
+## Response
+
+<ResponseField name="task_id" type="string">
+  Task ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model ID used
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Operation type
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Task status: `queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation time (Unix millisecond timestamp)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  Progress, initially `0`
+</ResponseField>

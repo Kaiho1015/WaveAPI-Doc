@@ -1,0 +1,268 @@
+---
+title: "海螺 Hailuo 系列"
+description: "MiniMax 海螺影片生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同步處理模式 — 提交請求後回傳任務 ID，透過 [查詢任務狀態](/zh-Hant/api-reference/task/status) 介面取得生成結果。影片連結有效期 24 小時。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hailuo-2.3",
+    "action": "generate",
+    "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
+    "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "hailuo-2.3",
+        "action": "generate",
+        "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
+        "duration": 6,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"任務已提交: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'hailuo-2.3',
+    action: 'generate',
+    prompt: '一只白猫慵懒地躺在阳光下的窗台上',
+    duration: 6,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`任務已提交: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "hailuo-2.3",
+        "action":     "generate",
+        "prompt":     "一只白猫慵懒地躺在阳光下的窗台上",
+        "duration":   6,
+        "resolution": "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "hailuo-2.3",
+          "action": "generate",
+          "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
+          "duration": 6,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "hailuo-2.3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 預設解析度 | 支援時長 | 說明 |
+|---------|-----------|---------|------|
+| `hailuo-2.3` | 768P | 6s / 10s | 海螺 2.3，支援 4K、角色參考 |
+| `hailuo-2.3-fast` | 768P | 6s / 10s | 海螺 2.3 快速版 |
+| `hailuo-02` | 768P | 6s / 10s | 海螺 02，支援首尾幀 |
+| `T2V-01-Director` | 768P | 6s | 導演模式，支援鏡頭語法控制 |
+| `I2V-01-Director` | 720P | 6s | 圖生影片導演模式 |
+| `S2V-01` | 720P | 6s | 角色參考模式，保持角色一致性 |
+
+## 統一參數
+
+<ParamField body="model" type="string" required>
+  模型 ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作類型
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  影片描述文字
+</ParamField>
+
+<ParamField body="duration" type="integer" default="6">
+  影片時長（秒）：`6`、`10`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="768p">
+  輸出解析度，可選值取決於模型，見各模型 Tab
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  首幀圖片 URL，用於圖生影片
+</ParamField>
+
+<ParamField body="last_frame" type="string">
+  尾幀圖片 URL，需配合 `image_urls`。僅 `hailuo-02` 支援
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回呼位址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  透傳給海螺的額外參數，詳見各模型 Tab
+</ParamField>
+
+## 模型特定參數
+
+<Tabs>
+  <Tab title="Hailuo 2.3 / 2.3 Fast">
+    **resolution 可選值：** `768p`、`1080p`
+
+    <ParamField body="extra.prompt_optimizer" type="boolean" default="true">
+      是否啟用提示詞最佳化
+    </ParamField>
+
+    <ParamField body="extra.fast_pretreatment" type="boolean">
+      快速預處理模式
+    </ParamField>
+
+    <ParamField body="extra.subject_reference" type="array">
+      角色參考，保持角色一致性
+
+      ```json
+      "extra": {
+        "subject_reference": [{
+          "type": "character",
+          "image": ["https://example.com/character.jpg"]
+        }]
+      }
+      ```
+    </ParamField>
+  </Tab>
+
+  <Tab title="Hailuo 02">
+    **resolution 可選值：** `512p`、`768p`、`1080p`
+
+    支援首尾幀模式（透過 `image_urls` + `last_frame`）。
+
+    <ParamField body="extra.prompt_optimizer" type="boolean" default="true">
+      是否啟用提示詞最佳化
+    </ParamField>
+
+    <ParamField body="extra.fast_pretreatment" type="boolean">
+      快速預處理模式
+    </ParamField>
+
+    <ParamField body="extra.aigc_watermark" type="boolean">
+      是否新增 AIGC 浮水印
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 生成模式
+
+| 模式 | 參數 | 支援模型 |
+|------|------|---------|
+| 文生影片 | `prompt` | 全部 |
+| 圖生影片 | `prompt` + `image_urls`(1張) | 全部 |
+| 首尾幀 | `image_urls`(1張) + `last_frame` | hailuo-02 |
+| 角色參考 | `prompt` + `extra.subject_reference` | hailuo-2.3 系列 |
+
+## 回應
+
+<ResponseField name="task_id" type="string">
+  任務 ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作類型
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任務狀態：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  建立時間（Unix 毫秒時間戳）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進度，初始為 `0`
+</ResponseField>

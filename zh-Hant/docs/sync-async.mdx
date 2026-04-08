@@ -1,0 +1,50 @@
+---
+title: "同步與非同步"
+description: "了解 WaveAPI 的同步端點和非同步任務系統"
+---
+
+## 概述
+
+WaveAPI 的端點分為兩類：
+
+<CardGroup cols={2}>
+  <Card title="同步端點" icon="bolt">
+    請求後阻塞等待，直接回傳結果。適用於文字生成、語音合成等快速任務。
+  </Card>
+  <Card title="非同步任務" icon="clock-rotate-left">
+    請求後立即回傳 task_id，透過輪詢或 Webhook 取得結果。適用於圖像、影片生成等耗時任務。
+  </Card>
+</CardGroup>
+
+## 同步端點
+
+以下端點為同步模式，請求完成後直接回傳結果：
+
+| 端點 | 用途 |
+|------|------|
+| `/v1/chat/completions` | 文字生成（OpenAI 相容） |
+| `/v1/messages` | 文字生成（Claude 原生） |
+| `/v1/beta/models/{model}:generateContent` | 文字生成（Gemini 原生） |
+| `/v1/audio/speech` | TTS 文字轉語音 |
+| `/v1/audio/transcriptions` | STT 語音辨識 |
+| `/v1/images/generations` | 同步圖像生成 |
+| `/v1/embeddings` | 文字嵌入 |
+| `/v1/responses` | OpenAI Responses API |
+
+## 非同步任務端點
+
+圖像和影片生成使用統一的非同步任務系統：
+
+| 端點 | 用途 |
+|------|------|
+| `POST /v1/tasks` | 提交非同步任務，立即回傳 task_id |
+| `POST /v1/tasks/sync` | 提交並等待完成（逾時回退為輪詢） |
+| `GET /v1/tasks/{task_id}` | 查詢任務狀態和結果 |
+| `POST /v1/tasks/{task_id}/cancel` | 取消排隊中的任務 |
+
+## 如何選擇
+
+- **文字對話** → 使用同步端點，支援串流輸出（SSE）
+- **圖像生成** → 簡單場景用 `/v1/images/generations`，複雜場景用 `/v1/tasks`
+- **影片生成** → 只能用 `/v1/tasks`（耗時較長）
+- **需要回呼通知** → 使用 `/v1/tasks` + `callback_url`

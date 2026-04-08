@@ -1,0 +1,255 @@
+---
+title: "Vidu 系列"
+description: "生數科技 Vidu 影片生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+非同步處理模式 — 提交請求後回傳任務 ID，透過 [查詢任務狀態](/zh-Hant/api-reference/task/status) 介面取得生成結果。影片連結有效期 24 小時。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3",
+    "action": "generate",
+    "prompt": "城市夜景延时摄影，霓虹灯光流转",
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "viduq3",
+        "action": "generate",
+        "prompt": "城市夜景延时摄影，霓虹灯光流转",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"任務已提交: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'viduq3',
+    action: 'generate',
+    prompt: '城市夜景延时摄影，霓虹灯光流转',
+    aspect_ratio: '16:9',
+    duration: 5,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`任務已提交: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":        "viduq3",
+        "action":       "generate",
+        "prompt":       "城市夜景延时摄影，霓虹灯光流转",
+        "aspect_ratio": "16:9",
+        "duration":     5,
+        "resolution":   "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "viduq3",
+          "action": "generate",
+          "prompt": "城市夜景延时摄影，霓虹灯光流转",
+          "aspect_ratio": "16:9",
+          "duration": 5,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "viduq3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 說明 |
+|---------|------|
+| `viduq3` | Vidu Q3，原生音訊、16 秒、1080p |
+| `viduq3-pro` | Vidu Q3 Pro，最高畫質 |
+| `viduq3-turbo` | Vidu Q3 Turbo，速度優先 |
+| `viduq3-mix` | Vidu Q3 Mix，多參考圖多實體一致性 |
+| `viduq2` | Vidu Q2 |
+| `viduq1` | Vidu Q1 |
+
+## 統一參數
+
+<ParamField body="model" type="string" required>
+  模型 ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作類型
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  影片描述文字
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  寬高比：`16:9`、`9:16`、`1:1`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  影片時長（秒）
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1080p">
+  解析度：`720p`、`1080p`
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  隨機種子，`0` 為隨機
+</ParamField>
+
+<ParamField body="watermark" type="boolean">
+  是否新增浮水印。支援自訂浮水印圖片和位置（透過 extra）
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  參考圖片 URL 陣列，數量決定生成模式：
+  - 1 張 → 圖生影片
+  - 2 張 → 首尾幀模式
+  - 3+ 張 → 參考圖引導（自動使用 viduq2）
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回呼位址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  透傳參數
+</ParamField>
+
+## 模型特定參數
+
+<ParamField body="extra.movement_amplitude" type="string" default="auto">
+  運動幅度：`auto`、`small`、`medium`、`large`
+</ParamField>
+
+<ParamField body="extra.bgm" type="boolean" default="false">
+  是否新增背景音樂
+</ParamField>
+
+<ParamField body="extra.wm_url" type="string">
+  自訂浮水印圖片 URL（需 `watermark: true`）
+</ParamField>
+
+<ParamField body="extra.wm_position" type="integer">
+  浮水印位置：`1`（左上）、`2`（右上）、`3`（左下）、`4`（右下）
+</ParamField>
+
+## 生成模式
+
+| 模式 | 參數 | 說明 |
+|------|------|------|
+| 文生影片 | `prompt` | 純文字生成 |
+| 圖生影片 | `prompt` + `image_urls`(1張) | 單圖參考 |
+| 首尾幀 | `image_urls`(2張) | 起止畫面過渡 |
+| 參考圖引導 | `image_urls`(3+張) | 多圖參考（自動切換為 viduq2） |
+
+## 回應
+
+<ResponseField name="task_id" type="string">
+  任務 ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作類型
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任務狀態：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  建立時間（Unix 毫秒時間戳）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  進度，初始為 `0`
+</ResponseField>

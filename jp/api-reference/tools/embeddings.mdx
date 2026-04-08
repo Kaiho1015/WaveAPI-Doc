@@ -1,0 +1,178 @@
+---
+title: "テキスト埋め込み"
+description: "テキストをベクトル表現に変換"
+api: "POST https://ai.kaiho.cc/v1/embeddings"
+---
+
+同期インターフェース — リクエスト完了後にベクトル結果を直接返します。
+
+<RequestExample>
+```bash cURL
+curl https://ai.kaiho.cc/v1/embeddings \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "WaveAPI 是统一的 AI 模型网关"
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="WaveAPI 是统一的 AI 模型网关"
+)
+
+vector = response.data[0].embedding
+print(f"ベクトル次元数: {len(vector)}")
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.embeddings.create({
+  model: 'text-embedding-3-small',
+  input: 'WaveAPI 是统一的 AI 模型网关'
+});
+
+console.log(`ベクトル次元数: ${response.data[0].embedding.length}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]string{
+        "model": "text-embedding-3-small",
+        "input": "WaveAPI 是统一的 AI 模型网关",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/embeddings", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "text-embedding-3-small",
+          "input": "WaveAPI 是统一的 AI 模型网关"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/embeddings"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "object": "list",
+  "model": "text-embedding-3-small",
+  "data": [
+    {
+      "object": "embedding",
+      "index": 0,
+      "embedding": [0.0023, -0.0091, 0.0152, ...]
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 8,
+    "total_tokens": 8
+  }
+}
+```
+</ResponseExample>
+
+## リクエストパラメータ
+
+<ParamField body="model" type="string" required>
+  埋め込みモデル ID、例：`text-embedding-3-small`、`text-embedding-3-large`
+</ParamField>
+
+<ParamField body="input" type="string or array" required>
+  埋め込みするテキスト、文字列または文字列配列（バッチ埋め込み）に対応
+</ParamField>
+
+## レスポンス
+
+<ResponseField name="object" type="string">
+  固定値 `"list"`
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用されたモデル
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  埋め込み結果配列
+
+  <Expandable title="属性">
+    <ResponseField name="object" type="string">
+      固定値 `"embedding"`
+    </ResponseField>
+    <ResponseField name="index" type="integer">
+      入力テキストのインデックス
+    </ResponseField>
+    <ResponseField name="embedding" type="array">
+      浮動小数点数ベクトル
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token 使用量
+
+  <Expandable title="属性">
+    <ResponseField name="prompt_tokens" type="integer">
+      入力 Token 数
+    </ResponseField>
+    <ResponseField name="total_tokens" type="integer">
+      合計 Token 数
+    </ResponseField>
+  </Expandable>
+</ResponseField>

@@ -17,7 +17,7 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="gpt-4o",
-    messages=[{"role": "user", "content": "你好！"}]
+    messages=[{"role": "user", "content": "Hello!"}]
 )
 
 print(response.choices[0].message.content)
@@ -33,7 +33,7 @@ const client = new OpenAI({
 
 const response = await client.chat.completions.create({
   model: 'gpt-4o',
-  messages: [{ role: 'user', content: '你好！' }]
+  messages: [{ role: 'user', content: 'Hello!' }]
 });
 
 console.log(response.choices[0].message.content);
@@ -45,7 +45,7 @@ curl https://ai.kaiho.cc/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gpt-4o",
-    "messages": [{"role": "user", "content": "你好！"}]
+    "messages": [{"role": "user", "content": "Hello!"}]
   }'
 ```
 
@@ -59,21 +59,21 @@ curl https://ai.kaiho.cc/v1/chat/completions \
   <Card
     title="文字生成"
     img="/images/cards/text-generation.svg"
-    href="/cn/api-manual/text/general-chat"
+    href="/zh-Hant/api-reference/text/general-chat"
   >
     GPT-4o、Claude Sonnet、Gemini 等主流大語言模型，支援串流輸出
   </Card>
   <Card
     title="圖像生成"
     img="/images/cards/image-generation.svg"
-    href="/cn/api-manual/image/gpt4o-image"
+    href="/zh-Hant/api-reference/image/gpt4o-image"
   >
     GPT-4o Image、FLUX Kontext、Seedream 等圖像生成模型
   </Card>
   <Card
     title="影片生成"
     img="/images/cards/video-generation.svg"
-    href="/cn/api-manual/video/veo3"
+    href="/zh-Hant/api-reference/video/veo3"
   >
     VEO3、Sora2、Kling、海螺等影片生成模型
   </Card>
@@ -83,14 +83,14 @@ curl https://ai.kaiho.cc/v1/chat/completions \
   <Card
     title="音訊處理"
     img="/images/cards/audio.svg"
-    href="/cn/api-manual/audio/tts"
+    href="/zh-Hant/api-reference/audio/tts"
   >
     Whisper 語音辨識和 TTS 文字轉語音
   </Card>
   <Card
     title="任務管理"
     img="/images/cards/task-management.svg"
-    href="/cn/api-manual/task/get-status"
+    href="/zh-Hant/api-reference/task/get-status"
   >
     非同步任務狀態查詢，追蹤圖像和影片生成進度
   </Card>
@@ -124,12 +124,12 @@ curl https://ai.kaiho.cc/v1/chat/completions \
 
 <Steps>
   <Step title="取得 API Key">
-    前往 [Dashboard](https://ai.kaiho.cc/token) 註冊並取得你的 API Key
+    前往 [Dashboard](https://ai.kaiho.cc/dashboard/keys) 註冊並取得你的 API Key
   </Step>
   <Step title="替換 Base URL">
     將 OpenAI SDK 的 base URL 替換為 `https://ai.kaiho.cc/v1`
   </Step>
   <Step title="選擇模型並呼叫">
-    透過 `model` 參數指定想要使用的模型，發送請求即可
+    透過 `model` 參數指定想要使用的模型，傳送請求即可
   </Step>
 </Steps>
