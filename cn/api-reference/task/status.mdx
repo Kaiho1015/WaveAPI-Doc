@@ -1,0 +1,51 @@
+---
+title: "查询状态"
+description: "GET /v1/tasks/{task_id} — 查询任务状态和结果"
+---
+
+## 端点
+
+```
+GET https://ai.kaiho.cc/v1/tasks/{task_id}
+```
+
+## 响应
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "veo3",
+  "action": "generate",
+  "status": "completed",
+  "created_at": 1720000000,
+  "start_time": 1720000002,
+  "completed_at": 1720000030,
+  "progress": 100,
+  "result": {
+    "images": [],
+    "videos": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+## 状态值
+
+| 状态 | 说明 |
+|------|------|
+| `queued` | 等待处理 |
+| `processing` | 生成中，`progress` 字段显示进度 |
+| `completed` | 完成，`result` 包含生成结果 |
+| `failed` | 失败，`error` 包含错误信息 |
+| `cancelled` | 已取消 |
+
+## 轮询建议
+
+- 轮询间隔：2-5 秒
+- 设置最大等待时间（建议 5 分钟）
+- 检查 `progress` 字段了解生成进度
+
+<Warning>
+生成结果中的 URL 有有效期（`expires_at`），请及时下载保存。
+</Warning>

@@ -1,0 +1,259 @@
+---
+title: "Nano Banana Pro 图像生成"
+description: "使用 Gemini-3-Pro-Image-preview (Nano Banana Pro) 生成专业级高质量图像"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+<Note>
+  **异步处理模式：** 提交请求后返回任务 ID，请通过 [查询任务状态](/cn/api-reference/task/get-status) 接口获取生成结果。生成的图片链接有效期为 24 小时，请及时保存。
+</Note>
+
+<RequestExample>
+  ```bash cURL theme={null}
+  curl --request POST \
+    --url https://ai.kaiho.cc/v1/tasks \
+    --header 'Authorization: Bearer <token>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "model": "gemini-3-pro-image-preview",
+      "prompt": "赛博朋克风格的霓虹城市街道，雨后倒影",
+      "size": "16:9",
+      "n": 1
+    }'
+  ```
+
+  ```python Python theme={null}
+  import requests
+
+  url = "https://ai.kaiho.cc/v1/tasks"
+
+  payload = {
+      "model": "gemini-3-pro-image-preview",
+      "prompt": "赛博朋克风格的霓虹城市街道，雨后倒影",
+      "size": "16:9",
+      "n": 1
+  }
+
+  headers = {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+  }
+
+  response = requests.post(url, json=payload, headers=headers)
+
+  print(response.json())
+  ```
+
+  ```javascript JavaScript theme={null}
+  const url = "https://ai.kaiho.cc/v1/tasks";
+
+  const payload = {
+    model: "gemini-3-pro-image-preview",
+    prompt: "赛博朋克风格的霓虹城市街道，雨后倒影",
+    size: "16:9",
+    n: 1
+  };
+
+  const headers = {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  };
+
+  fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+  ```
+
+  ```go Go theme={null}
+  package main
+
+  import (
+      "bytes"
+      "encoding/json"
+      "fmt"
+      "io/ioutil"
+      "net/http"
+  )
+
+  func main() {
+      url := "https://ai.kaiho.cc/v1/tasks"
+
+      payload := map[string]interface{}{
+          "model":  "gemini-3-pro-image-preview",
+          "prompt": "赛博朋克风格的霓虹城市街道，雨后倒影",
+          "size":   "16:9",
+          "n":      1,
+      }
+
+      jsonData, _ := json.Marshal(payload)
+
+      req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+      req.Header.Set("Authorization", "Bearer <token>")
+      req.Header.Set("Content-Type", "application/json")
+
+      client := &http.Client{}
+      resp, err := client.Do(req)
+      if err != nil {
+          panic(err)
+      }
+      defer resp.Body.Close()
+
+      body, _ := ioutil.ReadAll(resp.Body)
+      fmt.Println(string(body))
+  }
+  ```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "code": "success",
+    "data": "task-wave17486161910001884721"
+  }
+  ```
+
+  ```json 400 theme={null}
+  {
+    "code": "invalid_request",
+    "message": "请求参数无效",
+    "data": null
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "code": "authentication_error",
+    "message": "身份验证失败，请检查您的API密钥",
+    "data": null
+  }
+  ```
+
+  ```json 402 theme={null}
+  {
+    "code": "payment_required",
+    "message": "账户余额不足，请充值后再试",
+    "data": null
+  }
+  ```
+
+  ```json 403 theme={null}
+  {
+    "code": "quota_not_enough",
+    "message": "用户额度不足",
+    "data": null
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "code": "rate_limit_error",
+    "message": "请求过于频繁，请稍后再试",
+    "data": null
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "code": "server_error",
+    "message": "服务器内部错误，请稍后重试",
+    "data": null
+  }
+  ```
+</ResponseExample>
+
+## 认证方式
+
+<ParamField header="Authorization" type="string" required>
+  所有接口均需要使用 Bearer Token 进行认证
+
+  获取 API Key：
+
+  访问 [API Key 管理页面](https://ai.kaiho.cc/dashboard/keys) 获取您的 API Key
+
+  使用时在请求头中添加：
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## 请求参数
+
+<ParamField body="model" type="string" default="gemini-3-pro-image-preview" required>
+  图像生成模型名称
+
+  示例：`"gemini-3-pro-image-preview"`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像生成的文字描述
+
+  最大 1000 个字符
+</ParamField>
+
+<ParamField body="size" type="string">
+  图像生成尺寸
+
+  支持的比例：
+
+  * `1:1` - 正方形
+  * `2:3` - 竖版
+  * `3:2` - 横版
+  * `3:4` - 竖版 3:4
+  * `4:3` - 横版 4:3
+  * `4:5` - 竖版 4:5
+  * `5:4` - 横版 5:4
+  * `9:16` - 竖版全屏
+  * `16:9` - 横版宽屏
+  * `21:9` - 超宽屏
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1K">
+  输出图像分辨率
+
+  支持的值：
+
+  * `1K` - 1K 分辨率（默认）
+</ParamField>
+
+<ParamField body="n" type="integer">
+  生成图像的数量
+
+  固定为 1
+
+  **⚠️ 注意：** 必须输入纯数字（如 `1`），不要使用引号包裹
+</ParamField>
+
+<ParamField body="image_urls" type="array<url>">
+  参考图像 URL 列表，用于图生图或图片编辑
+
+  * 最多 14 张图片
+  * 每张图片不超过 10MB
+  * 支持格式：.jpeg、.jpg、.png、.webp
+</ParamField>
+
+## 响应参数
+
+<ResponseField name="code" type="string">
+  响应状态码
+
+  * `success` - 请求成功，任务已提交
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  任务 ID，格式为 `task-wave{timestamp}{userId}{random}`
+
+  用于通过 [查询任务状态](/cn/api-reference/task/get-status) 接口获取生成结果
+</ResponseField>
+
+## 注意事项
+
+1. **异步处理：** 任务提交后异步处理，请通过 [查询任务状态](/cn/api-reference/task/get-status) 获取生成结果
+2. **链接有效期：** 生成的图片链接有效期为 24 小时，请及时下载保存
+3. **专业品质：** Nano Banana Pro 基于 Gemini 3 Pro，生成质量更高，适合专业级图像创作
+4. **参考图片：** 支持最多 14 张参考图片，可用于风格/角色一致性控制

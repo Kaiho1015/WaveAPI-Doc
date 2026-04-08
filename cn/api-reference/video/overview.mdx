@@ -1,0 +1,82 @@
+---
+title: "视频生成概述"
+description: "通过 /v1/tasks 统一端点生成视频，支持多种模型"
+---
+
+## 概述
+
+WaveAPI 支持多种视频生成模型，统一通过异步任务接口 `/v1/tasks` 调用。视频生成通常耗时较长，请使用轮询或 Webhook 回调获取结果。
+
+## 请求端点
+
+```
+POST https://ai.kaiho.cc/v1/tasks
+```
+
+## 通用请求参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `model` | string | 是 | 模型名称 |
+| `action` | string | 否 | 默认 `"generate"` |
+| `prompt` | string | 是 | 视频描述文本 |
+| `duration` | integer | 否 | 视频时长（秒） |
+| `aspect_ratio` | string | 否 | 宽高比，如 `"16:9"` |
+| `first_frame` | string | 否 | 首帧图片 URL（图生视频） |
+| `last_frame` | string | 否 | 尾帧图片 URL（需配合 first_frame） |
+| `video_url` | string | 否 | 参考视频 URL |
+| `video_urls` | array | 否 | 多个参考视频 URL |
+| `image_url` | string | 否 | 参考图片 URL |
+| `image_urls` | array | 否 | 多张参考图片 URL |
+| `generate_audio` | boolean | 否 | 是否同时生成音频 |
+| `watermark` | boolean | 否 | 是否添加水印 |
+| `callback_url` | string | 否 | 完成后的回调地址 |
+| `extra` | object | 否 | 模型特定的透传参数 |
+
+## 响应格式
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "completed",
+  "result": {
+    "videos": [
+      {
+        "url": "https://...",
+        "expires_at": 1720000000
+      }
+    ]
+  }
+}
+```
+
+## 支持的模型
+
+<CardGroup cols={2}>
+  <Card title="VEO3" href="/cn/api-reference/video/veo3">
+    Google 视频生成模型
+  </Card>
+  <Card title="Sora2" href="/cn/api-reference/video/sora2">
+    OpenAI 视频生成模型
+  </Card>
+  <Card title="Kling" href="/cn/api-reference/video/kling-v2-6">
+    快手可灵系列
+  </Card>
+  <Card title="更多模型" icon="ellipsis">
+    海螺、豆包、Vidu、万象 等
+  </Card>
+</CardGroup>
+
+## 生成模式
+
+大部分视频模型支持以下模式：
+
+| 模式 | 参数 | 说明 |
+|------|------|------|
+| 文生视频 | `prompt` | 纯文本描述生成视频 |
+| 图生视频 | `prompt` + `first_frame` 或 `image_url` | 基于图片生成视频 |
+| 首尾帧 | `first_frame` + `last_frame` | 指定首尾画面生成过渡视频 |
+
+<Note>
+并非所有模型都支持全部模式，请查看各模型文档了解具体支持情况。
+</Note>

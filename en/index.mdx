@@ -1,86 +1,135 @@
 ---
-title: "Welcome to Kaihoxz"
-description: "Unified AI Model API Platform - Supporting Text, Image, and Video Generation"
+title: "WaveAPI"
+description: "Unified AI Model API Gateway — Access all leading AI models through one endpoint"
 ---
 
-## 🚀 Kaihoxz API Platform
+OpenAI-compatible unified API endpoint for GPT-4o, Claude, Gemini, Sora, VEO, and more. Migrate in under 5 minutes — just change your `base_url`, no code rewrite needed.
 
-Kaihoxz provides unified AI model API interfaces, making it easy to call state-of-the-art AI models.
+<CodeGroup>
 
-<Card
-  title="Quick Start"
-  icon="rocket"
-  href="/en/quickstart"
-  horizontal
->
-  Start using Chat API for text generation right away
-</Card>
+```python Python
+from openai import OpenAI
 
-## 💡 AI Capabilities
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
 
-Explore the various AI model interfaces we provide.
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'your-api-key'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: 'Hello!' }]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+</CodeGroup>
+
+## AI Model Capabilities
+
+Call various AI models through WaveAPI.
 
 <CardGroup cols={3}>
   <Card
     title="Text Generation"
-    icon="comments"
+    img="/images/cards/text-generation.svg"
     href="/en/api-manual/text/general-chat"
   >
-    Unified chat API supporting multiple text generation models
+    GPT-4o, Claude Sonnet, Gemini and more LLMs with streaming support
   </Card>
   <Card
     title="Image Generation"
-    icon="image"
+    img="/images/cards/image-generation.svg"
     href="/en/api-manual/image/gpt4o-image"
   >
-    GPT-4o-image, Seedream-4.0, Qwen and more image generation models
+    GPT-4o Image, FLUX Kontext, Seedream and more image models
   </Card>
   <Card
     title="Video Generation"
-    icon="video"
+    img="/images/cards/video-generation.svg"
     href="/en/api-manual/video/sora2"
   >
-    VEO3, Sora2, Wan2.5 and more video generation models
+    VEO3, Sora2, Kling, Hailuo and more video models
   </Card>
 </CardGroup>
 
-## ⚡ Core Features
+<CardGroup cols={3}>
+  <Card
+    title="Audio"
+    img="/images/cards/audio.svg"
+    href="/en/api-manual/audio/tts"
+  >
+    Whisper speech recognition and TTS text-to-speech
+  </Card>
+  <Card
+    title="Task Management"
+    img="/images/cards/task-management.svg"
+    href="/en/api-manual/task/get-status"
+  >
+    Async task status tracking for image and video generation
+  </Card>
+  <Card
+    title="OpenAI Compatible"
+    img="/images/cards/openai-compatible.svg"
+    href="/en/guides/quickstart"
+  >
+    Drop-in replacement for OpenAI SDK — just change the URL
+  </Card>
+</CardGroup>
+
+## Why WaveAPI
 
 <CardGroup cols={2}>
-  <Card title="Unified Interface" icon="plug">
-    Compatible with OpenAI API format for easy integration
+  <Card title="Zero-Cost Migration" icon="rotate">
+    OpenAI-compatible API format — change only the base URL to get started
   </Card>
-  <Card title="Multi-Model Support" icon="layer-group">
-    Switch between different AI models via the model parameter
+  <Card title="Multi-Model Access" icon="layer-group">
+    One API key for all leading AI models, switch via the model parameter
   </Card>
-  <Card title="Task Management" icon="tasks">
-    Query async task status and track generation progress
+  <Card title="Async Task System" icon="clock-rotate-left">
+    Image and video generation with async processing and real-time status tracking
   </Card>
-  <Card title="Fast Response" icon="bolt">
-    High-performance API gateway ensuring stable and reliable service
+  <Card title="Reliable Infrastructure" icon="shield-check">
+    High-performance API gateway with intelligent routing for service stability
   </Card>
 </CardGroup>
 
-## 🎯 Getting Started
+## Quick Start
 
 <Steps>
-  <Step title="Get API Key">
-    Visit the [API Key Management Page](https://ai.kaiho.cc/token) to obtain your key
+  <Step title="Get Your API Key">
+    Sign up at the [Dashboard](https://ai.kaiho.cc/token) to get your API key
   </Step>
-  <Step title="Choose a Model">
-    Browse the documentation to select the AI model that fits your needs
+  <Step title="Replace Base URL">
+    Point your OpenAI SDK base URL to `https://ai.kaiho.cc/v1`
   </Step>
-  <Step title="Call the API">
-    Use your preferred programming language to call the API
+  <Step title="Choose a Model and Go">
+    Set the `model` parameter to your desired model and send your request
   </Step>
 </Steps>
-
-<Note>
-  **💬 Need Help?**
-  
-  Join our [Discord Community](https://discord.gg/your_invite_code) for support
-</Note>
-
-
-
-

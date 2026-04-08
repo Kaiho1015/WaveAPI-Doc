@@ -1,83 +1,135 @@
 ---
-title: "歡迎使用 Kaihoxz"
-description: "統一 AI 模型 API 平台 - 支援文字、圖像和影片生成"
+title: "WaveAPI"
+description: "統一 AI 模型 API 閘道 — 一個介面呼叫所有主流大模型"
 ---
 
-## 🚀 Kaihoxz API 平台
+OpenAI 相容的統一 API 端點，一行程式碼呼叫 GPT-4o、Claude、Gemini、Sora、VEO 等主流模型。只需更換 `base_url`，無需改動現有程式碼。
 
-Kaihoxz 提供統一的 AI 模型 API 介面，讓您輕鬆呼叫最先進的 AI 模型。
+<CodeGroup>
 
-<Card
-  title="快速開始"
-  icon="rocket"
-  href="/zh-Hant/guides/quickstart"
-  horizontal
->
-  立即開始使用聊天 API 進行文字生成
-</Card>
+```python Python
+from openai import OpenAI
 
-## 💡 AI 能力
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
 
-探索我們提供的各種 AI 模型介面。
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "你好！"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'your-api-key'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: '你好！' }]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "你好！"}]
+  }'
+```
+
+</CodeGroup>
+
+## AI 模型能力
+
+透過 WaveAPI 呼叫各類 AI 模型。
 
 <CardGroup cols={3}>
   <Card
     title="文字生成"
-    icon="comments"
-    href="/zh-Hant/api-manual/text/general-chat"
+    img="/images/cards/text-generation.svg"
+    href="/cn/api-manual/text/general-chat"
   >
-    支援多種文字生成模型的統一聊天 API
+    GPT-4o、Claude Sonnet、Gemini 等主流大語言模型，支援串流輸出
   </Card>
   <Card
     title="圖像生成"
-    icon="image"
-    href="/zh-Hant/api-manual/image/gpt4o-image"
+    img="/images/cards/image-generation.svg"
+    href="/cn/api-manual/image/gpt4o-image"
   >
-    GPT-4o-image、Seedream-4.0、Qwen 等圖像生成模型
+    GPT-4o Image、FLUX Kontext、Seedream 等圖像生成模型
   </Card>
   <Card
     title="影片生成"
-    icon="video"
-    href="/zh-Hant/api-manual/video/sora2"
+    img="/images/cards/video-generation.svg"
+    href="/cn/api-manual/video/veo3"
   >
-    VEO3、Sora2、Wan2.5 等影片生成模型
+    VEO3、Sora2、Kling、海螺等影片生成模型
   </Card>
 </CardGroup>
 
-## ⚡ 核心特性
+<CardGroup cols={3}>
+  <Card
+    title="音訊處理"
+    img="/images/cards/audio.svg"
+    href="/cn/api-manual/audio/tts"
+  >
+    Whisper 語音辨識和 TTS 文字轉語音
+  </Card>
+  <Card
+    title="任務管理"
+    img="/images/cards/task-management.svg"
+    href="/cn/api-manual/task/get-status"
+  >
+    非同步任務狀態查詢，追蹤圖像和影片生成進度
+  </Card>
+  <Card
+    title="OpenAI 相容"
+    img="/images/cards/openai-compatible.svg"
+    href="/zh-Hant/guides/quickstart"
+  >
+    完全相容 OpenAI SDK，換個 URL 即可接入
+  </Card>
+</CardGroup>
+
+## 為什麼選擇 WaveAPI
 
 <CardGroup cols={2}>
-  <Card title="統一介面" icon="plug">
-    相容 OpenAI API 格式，輕鬆整合
+  <Card title="零成本遷移" icon="rotate">
+    相容 OpenAI API 格式，已有程式碼只需修改 base_url 即可使用
   </Card>
-  <Card title="多模型支援" icon="layer-group">
-    透過 model 參數切換不同 AI 模型
+  <Card title="多模型聚合" icon="layer-group">
+    一個 API Key 存取所有主流大模型，透過 model 參數靈活切換
   </Card>
-  <Card title="任務管理" icon="tasks">
-    查詢非同步任務狀態，追蹤生成進度
+  <Card title="非同步任務體系" icon="clock-rotate-left">
+    圖像和影片生成支援非同步處理，即時查詢任務狀態和進度
   </Card>
-  <Card title="快速回應" icon="bolt">
-    高效能 API 閘道，確保服務穩定可靠
+  <Card title="穩定可靠" icon="shield-check">
+    高效能 API 閘道，智慧路由，保障服務穩定性
   </Card>
 </CardGroup>
 
-## 🎯 開始使用
+## 快速開始
 
 <Steps>
-  <Step title="取得 API 金鑰">
-    造訪 [API 金鑰管理頁面](https://ai.kaiho.cc/token) 取得您的金鑰
+  <Step title="取得 API Key">
+    前往 [Dashboard](https://ai.kaiho.cc/token) 註冊並取得你的 API Key
   </Step>
-  <Step title="選擇模型">
-    瀏覽文件選擇適合您需求的 AI 模型
+  <Step title="替換 Base URL">
+    將 OpenAI SDK 的 base URL 替換為 `https://ai.kaiho.cc/v1`
   </Step>
-  <Step title="呼叫 API">
-    使用您喜歡的程式語言呼叫 API
+  <Step title="選擇模型並呼叫">
+    透過 `model` 參數指定想要使用的模型，發送請求即可
   </Step>
 </Steps>
-
-<Note>
-  **💬 需要幫助？**
-  
-  加入我們的 [Discord 社群](https://discord.gg/你的邀請碼) 獲取支援
-</Note>
-

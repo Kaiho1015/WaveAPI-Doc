@@ -1,61 +1,44 @@
 ---
 title: "快速开始"
-description: "5 分钟快速上手 Kaihoxz API"
+description: "5 分钟快速上手 WaveAPI"
 ---
 
-## 📋 前置要求
+## 前置要求
 
-在开始之前，您需要：
-
-- 一个 Kaihoxz 账户
-- API 密钥（在 [Dashboard](https://ai.kaiho.cc/token) 中获取）
+- 一个 WaveAPI 账户（[注册](https://ai.kaiho.cc/login)）
+- API 密钥
 - 基础的编程知识
 
-## 1️⃣ 获取 API 密钥
+## 获取 API 密钥
 
 <Steps>
   <Step title="登录控制台">
-    访问 [Kaihoxz Dashboard](https://ai.kaiho.cc/token) 并登录
+    访问 [Dashboard](https://ai.kaiho.cc/dashboard/keys) 并登录
   </Step>
-  <Step title="生成密钥">
-    在 API 密钥管理页面点击"创建新密钥"
+  <Step title="创建密钥">
+    在密钥管理页面点击"创建新密钥"
   </Step>
   <Step title="保存密钥">
-    复制并安全保存您的 API 密钥
+    复制并安全保存你的 API 密钥，密钥只显示一次
   </Step>
 </Steps>
 
 <Warning>
-  **安全提示：** 请勿在公开代码或客户端中暴露您的 API 密钥
+请勿在前端代码或公开仓库中暴露 API Key。
 </Warning>
 
-## 2️⃣ 发送第一个请求
+## 发送第一个请求
 
-### 使用 cURL
+WaveAPI 完全兼容 OpenAI SDK，只需替换 `base_url` 即可使用。
 
-```bash
-curl https://ai.kaiho.cc/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "gpt-4o",
-    "messages": [
-      {
-        "role": "user",
-        "content": "你好，介绍一下你自己"
-      }
-    ]
-  }'
-```
+<CodeGroup>
 
-### 使用 Python
+```python Python
+from openai import OpenAI
 
-```python
-import openai
-
-client = openai.OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="https://ai.kaiho.cc/v1"
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
 )
 
 response = client.chat.completions.create(
@@ -68,33 +51,39 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-### 使用 JavaScript/Node.js
-
-```javascript
+```javascript JavaScript
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: 'YOUR_API_KEY',
-  baseURL: 'https://ai.kaiho.cc/v1'
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
 });
 
-async function main() {
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'user', content: '你好，介绍一下你自己' }
-    ]
-  });
-  
-  console.log(response.choices[0].message.content);
-}
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [
+    { role: 'user', content: '你好，介绍一下你自己' }
+  ]
+});
 
-main();
+console.log(response.choices[0].message.content);
 ```
 
-## 3️⃣ 理解响应
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "你好，介绍一下你自己"}
+    ]
+  }'
+```
 
-成功的响应格式如下：
+</CodeGroup>
+
+## 理解响应
 
 ```json
 {
@@ -118,48 +107,19 @@ main();
 }
 ```
 
-## 4️⃣ 探索更多功能
+## 下一步
 
 <CardGroup cols={2}>
-  <Card
-    title="文本生成 API"
-    icon="comments"
-    href="/cn/api-manual/text/general-chat"
-  >
-    了解完整的聊天 API 参数和选项
+  <Card title="认证与密钥" href="/cn/docs/authentication">
+    了解认证方式和密钥管理
   </Card>
-  <Card
-    title="图像生成 API"
-    icon="image"
-    href="/cn/api-manual/image/gpt4o-image"
-  >
-    使用 AI 生成图像
+  <Card title="同步与异步" href="/cn/docs/sync-async">
+    了解不同端点的调用方式
   </Card>
-  <Card
-    title="视频生成 API"
-    icon="video"
-    href="/cn/api-manual/video/sora2"
-  >
-    创建 AI 视频内容
+  <Card title="文本生成 API" href="/cn/api-reference/text/general-chat">
+    完整的聊天 API 参数和选项
   </Card>
-  <Card
-    title="任务管理"
-    icon="tasks"
-    href="/cn/api-manual/task/get-status"
-  >
-    管理异步生成任务
+  <Card title="任务系统" href="/cn/docs/task-system">
+    图像和视频的异步生成流程
   </Card>
 </CardGroup>
-
-## 📚 下一步
-
-- 查看 [API 手册](/cn/api-manual/text/general-chat) 了解所有可用的模型和参数
-- 加入 [Discord 社区](https://discord.gg/你的邀请码) 与其他开发者交流
-- 访问 [GitHub](https://github.com/Kaiho1015) 查看示例代码
-
-<Tip>
-  **提示：** 所有 API 都兼容 OpenAI SDK，您可以直接使用现有的 OpenAI 集成代码！
-</Tip>
-
-
-

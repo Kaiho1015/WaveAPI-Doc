@@ -1,0 +1,255 @@
+---
+title: "Kling 2.6 视频生成"
+description: "使用快手可灵 2.6 模型生成高质量视频"
+api: "POST https://ai.kaiho.cc/v1/videos/generations"
+---
+
+<Note>
+本接口采用异步模式。提交成功后，接口会返回一个任务 ID。您需要使用该 ID 调用 [查询任务状态](/cn/api-reference/task/get-status) 接口获取最终生成结果。视频链接有效期为 24 小时，请及时下载。
+</Note>
+
+<RequestExample>
+
+```bash cURL theme={null}
+curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data '{
+    "model": "kling-v2-6",
+    "prompt": "一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感",
+    "mode": "pro",
+    "duration": 5,
+    "aspect_ratio": "16:9"
+}'
+```
+
+```python Python theme={null}
+import requests
+
+url = "https://ai.kaiho.cc/v1/videos/generations"
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+data = {
+    "model": "kling-v2-6",
+    "prompt": "一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感",
+    "mode": "pro",
+    "duration": 5,
+    "aspect_ratio": "16:9"
+}
+
+response = requests.post(url, headers=headers, json=data)
+print(response.json())
+```
+
+```javascript JavaScript theme={null}
+const axios = require('axios');
+
+const url = 'https://ai.kaiho.cc/v1/videos/generations';
+const headers = {
+  'Authorization': 'Bearer YOUR_API_KEY',
+  'Content-Type': 'application/json'
+};
+const data = {
+  model: 'kling-v2-6',
+  prompt: '一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感',
+  mode: 'pro',
+  duration: 5,
+  aspect_ratio: '16:9'
+};
+
+axios.post(url, data, { headers })
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+
+```go Go theme={null}
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	url := "https://ai.kaiho.cc/v1/videos/generations"
+	data := map[string]interface{}{
+		"model":        "kling-v2-6",
+		"prompt":       "一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感",
+		"mode":         "pro",
+		"duration":     5,
+		"aspect_ratio": "16:9",
+	}
+	jsonData, _ := json.Marshal(data)
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	fmt.Println(result)
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK theme={null}
+{
+  "code": "success",
+  "data": "task-wave17486161910001884721"
+}
+```
+
+```json 400 Bad Request theme={null}
+{
+  "code": "invalid_request",
+  "message": "请求参数无效",
+  "data": null
+}
+```
+
+```json 401 Unauthorized theme={null}
+{
+  "code": "authentication_error",
+  "message": "身份验证失败，请检查您的API密钥",
+  "data": null
+}
+```
+
+```json 402 Payment Required theme={null}
+{
+  "code": "payment_required",
+  "message": "账户余额不足，请充值后再试",
+  "data": null
+}
+```
+
+```json 403 Forbidden theme={null}
+{
+  "code": "quota_not_enough",
+  "message": "用户额度不足",
+  "data": null
+}
+```
+
+```json 429 Too Many Requests theme={null}
+{
+  "code": "rate_limit_error",
+  "message": "请求过于频繁，请稍后再试",
+  "data": null
+}
+```
+
+```json 500 Internal Server Error theme={null}
+{
+  "code": "server_error",
+  "message": "服务器内部错误，请稍后重试",
+  "data": null
+}
+```
+
+</ResponseExample>
+
+## 认证方式
+
+在请求头中加入 `Authorization: Bearer YOUR_API_KEY` 进行身份验证。您可以在 [令牌管理](https://ai.kaiho.cc/dashboard/keys) 页面获取您的 API 密钥。
+
+## 请求参数
+
+<ParamField body="model" type="string" required>
+固定值：`kling-v2-6`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+视频生成的文本描述。例如："一只金色的猫在阳光明媚的草地上奔跑，慢动作，电影质感"
+</ParamField>
+
+<ParamField body="mode" type="string" default="std">
+生成模式：`std`（标准 720P，仅静音）, `pro`（专业 1080P，支持音频生成）。
+</ParamField>
+
+<ParamField body="duration" type="number" default="5">
+视频时长。支持 `5` 或 `10` 秒。
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+视频宽高比，支持 `16:9`, `9:16`, `1:1`。
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+负向提示词，用于排除不想要的内容。
+</ParamField>
+
+<ParamField body="image_urls" type="array">
+支持最多 2 张图片 URL。1 张作为首帧，2 张作为首尾帧（需在 `pro` 模式下）。
+</ParamField>
+
+<ParamField body="audio" type="boolean" default="false">
+是否生成配套音频。仅在 `pro` 模式下有效，且与尾帧输入互斥。
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+是否添加水印。
+</ParamField>
+
+## 响应参数
+
+<ResponseField name="code" type="string">
+响应状态码 * `success` - 请求成功，任务已提交
+</ResponseField>
+
+<ResponseField name="data" type="string">
+任务 ID，格式为 `task-wave{timestamp}{userId}{random}`，用于通过 [查询任务状态](/cn/api-reference/task/get-status) 接口获取生成结果
+</ResponseField>
+
+## 功能支持矩阵
+
+| 功能 | 标准模式 (std) | 专业模式 (pro) |
+| :--- | :--- | :--- |
+| 分辨率 | 720P | 1080P |
+| 视频时长 | 5s / 10s | 5s / 10s |
+| 首尾帧 | 不支持 | 支持 |
+| 音频生成 | 不支持 | 支持 |
+| 运镜控制 | 支持 | 支持 |
+
+## 使用示例
+
+### 专业模式文生视频 (10s)
+
+```json theme={null}
+{
+  "model": "kling-v2-6",
+  "prompt": "赛博朋克风格的繁华都市街道，雨夜，霓虹灯反射在积水中",
+  "mode": "pro",
+  "duration": 10,
+  "aspect_ratio": "16:9"
+}
+```
+
+### 专业模式图生视频 (首尾帧)
+
+```json theme={null}
+{
+  "model": "kling-v2-6",
+  "prompt": "镜头缓缓推进，展示人物表情变化",
+  "mode": "pro",
+  "image_urls": ["https://example.com/start.jpg", "https://example.com/end.jpg"],
+  "duration": 5
+}
+```
+
+## 注意事项
+
+- 接口为异步处理，返回任务 ID 后请通过查询接口获取结果。
+- 视频链接有效期为 24 小时，过期后将无法访问，请及时转存。
+- `pro` 模式下的音频生成功能与双图输入（首尾帧）不可同时使用。

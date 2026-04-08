@@ -1,0 +1,44 @@
+---
+title: "请求与响应格式"
+description: "通用请求头、响应结构与错误码说明"
+---
+
+## 请求格式
+
+所有请求使用 JSON 格式，需要以下 headers：
+
+```bash
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+```
+
+## 成功响应
+
+不同端点的响应结构有所不同，但都遵循各自的 API 规范：
+
+- **Chat Completions** — OpenAI 标准响应格式
+- **Claude Messages** — Anthropic 标准响应格式
+- **Gemini** — Google 标准响应格式
+- **异步任务** — WaveAPI 统一任务响应格式
+
+## 错误响应
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_request",
+    "message": "具体的错误描述信息"
+  }
+}
+```
+
+## 错误码
+
+| 状态码 | 说明 | 处理方式 |
+|--------|------|----------|
+| 400 | 请求参数无效 | 检查请求参数格式 |
+| 401 | 认证失败 | 检查 API Key 是否正确 |
+| 402 | 余额不足 | 充值账户 |
+| 429 | 请求频率超限 | 降低请求频率 |
+| 500 | 服务器内部错误 | 稍后重试 |

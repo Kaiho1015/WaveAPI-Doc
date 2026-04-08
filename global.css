@@ -1,0 +1,4 @@
+/* 扩大内容区宽度 */
+#content-area {
+  max-width: 48rem !important; /* 768px */
+}

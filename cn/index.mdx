@@ -1,85 +1,135 @@
 ---
-title: "欢迎使用 Kaihoxz"
-description: "统一 AI 模型 API 平台 - 支持文本、图像和视频生成"
+title: "WaveAPI"
+description: "统一 AI 模型 API 网关 — 一个接口调用所有主流大模型"
 ---
 
-## 🚀 Kaihoxz API 平台
+OpenAI 兼容的统一 API 端点，一行代码调用 GPT-4o、Claude、Gemini、Sora、VEO 等主流模型。只需更换 `base_url`，无需改动现有代码。
 
-Kaihoxz 提供统一的 AI 模型 API 接口，让您轻松调用最先进的 AI 模型。
+<CodeGroup>
 
-<Card
-  title="快速开始"
-  icon="rocket"
-  href="/cn/quickstart"
-  horizontal
->
-  立即开始使用聊天 API 进行文本生成
-</Card>
+```python Python
+from openai import OpenAI
 
-## 💡 AI 能力
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
 
-探索我们提供的各种 AI 模型接口。
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'your-api-key'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: 'Hello!' }]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+</CodeGroup>
+
+## AI 模型能力
+
+通过 WaveAPI 调用各类 AI 模型。
 
 <CardGroup cols={3}>
   <Card
     title="文本生成"
-    icon="comments"
-    href="/cn/api-manual/text/general-chat"
+    img="/images/cards/text-generation.svg"
+    href="/cn/api-reference/text/general-chat"
   >
-    支持多种文本生成模型的统一聊天 API
+    GPT-4o、Claude Sonnet、Gemini 等主流大语言模型，支持流式输出
   </Card>
   <Card
     title="图像生成"
-    icon="image"
-    href="/cn/api-manual/image/gpt4o-image"
+    img="/images/cards/image-generation.svg"
+    href="/cn/api-reference/image/gpt4o-image"
   >
-    GPT-4o-image、Seedream-4.0、Qwen 等图像生成模型
+    GPT-4o Image、FLUX Kontext、Seedream 等图像生成模型
   </Card>
   <Card
     title="视频生成"
-    icon="video"
-    href="/cn/api-manual/video/sora2"
+    img="/images/cards/video-generation.svg"
+    href="/cn/api-reference/video/veo3"
   >
-    VEO3、Sora2、Wan2.5 等视频生成模型
+    VEO3、Sora2、Kling、海螺等视频生成模型
   </Card>
 </CardGroup>
 
-## ⚡ 核心特性
+<CardGroup cols={3}>
+  <Card
+    title="音频处理"
+    img="/images/cards/audio.svg"
+    href="/cn/api-reference/audio/tts"
+  >
+    Whisper 语音识别和 TTS 文字转语音
+  </Card>
+  <Card
+    title="任务管理"
+    img="/images/cards/task-management.svg"
+    href="/cn/api-reference/task/get-status"
+  >
+    异步任务状态查询，跟踪图像和视频生成进度
+  </Card>
+  <Card
+    title="OpenAI 兼容"
+    img="/images/cards/openai-compatible.svg"
+    href="/cn/guides/quickstart"
+  >
+    完全兼容 OpenAI SDK，换个 URL 即可接入
+  </Card>
+</CardGroup>
+
+## 为什么选择 WaveAPI
 
 <CardGroup cols={2}>
-  <Card title="统一接口" icon="plug">
-    兼容 OpenAI API 格式，轻松集成
+  <Card title="零成本迁移" icon="rotate">
+    兼容 OpenAI API 格式，已有代码只需修改 base_url 即可使用
   </Card>
-  <Card title="多模型支持" icon="layer-group">
-    通过 model 参数切换不同 AI 模型
+  <Card title="多模型聚合" icon="layer-group">
+    一个 API Key 访问所有主流大模型，通过 model 参数灵活切换
   </Card>
-  <Card title="任务管理" icon="tasks">
-    查询异步任务状态，跟踪生成进度
+  <Card title="异步任务体系" icon="clock-rotate-left">
+    图像和视频生成支持异步处理，实时查询任务状态和进度
   </Card>
-  <Card title="快速响应" icon="bolt">
-    高性能 API 网关，确保服务稳定可靠
+  <Card title="稳定可靠" icon="shield-check">
+    高性能 API 网关，智能路由，保障服务稳定性
   </Card>
 </CardGroup>
 
-## 🎯 开始使用
+## 快速开始
 
 <Steps>
-  <Step title="获取 API 密钥">
-    访问 [API 密钥管理页面](https://ai.kaiho.cc/token) 获取您的密钥
+  <Step title="获取 API Key">
+    前往 [Dashboard](https://ai.kaiho.cc/dashboard/keys) 注册并获取你的 API Key
   </Step>
-  <Step title="选择模型">
-    浏览文档选择适合您需求的 AI 模型
+  <Step title="替换 Base URL">
+    将 OpenAI SDK 的 base URL 替换为 `https://ai.kaiho.cc/v1`
   </Step>
-  <Step title="调用 API">
-    使用您喜欢的编程语言调用 API
+  <Step title="选择模型并调用">
+    通过 `model` 参数指定想要使用的模型，发送请求即可
   </Step>
 </Steps>
-
-<Note>
-  **💬 需要帮助？**
-  
-  加入我们的 [Discord 社区](https://discord.gg/你的邀请码) 获取支持
-</Note>
-
-
-

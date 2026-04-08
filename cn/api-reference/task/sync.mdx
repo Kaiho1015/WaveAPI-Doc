@@ -1,0 +1,55 @@
+---
+title: "同步等待"
+description: "POST /v1/tasks/sync — 提交任务并等待完成"
+---
+
+## 端点
+
+```
+POST https://ai.kaiho.cc/v1/tasks/sync
+```
+
+提交任务并阻塞等待结果。如果在超时时间内完成，直接返回结果；否则返回 `poll_url` 供继续轮询。
+
+## 请求参数
+
+与 `POST /v1/tasks` 相同。
+
+## 响应
+
+### 超时内完成
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "gpt-4o-image",
+  "status": "completed",
+  "created_at": 1720000000,
+  "completed_at": 1720000010,
+  "progress": 100,
+  "result": {
+    "images": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+### 超时未完成
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "processing",
+  "progress": 45,
+  "poll_url": "/v1/tasks/task_xxx"
+}
+```
+
+收到 `poll_url` 后，使用 `GET /v1/tasks/{task_id}` 继续轮询。
+
+## 适用场景
+
+- 图像生成等较快完成的任务
+- 不想实现轮询逻辑的简单场景
+- 原型开发和测试

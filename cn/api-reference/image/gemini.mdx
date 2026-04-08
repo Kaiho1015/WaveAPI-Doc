@@ -1,0 +1,204 @@
+---
+title: "Gemini 图像系列"
+description: "Google Gemini 图像生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+异步处理模式 — 提交请求后返回任务 ID，通过 [查询任务状态](/cn/api-reference/task/status) 接口获取生成结果。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.1-flash-image-preview",
+    "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
+    "size": "16:9"
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.images.generate(
+    model="gemini-3.1-flash-image-preview",
+    prompt="一只橘猫趴在窗台上晒太阳，水彩画风格",
+    size="16:9"
+)
+
+print(response.data[0])
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.images.generate({
+  model: 'gemini-3.1-flash-image-preview',
+  prompt: '一只橘猫趴在窗台上晒太阳，水彩画风格',
+  size: '16:9'
+});
+
+console.log(response.data[0]);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":  "gemini-3.1-flash-image-preview",
+        "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
+        "size":   "16:9",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "gemini-3.1-flash-image-preview",
+          "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
+          "size": "16:9"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "code": "success",
+  "data": "task-wave17200000001234567890abcdef"
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---------|------|
+| `gemini-2.5-flash-image-preview` | Gemini 2.5 Flash 图像预览版 |
+| `gemini-3-pro-image-preview` | Gemini 3 Pro 图像预览版 |
+| `gemini-3.1-flash-image-preview` | Gemini 3.1 Flash 图像预览版，支持高分辨率和搜索增强 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  模型 ID，见上方模型列表
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像描述文本，最多 1000 个字符
+</ParamField>
+
+<ParamField body="image_urls" type="array">
+  参考图片 URL 数组，最多 14 张，每张不超过 10MB
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量，固定为 1
+</ParamField>
+
+## 各模型差异参数
+
+<Tabs>
+  <Tab title="Gemini 2.5 Flash">
+    <ParamField body="size" type="string" default="1:1">
+      图像尺寸比例
+
+      支持：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`
+    </ParamField>
+
+    <ParamField body="resolution" type="string" default="1K">
+      输出分辨率：`1K`
+    </ParamField>
+  </Tab>
+
+  <Tab title="Gemini 3 Pro">
+    <ParamField body="size" type="string" default="1:1">
+      图像尺寸比例
+
+      支持：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`
+    </ParamField>
+
+    <ParamField body="resolution" type="string" default="1K">
+      输出分辨率：`1K`
+    </ParamField>
+  </Tab>
+
+  <Tab title="Gemini 3.1 Flash">
+    <ParamField body="size" type="string" default="1:1">
+      图像尺寸比例
+
+      支持：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`、`1:4`、`4:1`、`1:8`、`8:1`
+    </ParamField>
+
+    <ParamField body="resolution" type="string" default="1K">
+      输出分辨率：`1K`、`2K`、`4K`
+    </ParamField>
+
+    <ParamField body="google_search_enhancement" type="boolean" default="false">
+      启用 Google 搜索增强，提升图像真实感
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 响应
+
+返回任务 ID，使用 [查询任务状态](/cn/api-reference/task/status) 获取最终图像结果。
+
+<ResponseField name="code" type="string">
+  状态码，成功为 `"success"`
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  任务 ID，格式为 `task-wave{timestamp}{userId}{random}`
+</ResponseField>

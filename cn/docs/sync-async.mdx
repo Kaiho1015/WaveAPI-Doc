@@ -1,0 +1,50 @@
+---
+title: "同步与异步"
+description: "了解 WaveAPI 的同步端点和异步任务系统"
+---
+
+## 概述
+
+WaveAPI 的端点分为两类：
+
+<CardGroup cols={2}>
+  <Card title="同步端点" icon="bolt">
+    请求后阻塞等待，直接返回结果。适用于文本生成、语音合成等快速任务。
+  </Card>
+  <Card title="异步任务" icon="clock-rotate-left">
+    请求后立即返回 task_id，通过轮询或 Webhook 获取结果。适用于图像、视频生成等耗时任务。
+  </Card>
+</CardGroup>
+
+## 同步端点
+
+以下端点为同步模式，请求完成后直接返回结果：
+
+| 端点 | 用途 |
+|------|------|
+| `/v1/chat/completions` | 文本生成（OpenAI 兼容） |
+| `/v1/messages` | 文本生成（Claude 原生） |
+| `/v1/beta/models/{model}:generateContent` | 文本生成（Gemini 原生） |
+| `/v1/audio/speech` | TTS 文字转语音 |
+| `/v1/audio/transcriptions` | STT 语音识别 |
+| `/v1/images/generations` | 同步图像生成 |
+| `/v1/embeddings` | 文本嵌入 |
+| `/v1/responses` | OpenAI Responses API |
+
+## 异步任务端点
+
+图像和视频生成使用统一的异步任务系统：
+
+| 端点 | 用途 |
+|------|------|
+| `POST /v1/tasks` | 提交异步任务，立即返回 task_id |
+| `POST /v1/tasks/sync` | 提交并等待完成（超时回退为轮询） |
+| `GET /v1/tasks/{task_id}` | 查询任务状态和结果 |
+| `POST /v1/tasks/{task_id}/cancel` | 取消排队中的任务 |
+
+## 如何选择
+
+- **文本对话** → 使用同步端点，支持流式输出（SSE）
+- **图像生成** → 简单场景用 `/v1/images/generations`，复杂场景用 `/v1/tasks`
+- **视频生成** → 只能用 `/v1/tasks`（耗时较长）
+- **需要回调通知** → 使用 `/v1/tasks` + `callback_url`

@@ -1,0 +1,269 @@
+---
+title: "VEO 系列"
+description: "Google VEO 视频生成系列模型"
+api: "POST https://ai.kaiho.cc/v1/tasks"
+---
+
+异步处理模式 — 提交请求后返回任务 ID，通过 [查询任务状态](/cn/api-reference/task/status) 接口获取生成结果。视频链接有效期 24 小时，请及时下载。
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo-3.1",
+    "action": "generate",
+    "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+    "aspect_ratio": "16:9",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://ai.kaiho.cc/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "veo-3.1",
+        "action": "generate",
+        "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "resolution": "1080p"
+    }
+)
+
+task_id = response.json()["task_id"]
+print(f"任务已提交: {task_id}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://ai.kaiho.cc/v1/tasks', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'veo-3.1',
+    action: 'generate',
+    prompt: 'A golden retriever running on a beach at sunset, cinematic lighting, slow motion',
+    aspect_ratio: '16:9',
+    duration: 8,
+    resolution: '1080p'
+  })
+});
+
+const { task_id } = await response.json();
+console.log(`任务已提交: ${task_id}`);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model":      "veo-3.1",
+        "action":     "generate",
+        "prompt":     "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+        "aspect_ratio": "16:9",
+        "duration":   8,
+        "resolution": "1080p",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/tasks", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "veo-3.1",
+          "action": "generate",
+          "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
+          "aspect_ratio": "16:9",
+          "duration": 8,
+          "resolution": "1080p"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/tasks"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo-3.1",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---------|------|
+| `veo-3.1` | VEO 3.1，支持 4K、原生音频 |
+| `veo-3.1-fast` | VEO 3.1 快速版 |
+| `veo-3.0` | VEO 3.0 |
+
+## 统一参数
+
+<ParamField body="model" type="string" required>
+  模型 ID
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  视频描述文本。VEO 3+ 支持在 prompt 中描述音效和对白，模型会自动生成对应音频
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  宽高比：`16:9`、`9:16`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="8">
+  视频时长（秒）：`4`、`6`、`8`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率，可选值取决于模型，见各模型 Tab
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  不希望出现的内容，直接描述即可（不要用否定语句）
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子，提高可重复性（不保证完全一致）。仅 VEO 3.1 系列支持
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址
+</ParamField>
+
+<ParamField body="extra" type="object">
+  透传给 Google VEO 的额外参数，详见各模型 Tab
+</ParamField>
+
+## 模型特定参数
+
+<Tabs>
+  <Tab title="VEO 3.1">
+    **resolution 可选值：** `720p`、`1080p`、`4k`
+
+    <ParamField body="extra.personGeneration" type="string" default="allow_all">
+      人物生成控制：
+
+      - `allow_all` — 允许所有人物
+      - `allow_adult` — 仅允许成年人
+      - `dont_allow` — 禁止人物生成
+    </ParamField>
+
+    **独有能力：**
+    - 原生音频生成（对白 + 环境音 + 音效，无需额外参数）
+    - 4K 分辨率输出
+  </Tab>
+
+  <Tab title="VEO 3.1 Fast">
+    **resolution 可选值：** `720p`、`1080p`、`4k`
+
+    参数与 VEO 3.1 相同，处理速度更快。
+
+    <ParamField body="extra.personGeneration" type="string" default="allow_all">
+      人物生成控制：`allow_all`、`allow_adult`、`dont_allow`
+    </ParamField>
+  </Tab>
+
+  <Tab title="VEO 3.0">
+    **resolution 可选值：** `720p`、`1080p`
+
+    <ParamField body="extra.personGeneration" type="string" default="allow_all">
+      人物生成控制：`allow_all`、`allow_adult`、`dont_allow`
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 约束条件
+
+| 条件 | 要求 |
+|------|------|
+| 分辨率 `1080p` 或 `4k` | `duration` 必须为 `8` |
+| 分辨率 `4k` | 仅 VEO 3.1 和 3.1 Fast 支持 |
+| 输出帧率 | 24 FPS |
+| 输出格式 | MP4 |
+
+<Note>
+VEO 3+ 原生支持音频生成，无需额外参数。在 prompt 中描述音效即可（如 "the sound of waves crashing"）。
+</Note>
+
+## 响应
+
+<ResponseField name="task_id" type="string">
+  任务 ID
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作类型
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任务状态：`queued`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  创建时间（Unix 毫秒时间戳）
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  进度，初始为 `0`
+</ResponseField>

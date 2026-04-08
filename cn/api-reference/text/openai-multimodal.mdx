@@ -1,0 +1,903 @@
+---
+title: "多模态响应接口"
+api: "POST https://ai.kaiho.cc/v1/responses"
+---
+
+- 完全兼容 OpenAI Responses API 格式
+- 支持文本和图像的多模态输入
+- 支持工具扩展：网络搜索、文件搜索、函数调用、远程 MCP
+
+<RequestExample>
+```bash cURL
+curl -X POST https://ai.kaiho.cc/v1/responses \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-5",
+    "input": "解释一下冒泡排序算法。"
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.responses.create(
+    model="gpt-5",
+    input="解释一下冒泡排序算法。"
+)
+
+print(response.output_text)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.responses.create({
+  model: 'gpt-5',
+  input: '解释一下冒泡排序算法。'
+});
+
+console.log(response.output_text);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model": "gpt-5",
+        "input": "解释一下冒泡排序算法。",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://ai.kaiho.cc/v1/responses", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "gpt-5",
+          "input": "解释一下冒泡排序算法。"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://ai.kaiho.cc/v1/responses"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "id": "resp_09e342953eda0be6006905acbcvoik1nhmezpmzzl7lex552vq",
+    "object": "response",
+    "created_at": 1761979488,
+    "model": "gpt-5-2025-08-07",
+    "status": "completed",
+    "output": [
+      {
+        "id": "rs_09e342953eda0be6006905ac62b6f48197aefa292b7dcdd477",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "msg_09e342953eda0be6006905ac649e0081979f9859a09c70d4db",
+        "type": "message",
+        "role": "assistant",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "text": "一幅温暖的插画：一只灰色虎斑猫正抱着一只带红色围巾的水獭，两只动物都闭着眼微笑，呈现亲密友好的场景。",
+            "annotations": [],
+            "logprobs": []
+          }
+        ]
+    }
+  ],
+  "usage": {
+      "input_tokens": 642,
+      "output_tokens": 184,
+      "total_tokens": 826,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 128
+      }
+    },
+    "reasoning": {
+      "effort": "medium",
+      "summary": null
+    },
+    "temperature": 1,
+    "top_p": 1,
+    "tool_choice": "auto",
+    "tools": [],
+    "parallel_tool_calls": true,
+    "store": true,
+    "service_tier": "default",
+    "truncation": "disabled",
+    "background": false,
+    "content_filters": null,
+    "error": null,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": null,
+    "max_tool_calls": null,
+    "metadata": {},
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "safety_identifier": null,
+    "text": {
+      "format": {
+        "type": "text"
+      },
+      "verbosity": "medium"
+    },
+    "top_logprobs": 0,
+    "user": null
+  }
+  ```
+
+  ```json 400 theme={null}
+  {
+    "error": {
+      "code": 400,
+      "message": "请求参数无效",
+      "type": "invalid_request_error"
+    }
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "error": {
+      "code": 401,
+      "message": "身份验证失败，请检查您的API密钥",
+      "type": "authentication_error"
+    }
+  }
+  ```
+
+  ```json 402 theme={null}
+  {
+    "error": {
+      "code": 402,
+      "message": "账户余额不足，请充值后再试",
+      "type": "payment_required"
+    }
+  }
+  ```
+
+  ```json 403 theme={null}
+  {
+    "error": {
+      "code": 403,
+      "message": "访问被禁止，您没有权限访问此资源",
+      "type": "permission_error"
+    }
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "error": {
+      "code": 429,
+      "message": "请求过于频繁，请稍后再试",
+      "type": "rate_limit_error"
+    }
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "error": {
+      "code": 500,
+      "message": "服务器内部错误，请稍后重试",
+      "type": "server_error"
+    }
+  }
+```
+
+  ```json 502 theme={null}
+  {
+    "error": {
+      "code": 502,
+      "message": "网关错误，服务器暂时不可用",
+      "type": "bad_gateway"
+    }
+  }
+  ```
+</ResponseExample>
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required>
+  所有接口均需要使用 Bearer Token 进行认证
+
+  获取 API Key：
+
+  访问 [API Key 管理页面](https://ai.kaiho.cc/dashboard/keys) 获取您的 API Key
+
+  使用时在请求头中添加：
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## Body
+
+<ParamField body="model" type="string" required>
+  模型名称
+
+  支持的模型包括：
+
+  * `gpt-5` - OpenAI 最新多模态模型
+  * `gpt-4o` - GPT-4 优化版多模态模型
+  * `gpt-4-vision` - GPT-4 视觉理解模型
+  * 更多模型持续更新中...
+</ParamField>
+
+<ParamField body="input" type="string or array" required>
+  输入内容，支持字符串或消息数组
+
+  字符串形式为简单文本输入，数组形式支持多轮对话和多模态：
+
+  <Expandable title="消息对象属性">
+    <ParamField body="role" type="string" required>
+      角色类型：`user`、`assistant`、`system`
+    </ParamField>
+
+    <ParamField body="content" type="array" required>
+      内容数组，每项包含 `type` 字段：
+
+      - `input_text` — 文本输入，需提供 `text` 字段
+      - `input_image` — 图像输入，需提供 `image_url` 字段
+      - `input_video` — 视频输入（部分模型支持）
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="tools" type="array">
+  工具列表，可选配置
+
+  支持的工具类型：
+
+  * `web_search` - 网络搜索
+  * `file_search` - 文件搜索
+  * `function` - 函数调用
+  * `remote_mcp` - 远程 MCP 服务
+
+  <Expandable title="示例">
+    ```json
+    [
+      {"type": "web_search"},
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "description": "获取天气信息",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "city": {"type": "string"}
+            },
+            "required": ["city"]
+          }
+        }
+      }
+    ]
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  控制输出随机性，范围 0-2
+
+  默认值：1.0
+</ParamField>
+
+<ParamField body="max_tokens" type="integer">
+  生成的最大 token 数量
+</ParamField>
+
+<ParamField body="stream" type="boolean">
+  是否使用流式输出
+
+  默认值：false
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  响应的唯一标识符
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  对象类型，固定为 `response`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  创建时间戳
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  实际使用的模型名称（如 `gpt-5-2025-08-07`）
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  响应状态
+
+  可能的值：
+
+  * `completed` - 已完成
+  * `in_progress` - 处理中
+  * `failed` - 失败
+  * `cancelled` - 已取消
+</ResponseField>
+
+<ResponseField name="output" type="array">
+  输出内容数组
+
+  <Expandable title="属性">
+    <ResponseField name="type" type="string">
+      输出类型
+
+      * `reasoning` - 推理过程（思考模型专用）
+      * `message` - 消息内容
+    </ResponseField>
+
+    <ResponseField name="id" type="string">
+      输出项的唯一标识符
+    </ResponseField>
+
+    <ResponseField name="summary" type="array">
+      推理摘要（当 type 为 reasoning 时）
+    </ResponseField>
+
+    <ResponseField name="role" type="string">
+      角色类型，如 `assistant`（当 type 为 message 时）
+    </ResponseField>
+
+    <ResponseField name="status" type="string">
+      消息状态（当 type 为 message 时）
+    </ResponseField>
+
+    <ResponseField name="content" type="array">
+      消息内容数组（当 type 为 message 时）
+
+      <Expandable title="内容属性">
+        <ResponseField name="type" type="string">
+          内容类型
+
+          * `output_text` - 文本输出
+          * `output_image` - 图像输出
+        </ResponseField>
+
+        <ResponseField name="text" type="string">
+          文本内容（当 type 为 output_text 时）
+        </ResponseField>
+
+        <ResponseField name="annotations" type="array">
+          注释信息
+        </ResponseField>
+
+        <ResponseField name="logprobs" type="array">
+          对数概率信息
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  token 使用统计
+
+  <Expandable title="属性">
+    <ResponseField name="input_tokens" type="integer">
+      输入 token 数
+    </ResponseField>
+
+    <ResponseField name="output_tokens" type="integer">
+      输出 token 数
+    </ResponseField>
+
+    <ResponseField name="total_tokens" type="integer">
+      总 token 数
+    </ResponseField>
+
+    <ResponseField name="input_tokens_details" type="object">
+      输入 token 详细信息
+
+      <Expandable title="属性">
+        <ResponseField name="cached_tokens" type="integer">
+          缓存的 token 数
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="output_tokens_details" type="object">
+      输出 token 详细信息
+
+      <Expandable title="属性">
+        <ResponseField name="reasoning_tokens" type="integer">
+          推理 token 数（思考模型专用）
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="reasoning" type="object">
+  推理配置信息（思考模型专用）
+
+  <Expandable title="属性">
+    <ResponseField name="effort" type="string">
+      推理强度
+
+      * `low` - 低强度
+      * `medium` - 中等强度
+      * `high` - 高强度
+    </ResponseField>
+
+    <ResponseField name="summary" type="string">
+      推理摘要
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="temperature" type="number">
+  实际使用的采样温度
+</ResponseField>
+
+<ResponseField name="top_p" type="number">
+  实际使用的核采样参数
+</ResponseField>
+
+<ResponseField name="tool_choice" type="string">
+  工具选择策略
+</ResponseField>
+
+<ResponseField name="tools" type="array">
+  使用的工具列表
+</ResponseField>
+
+<ResponseField name="parallel_tool_calls" type="boolean">
+  是否允许并行工具调用
+</ResponseField>
+
+<ResponseField name="store" type="boolean">
+  是否存储对话历史
+</ResponseField>
+
+<ResponseField name="service_tier" type="string">
+  服务等级
+</ResponseField>
+
+<ResponseField name="truncation" type="string">
+  截断策略
+</ResponseField>
+
+<ResponseField name="text" type="object">
+  文本格式配置
+
+  <Expandable title="属性">
+    <ResponseField name="format" type="object">
+      格式信息
+    </ResponseField>
+
+    <ResponseField name="verbosity" type="string">
+      详细程度：`low`、`medium`、`high`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="background" type="boolean">
+  是否为后台任务
+</ResponseField>
+
+<ResponseField name="error" type="object">
+  错误信息（如果有）
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  元数据信息
+</ResponseField>
+
+## 使用示例
+
+### 图片分析
+
+```json theme={null}
+{
+  "model": "gpt-5",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "这张图片里有什么？请详细描述"
+        },
+        {
+          "type": "input_image",
+          "image_url": "https://example.com/image.jpg"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 视频分析
+
+```json theme={null}
+{
+  "model": "gemini-2.5-pro",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "分析一下这个视频的内容"
+        },
+        {
+          "type": "input_video",
+          "video_url": "https://example.com/video.mp4"
+        }
+      ]
+    }
+  ],
+  "max_tokens": 5000
+}
+```
+
+### 使用网络搜索工具
+
+```json theme={null}
+{
+  "model": "gpt-5",
+  "tools": [
+    {"type": "web_search"}
+  ],
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "2025年最新的AI技术趋势是什么？"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 使用函数调用
+
+```json theme={null}
+{
+  "model": "gpt-5",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "获取城市天气信息",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string",
+              "description": "城市名称，例如：北京"
+            }
+          },
+          "required": ["city"]
+        }
+      }
+    }
+  ],
+  "input": "北京今天天气怎么样？"
+}
+```
+
+## 内容类型说明
+
+### input_text
+
+文本输入类型
+
+**属性：**
+
+* `type`: 固定为 `"input_text"`
+* `text`: 文本内容（字符串）
+
+### input_image
+
+图像输入类型
+
+**属性：**
+
+* `type`: 固定为 `"input_image"`
+* `image_url`: 图像 URL 或 Base64 编码的数据 URI
+
+**支持的图像格式：**
+
+* JPEG
+* PNG
+* GIF
+* WebP
+
+**图像大小限制：**
+
+* 最大文件大小：20MB
+* 推荐分辨率：不超过 2048x2048 像素
+
+### input_video
+
+视频输入类型（部分模型支持）
+
+**属性：**
+
+* `type`: 固定为 `"input_video"`
+* `video_url`: 视频 URL
+
+**支持的视频格式：**
+
+* MP4
+* MOV
+* AVI
+* WebM
+
+**视频大小限制：**
+
+* 最大文件大小：200MB
+* 最大时长：10 分钟
+* 推荐分辨率：1080p
+
+## 工具使用详解
+
+### 网络搜索 (Web Search)
+
+使用网络搜索工具可以让模型访问实时互联网信息。
+
+**配置示例：**
+
+```json theme={null}
+{
+  "tools": [{"type": "web_search"}]
+}
+```
+
+**适用场景：**
+
+* 查询最新新闻和时事
+* 获取实时数据（股票、天气、汇率等）
+* 搜索最新的技术文档和资料
+* 验证事实信息
+
+### 文件搜索 (File Search)
+
+文件搜索工具允许模型在已上传的文档中搜索相关信息。
+
+**配置示例：**
+
+```json theme={null}
+{
+  "tools": [{"type": "file_search"}]
+}
+```
+
+**适用场景：**
+
+* 分析企业内部文档
+* 搜索技术规范和手册
+* 查询合同和法律文件
+* 知识库问答系统
+
+### 函数调用 (Function Calling)
+
+定义自定义函数，让模型能够调用外部 API 或执行特定操作。
+
+**完整配置示例：**
+
+```json theme={null}
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_stock_price",
+        "description": "获取股票的实时价格",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "type": "string",
+              "description": "股票代码，例如：AAPL"
+            },
+            "currency": {
+              "type": "string",
+              "enum": ["USD", "CNY"],
+              "description": "货币单位",
+              "default": "USD"
+            }
+          },
+          "required": ["symbol"]
+        }
+      }
+    }
+  ]
+}
+```
+
+**参数说明：**
+
+* `name`: 函数名称（必需）
+* `description`: 函数功能描述（必需）
+* `parameters`: 参数定义，使用 JSON Schema 格式
+  * `type`: 参数类型
+  * `properties`: 参数属性定义
+  * `required`: 必需参数列表
+
+**适用场景：**
+
+* 调用第三方 API
+* 执行数据库查询
+* 触发业务流程
+* 与内部系统集成
+
+### 远程 MCP (Remote MCP)
+
+连接到远程模型上下文协议（MCP）服务，扩展模型能力。
+
+**配置示例：**
+
+```json theme={null}
+{
+  "tools": [
+    {
+      "type": "remote_mcp",
+      "remote_mcp": {
+        "url": "https://your-mcp-server.com/api",
+        "auth_token": "your_auth_token",
+        "timeout": 30
+      }
+    }
+  ]
+}
+```
+
+**参数说明：**
+
+* `url`: MCP 服务器地址（必需）
+* `auth_token`: 认证令牌（可选）
+* `timeout`: 超时时间（秒），默认 30 秒
+
+**适用场景：**
+
+* 连接企业级 AI 服务
+* 使用专业领域模型
+* 访问受保护的数据源
+* 分布式 AI 系统集成
+
+## 工具响应格式
+
+当模型使用工具时，响应格式会包含工具调用信息：
+
+```json theme={null}
+{
+  "id": "resp-123456",
+  "object": "response",
+  "created": 1677652288,
+  "model": "gpt-5",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+          {
+            "id": "call_abc123",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"city\": \"北京\"}"
+            }
+          }
+        ]
+      },
+      "finish_reason": "tool_calls"
+    }
+  ]
+}
+```
+
+**工具调用流程：**
+
+1. 模型接收用户输入
+2. 分析是否需要使用工具
+3. 如需要，返回工具调用请求
+4. 客户端执行工具调用
+5. 将工具结果返回给模型
+6. 模型生成最终响应
+
+## 注意事项
+
+1. **图像 URL 要求**：
+   * 必须是公开可访问的 URL
+   * 或使用 Base64 编码的 Data URI 格式
+
+2. **Token 计费**：
+   * 图像会根据其分辨率消耗相应的 tokens
+   * 高分辨率图像会自动调整大小以优化成本
+   * 工具调用也会消耗额外的 tokens
+
+3. **内容顺序**：
+   * content 数组中的元素顺序会影响模型理解
+   * 建议先放置文本指令，再放置图像/视频
+
+4. **多模态组合**：
+   * 可以在一个请求中混合多个文本和图像
+   * 支持多轮对话，保持上下文连贯性
+
+5. **工具使用限制**：
+   * 同时使用多个工具时，模型会智能选择最合适的工具
+   * 函数调用需要明确的函数定义和参数说明
+   * 网络搜索结果可能受地域和时间限制
+
+6. **API 兼容性**：
+   * 完全兼容 OpenAI Responses API 格式
+   * 可无缝迁移现有 OpenAI 代码
+   * 支持所有 OpenAI 工具扩展功能

@@ -1,0 +1,97 @@
+---
+title: "任务系统详解"
+description: "图像与视频生成的异步任务完整流程"
+---
+
+## 任务生命周期
+
+```
+提交 → 排队(queued) → 处理中(processing) → 完成(completed) / 失败(failed)
+                ↓
+          可取消(cancelled)，退还配额
+```
+
+## 任务状态
+
+| 状态 | 说明 |
+|------|------|
+| `queued` | 任务已提交，等待处理 |
+| `processing` | 正在生成中，可查看进度 |
+| `completed` | 生成成功，结果可用 |
+| `failed` | 生成失败，查看 error 信息 |
+| `cancelled` | 用户取消，配额已退还 |
+
+## 提交任务
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
+
+# 提交异步任务
+response = client.post("/tasks", body={
+    "model": "veo3",
+    "action": "generate",
+    "prompt": "A cat walking on the beach",
+    "duration": 5
+})
+
+task_id = response["task_id"]
+print(f"任务已提交: {task_id}")
+```
+
+## 轮询状态
+
+```python
+import time
+
+def wait_for_task(client, task_id, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        result = client.get(f"/tasks/{task_id}")
+        status = result["status"]
+
+        if status == "completed":
+            return result["result"]
+        elif status == "failed":
+            raise Exception(f"任务失败: {result['error']['message']}")
+
+        time.sleep(2)  # 每 2 秒轮询一次
+    raise TimeoutError("任务超时")
+```
+
+## 同步等待模式
+
+如果不想手动轮询，可以使用 `/v1/tasks/sync`：
+
+- 任务在超时时间内完成 → 直接返回结果
+- 超时未完成 → 返回 `poll_url`，继续轮询
+
+## Webhook 回调
+
+提交任务时设置 `callback_url`，任务完成后 WaveAPI 会主动推送结果：
+
+```json
+{
+  "model": "veo3",
+  "action": "generate",
+  "prompt": "...",
+  "callback_url": "https://your-server.com/webhook/task-done"
+}
+```
+
+## 取消任务
+
+只有 `queued` 状态的任务可以取消，取消后配额自动退还：
+
+```bash
+curl -X POST https://ai.kaiho.cc/v1/tasks/{task_id}/cancel \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+生成结果中的图片/视频 URL 有有效期，请及时下载保存。
+</Note>

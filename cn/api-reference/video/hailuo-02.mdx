@@ -1,0 +1,184 @@
+---
+title: "MiniMax-Hailuo-02 视频生成"
+description: "使用 MiniMax 海螺 02 模型生成高质量视频"
+api: "POST https://ai.kaiho.cc/v1/videos/generations"
+---
+
+<Note>
+  本接口为异步调用。任务成功提交后会返回 `task_id`，您需要通过 [查询任务状态](/cn/api-reference/task/get-status) 接口获取最终的生成结果。生成后的文件链接有效期为 24 小时。
+</Note>
+
+<RequestExample>
+
+```bash cURL theme={null}
+curl --location 'https://ai.kaiho.cc/v1/videos/generations' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--data '{
+    "model": "MiniMax-Hailuo-02",
+    "prompt": "夕阳下海边的灯塔",
+    "duration": 5
+}'
+```
+
+```python Python theme={null}
+import requests
+
+url = "https://ai.kaiho.cc/v1/videos/generations"
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY"
+}
+data = {
+    "model": "MiniMax-Hailuo-02",
+    "prompt": "夕阳下海边的灯塔",
+    "duration": 5
+}
+
+response = requests.post(url, headers=headers, json=data)
+print(response.json())
+```
+
+```javascript JavaScript theme={null}
+fetch('https://ai.kaiho.cc/v1/videos/generations', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    "model": "MiniMax-Hailuo-02",
+    "prompt": "夕阳下海边的灯塔",
+    "duration": 5
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```go Go theme={null}
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	url := "https://ai.kaiho.cc/v1/videos/generations"
+	payload := map[string]interface{}{
+		"model":    "MiniMax-Hailuo-02",
+		"prompt":   "夕阳下海边的灯塔",
+		"duration": 5,
+	}
+	jsonData, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	fmt.Println(result)
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 成功响应 theme={null}
+{
+    "code": "success",
+    "data": "task-wave1741000000000123456789"
+}
+```
+
+```json 错误响应 theme={null}
+{
+    "code": "authentication_error",
+    "message": "身份验证失败，请检查您的API密钥",
+    "data": null
+}
+```
+
+</ResponseExample>
+
+## 认证方式
+
+在请求头中使用 API Key 进行身份验证。您可以在 [API Key 管理](https://ai.kaiho.cc/dashboard/keys) 页面获取您的密钥。
+
+```http theme={null}
+Authorization: Bearer YOUR_API_KEY
+```
+
+## 请求参数
+
+<ParamField body="model" type="string" required>
+  模型名称，固定为 `MiniMax-Hailuo-02`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  视频生成的提示词。
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  视频时长。可选值：`5` 或 `10`。
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  视频分辨率。支持多种比例。
+</ParamField>
+
+<ParamField body="image_urls" type="array">
+  图片输入。支持提供首帧图片或首尾帧图片链接。
+</ParamField>
+
+<ParamField body="prompt_optimizer" type="boolean" default="true">
+  是否开启提示词优化器。
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  是否在生成的视频中包含水印。
+</ParamField>
+
+## 响应参数
+
+<ResponseField name="code" type="string">
+  响应状态码 * `success` - 请求成功，任务已提交
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  任务 ID，格式为 `task-wave{timestamp}{userId}{random}`，用于通过 [查询任务状态](/cn/api-reference/task/get-status) 接口获取生成结果
+</ResponseField>
+
+## 使用示例
+
+**图生视频示例**
+
+```json theme={null}
+{
+    "model": "MiniMax-Hailuo-02",
+    "prompt": "夕阳下海边的灯塔",
+    "image_urls": ["https://example.com/lighthouse.jpg"],
+    "duration": 5
+}
+```
+
+## 注意事项
+
+1. **异步处理**: 视频生成通常需要数分钟。请记录返回的 `data` (任务 ID) 并轮询状态接口。
+2. **错误处理**:
+   * `invalid_request`: 请求参数无效。
+   * `authentication_error`: 身份验证失败，请检查您的 API 密钥。
+   * `payment_required`: 账户余额不足，请充值后再试。
+   * `quota_not_enough`: 用户额度不足。
+   * `rate_limit_error`: 请求过于频繁，请稍后再试。
+   * `server_error`: 服务器内部错误，请稍后重试。
+3. **有效期**: 生成后的视频文件链接有效期为 24 小时。

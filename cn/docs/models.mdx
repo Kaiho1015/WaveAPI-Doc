@@ -1,0 +1,49 @@
+---
+title: "模型列表"
+description: "查看可用模型与定价信息"
+---
+
+## 查询可用模型
+
+```bash
+curl https://ai.kaiho.cc/v1/models \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## 查询单个模型
+
+```bash
+curl https://ai.kaiho.cc/v1/models/{model_name} \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## 计费类型
+
+| 类型 | 说明 | 适用 |
+|------|------|------|
+| Token 计费 | 按输入/输出 token 数量 | 文本生成、嵌入 |
+| 按次计费 | 每次请求固定费用 | 部分特殊端点 |
+| 图像计费 | 按生成数量和分辨率 | 图像生成 |
+| 视频计费 | 按时长和分辨率 | 视频生成 |
+| 音频计费 | 按音频时长 | TTS、STT |
+
+## 支持的模型类别
+
+<CardGroup cols={2}>
+  <Card title="文本生成" icon="comments" href="/cn/api-reference/text/general-chat">
+    GPT-4o、Claude Sonnet、Gemini 等
+  </Card>
+  <Card title="图像生成" icon="image" href="/cn/api-reference/image/overview">
+    GPT-4o Image、FLUX、Seedream 等
+  </Card>
+  <Card title="视频生成" icon="video" href="/cn/api-reference/video/overview">
+    VEO3、Sora2、Kling 等
+  </Card>
+  <Card title="音频处理" icon="headphones" href="/cn/api-reference/audio/tts">
+    Whisper、TTS
+  </Card>
+</CardGroup>
+
+<Tip>
+具体模型列表和定价请访问 [Explore](https://ai.kaiho.cc/explore) 查看最新信息。
+</Tip>

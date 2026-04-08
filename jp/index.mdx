@@ -1,83 +1,135 @@
 ---
-title: "Kaihoxz へようこそ"
-description: "統合 AI モデル API プラットフォーム - テキスト、画像、動画生成をサポート"
+title: "WaveAPI"
+description: "統合 AI モデル API ゲートウェイ — 一つのエンドポイントですべての主要 AI モデルにアクセス"
 ---
 
-## 🚀 Kaihoxz API プラットフォーム
+OpenAI 互換の統合 API エンドポイント。GPT-4o、Claude、Gemini、Sora、VEO などの主要モデルに一つの base URL でアクセス。`base_url` を変更するだけで、既存のコードを修正する必要はありません。
 
-Kaihoxz は統合された AI モデル API インターフェースを提供し、最先端の AI モデルを簡単に呼び出すことができます。
+<CodeGroup>
 
-<Card
-  title="クイックスタート"
-  icon="rocket"
-  href="/jp/guides/quickstart"
-  horizontal
->
-  チャット API を使用してテキスト生成をすぐに開始
-</Card>
+```python Python
+from openai import OpenAI
 
-## 💡 AI 機能
+client = OpenAI(
+    base_url="https://ai.kaiho.cc/v1",
+    api_key="your-api-key"
+)
 
-私たちが提供する様々な AI モデルインターフェースをご覧ください。
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "こんにちは！"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.kaiho.cc/v1',
+  apiKey: 'your-api-key'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: 'こんにちは！' }]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://ai.kaiho.cc/v1/chat/completions \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "こんにちは！"}]
+  }'
+```
+
+</CodeGroup>
+
+## AI モデル機能
+
+WaveAPI を通じて各種 AI モデルを呼び出せます。
 
 <CardGroup cols={3}>
   <Card
     title="テキスト生成"
-    icon="comments"
+    img="/images/cards/text-generation.svg"
     href="/jp/api-manual/text/general-chat"
   >
-    複数のテキスト生成モデルをサポートする統合チャット API
+    GPT-4o、Claude Sonnet、Gemini などの主要 LLM、ストリーミング対応
   </Card>
   <Card
     title="画像生成"
-    icon="image"
+    img="/images/cards/image-generation.svg"
     href="/jp/api-manual/image/gpt4o-image"
   >
-    GPT-4o-image、Seedream-4.0、Qwen などの画像生成モデル
+    GPT-4o Image、FLUX Kontext、Seedream などの画像生成モデル
   </Card>
   <Card
     title="動画生成"
-    icon="video"
+    img="/images/cards/video-generation.svg"
     href="/jp/api-manual/video/sora2"
   >
-    VEO3、Sora2、Wan2.5 などの動画生成モデル
+    VEO3、Sora2、Kling、Hailuo などの動画生成モデル
   </Card>
 </CardGroup>
 
-## ⚡ コア機能
+<CardGroup cols={3}>
+  <Card
+    title="音声処理"
+    img="/images/cards/audio.svg"
+    href="/jp/api-manual/audio/tts"
+  >
+    Whisper 音声認識と TTS テキスト読み上げ
+  </Card>
+  <Card
+    title="タスク管理"
+    img="/images/cards/task-management.svg"
+    href="/jp/api-manual/task/get-status"
+  >
+    非同期タスクのステータス照会、画像・動画生成の進捗追跡
+  </Card>
+  <Card
+    title="OpenAI 互換"
+    img="/images/cards/openai-compatible.svg"
+    href="/jp/guides/quickstart"
+  >
+    OpenAI SDK とそのまま互換 — URL を変更するだけ
+  </Card>
+</CardGroup>
+
+## WaveAPI を選ぶ理由
 
 <CardGroup cols={2}>
-  <Card title="統合インターフェース" icon="plug">
-    OpenAI API フォーマットと互換性があり、簡単に統合
+  <Card title="ゼロコスト移行" icon="rotate">
+    OpenAI API 互換フォーマット — base URL を変更するだけで開始
   </Card>
-  <Card title="マルチモデルサポート" icon="layer-group">
-    model パラメータで異なる AI モデルを切り替え
+  <Card title="マルチモデルアクセス" icon="layer-group">
+    一つの API キーですべての主要 AI モデルにアクセス、model パラメータで切り替え
   </Card>
-  <Card title="タスク管理" icon="tasks">
-    非同期タスクのステータスを照会し、生成の進行状況を追跡
+  <Card title="非同期タスクシステム" icon="clock-rotate-left">
+    画像・動画生成の非同期処理とリアルタイムステータス追跡
   </Card>
-  <Card title="高速レスポンス" icon="bolt">
-    高性能 API ゲートウェイで安定した信頼性の高いサービスを保証
+  <Card title="安定した基盤" icon="shield-check">
+    高性能 API ゲートウェイとインテリジェントルーティングで安定性を保証
   </Card>
 </CardGroup>
 
-## 🎯 はじめに
+## クイックスタート
 
 <Steps>
   <Step title="API キーを取得">
-    [API キー管理ページ](https://ai.kaiho.cc/token) にアクセスしてキーを取得
+    [Dashboard](https://ai.kaiho.cc/token) に登録して API キーを取得
   </Step>
-  <Step title="モデルを選択">
-    ドキュメントを参照して、ニーズに合った AI モデルを選択
+  <Step title="Base URL を置き換え">
+    OpenAI SDK の base URL を `https://ai.kaiho.cc/v1` に変更
   </Step>
-  <Step title="API を呼び出す">
-    お好みのプログラミング言語で API を呼び出し
+  <Step title="モデルを選択して呼び出し">
+    `model` パラメータで使用したいモデルを指定してリクエストを送信
   </Step>
 </Steps>
-
-<Note>
-  **💬 サポートが必要ですか？**
-  
-  [Discord コミュニティ](https://discord.gg/你的邀请码) に参加してサポートを受ける
-</Note>
-
