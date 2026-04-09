@@ -1,7 +1,7 @@
 ---
 title: "Get Task Status"
 description: "Query async task generation status and progress"
-api: "GET https://qingbo.dev/v1/tasks/{task_id}"
+api: "GET https://www.qingbo.dev/v1/tasks/{task_id}"
 ---
 
 ## Overview
@@ -34,7 +34,7 @@ task_id = "task_abc123"
 api_key = "YOUR_API_KEY"
 
 response = requests.get(
-    f"https://qingbo.dev/v1/tasks/{task_id}",
+    f"https://www.qingbo.dev/v1/tasks/{task_id}",
     headers={"Authorization": f"Bearer {api_key}"}
 )
 
@@ -76,7 +76,7 @@ Avoid frequent polling by using webhooks to receive completion notifications:
 ```python
 # Specify webhook when creating task
 response = requests.post(
-    "https://qingbo.dev/v1/videos/generations",
+    "https://www.qingbo.dev/v1/videos/generations",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
         "model": "sora-2",

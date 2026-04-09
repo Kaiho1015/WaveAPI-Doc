@@ -37,7 +37,7 @@ WaveAPI 完全相容 OpenAI SDK，只需替換 `base_url` 即可使用。
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://qingbo.dev/v1",
+    base_url="https://www.qingbo.dev/v1",
     api_key="YOUR_API_KEY"
 )
 
@@ -55,7 +55,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://qingbo.dev/v1',
+  baseURL: 'https://www.qingbo.dev/v1',
   apiKey: 'YOUR_API_KEY'
 });
 
@@ -70,7 +70,7 @@ console.log(response.choices[0].message.content);
 ```
 
 ```bash cURL
-curl https://qingbo.dev/v1/chat/completions \
+curl https://www.qingbo.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{

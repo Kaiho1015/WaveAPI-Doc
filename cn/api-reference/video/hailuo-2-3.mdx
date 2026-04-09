@@ -1,7 +1,7 @@
 ---
 title: "MiniMax-Hailuo-2.3 视频生成"
 description: "使用 MiniMax 海螺 2.3 模型生成高质量视频"
-api: "POST https://qingbo.dev/v1/videos/generations"
+api: "POST https://www.qingbo.dev/v1/videos/generations"
 ---
 
 <Note>
@@ -11,7 +11,7 @@ api: "POST https://qingbo.dev/v1/videos/generations"
 <RequestExample>
 
 ```bash cURL theme={null}
-curl --location 'https://qingbo.dev/v1/videos/generations' \
+curl --location 'https://www.qingbo.dev/v1/videos/generations' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --data '{
@@ -25,7 +25,7 @@ curl --location 'https://qingbo.dev/v1/videos/generations' \
 ```python Python theme={null}
 import requests
 
-url = "https://qingbo.dev/v1/videos/generations"
+url = "https://www.qingbo.dev/v1/videos/generations"
 headers = {
     "Content-Type": "application/json",
     "Authorization": "Bearer YOUR_API_KEY"
@@ -42,7 +42,7 @@ print(response.json())
 ```
 
 ```javascript JavaScript theme={null}
-fetch('https://qingbo.dev/v1/videos/generations', {
+fetch('https://www.qingbo.dev/v1/videos/generations', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ import (
 )
 
 func main() {
-	url := "https://qingbo.dev/v1/videos/generations"
+	url := "https://www.qingbo.dev/v1/videos/generations"
 	payload := map[string]interface{}{
 		"model":      "MiniMax-Hailuo-2.3",
 		"prompt":     "一只可爱的小猫在草地上奔跑 [推进]",

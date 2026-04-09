@@ -3,8 +3,8 @@
 WaveAPI is a unified AI model API gateway that provides a single endpoint to access all leading AI models including GPT, Claude, Gemini, Sora, VEO, Kling, and more.
 
 - **Documentation**: [docs.qingbo.dev](https://docs.qingbo.dev)
-- **API Platform**: [qingbo.dev](https://qingbo.dev)
-- **Dashboard**: [qingbo.dev/dashboard/keys](https://qingbo.dev/dashboard/keys)
+- **API Platform**: [qingbo.dev](https://www.qingbo.dev)
+- **Dashboard**: [qingbo.dev/dashboard/keys](https://www.qingbo.dev/dashboard/keys)
 
 ## Features
 

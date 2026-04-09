@@ -1,7 +1,7 @@
 ---
 title: "General Chat API"
 description: "Unified chat interface supporting multiple text generation models"
-api: "POST https://qingbo.dev/v1/chat/completions"
+api: "POST https://www.qingbo.dev/v1/chat/completions"
 ---
 
 ## Overview
@@ -71,7 +71,7 @@ The General Chat API provides a unified interface to access multiple large langu
 <CodeGroup>
 
 ```bash cURL
-curl https://qingbo.dev/v1/chat/completions \
+curl https://www.qingbo.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
@@ -96,7 +96,7 @@ import openai
 
 client = openai.OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://qingbo.dev/v1"
+    base_url="https://www.qingbo.dev/v1"
 )
 
 response = client.chat.completions.create(

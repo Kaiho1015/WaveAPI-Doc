@@ -6,7 +6,7 @@ description: "POST /v1/tasks/sync — タスクを送信して完了を待機"
 ## エンドポイント
 
 ```
-POST https://qingbo.dev/v1/tasks/sync
+POST https://www.qingbo.dev/v1/tasks/sync
 ```
 
 タスクを送信し、結果が返されるまでブロッキングで待機します。タイムアウト時間内に完了した場合は結果を直接返し、それ以外の場合は `poll_url` を返してポーリングを継続します。

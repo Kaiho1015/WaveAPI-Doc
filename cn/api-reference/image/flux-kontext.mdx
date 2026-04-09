@@ -1,7 +1,7 @@
 ---
 title: "Flux Kontext 图像生成"
 description: "使用 Flux Kontext 模型进行图像生成与编辑"
-api: "POST https://qingbo.dev/v1/tasks"
+api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
 <Note>
@@ -11,7 +11,7 @@ api: "POST https://qingbo.dev/v1/tasks"
 <RequestExample>
 
 ```bash cURL theme={null}
-curl -X POST "https://qingbo.dev/v1/tasks" \
+curl -X POST "https://www.qingbo.dev/v1/tasks" \
      -H "Authorization: Bearer YOUR_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
@@ -25,7 +25,7 @@ curl -X POST "https://qingbo.dev/v1/tasks" \
 ```python Python theme={null}
 import requests
 
-url = "https://qingbo.dev/v1/tasks"
+url = "https://www.qingbo.dev/v1/tasks"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -44,7 +44,7 @@ print(response.json())
 ```javascript JavaScript theme={null}
 const axios = require('axios');
 
-const url = 'https://qingbo.dev/v1/tasks';
+const url = 'https://www.qingbo.dev/v1/tasks';
 const data = {
   model: 'flux-kontext-pro',
   prompt: '将头发颜色改为蓝色',
@@ -77,7 +77,7 @@ import (
 )
 
 func main() {
-	url := "https://qingbo.dev/v1/tasks"
+	url := "https://www.qingbo.dev/v1/tasks"
 	payload := map[string]interface{}{
 		"model":      "flux-kontext-pro",
 		"prompt":     "将头发颜色改为蓝色",

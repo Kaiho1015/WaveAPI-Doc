@@ -1,7 +1,7 @@
 ---
 title: "Seedream 4.5 图像生成"
 description: "使用字节跳动 Seedream 4.5 模型生成高质量图像"
-api: "POST https://qingbo.dev/v1/tasks"
+api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
 <Note>
@@ -13,7 +13,7 @@ api: "POST https://qingbo.dev/v1/tasks"
 <RequestExample>
 
 ```bash cURL theme={null}
-curl https://qingbo.dev/v1/tasks \
+curl https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -26,7 +26,7 @@ curl https://qingbo.dev/v1/tasks \
 ```python Python theme={null}
 import requests
 
-url = "https://qingbo.dev/v1/tasks"
+url = "https://www.qingbo.dev/v1/tasks"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -42,7 +42,7 @@ print(response.json())
 ```
 
 ```javascript JavaScript theme={null}
-fetch('https://qingbo.dev/v1/tasks', {
+fetch('https://www.qingbo.dev/v1/tasks', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -69,7 +69,7 @@ import (
 )
 
 func main() {
-	url := "https://qingbo.dev/v1/tasks"
+	url := "https://www.qingbo.dev/v1/tasks"
 	payload := map[string]interface{}{
 		"model":  "seedream-4.5",
 		"prompt": "油画风格的向日葵花田",

@@ -11,7 +11,7 @@ OpenAI 互換の統合 API エンドポイントで、1行のコードで GPT-4o
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://qingbo.dev/v1",
+    base_url="https://www.qingbo.dev/v1",
     api_key="your-api-key"
 )
 
@@ -27,7 +27,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://qingbo.dev/v1',
+  baseURL: 'https://www.qingbo.dev/v1',
   apiKey: 'your-api-key'
 });
 
@@ -40,7 +40,7 @@ console.log(response.choices[0].message.content);
 ```
 
 ```bash cURL
-curl https://qingbo.dev/v1/chat/completions \
+curl https://www.qingbo.dev/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -127,7 +127,7 @@ WaveAPI を通じて各種 AI モデルを呼び出せます。
     [Dashboard](https://qingbo.dev/dashboard/keys) にアクセスして登録し、API Key を取得してください
   </Step>
   <Step title="Base URL の置き換え">
-    OpenAI SDK の base URL を `https://qingbo.dev/v1` に置き換えてください
+    OpenAI SDK の base URL を `https://www.qingbo.dev/v1` に置き換えてください
   </Step>
   <Step title="モデルを選択して呼び出し">
     `model` パラメータで使用したいモデルを指定し、リクエストを送信してください

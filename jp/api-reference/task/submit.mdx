@@ -6,7 +6,7 @@ description: "POST /v1/tasks — 非同期生成タスクを送信"
 ## エンドポイント
 
 ```
-POST https://qingbo.dev/v1/tasks
+POST https://www.qingbo.dev/v1/tasks
 ```
 
 画像、動画、または音声の生成タスクを送信し、すぐに `task_id` を返します。
@@ -53,7 +53,7 @@ POST https://qingbo.dev/v1/tasks
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://qingbo.dev/v1/tasks \
+curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -68,7 +68,7 @@ curl -X POST https://qingbo.dev/v1/tasks \
 import requests
 
 response = requests.post(
-    "https://qingbo.dev/v1/tasks",
+    "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
         "model": "veo3",

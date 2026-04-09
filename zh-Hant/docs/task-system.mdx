@@ -27,7 +27,7 @@ description: "圖像與影片生成的非同步任務完整流程"
 import openai
 
 client = openai.OpenAI(
-    base_url="https://qingbo.dev/v1",
+    base_url="https://www.qingbo.dev/v1",
     api_key="your-api-key"
 )
 
@@ -88,7 +88,7 @@ def wait_for_task(client, task_id, timeout=300):
 只有 `queued` 狀態的任務可以取消，取消後配額自動退還：
 
 ```bash
-curl -X POST https://qingbo.dev/v1/tasks/{task_id}/cancel \
+curl -X POST https://www.qingbo.dev/v1/tasks/{task_id}/cancel \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
