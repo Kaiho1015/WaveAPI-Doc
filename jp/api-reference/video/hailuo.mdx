@@ -12,7 +12,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "hailuo-2.3",
+    "model": "minimax-hailuo-2.3",
     "action": "generate",
     "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
     "duration": 6,
@@ -27,7 +27,7 @@ response = requests.post(
     "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
-        "model": "hailuo-2.3",
+        "model": "minimax-hailuo-2.3",
         "action": "generate",
         "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
         "duration": 6,
@@ -47,7 +47,7 @@ const response = await fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'hailuo-2.3',
+    model: 'minimax-hailuo-2.3',
     action: 'generate',
     prompt: '一只白猫慵懒地躺在阳光下的窗台上',
     duration: 6,
@@ -72,7 +72,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "hailuo-2.3",
+        "model":      "minimax-hailuo-2.3",
         "action":     "generate",
         "prompt":     "一只白猫慵懒地躺在阳光下的窗台上",
         "duration":   6,
@@ -99,7 +99,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "hailuo-2.3",
+          "model": "minimax-hailuo-2.3",
           "action": "generate",
           "prompt": "一只白猫慵懒地躺在阳光下的窗台上",
           "duration": 6,
@@ -127,7 +127,7 @@ public class Main {
 ```json 200
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "hailuo-2.3",
+  "model": "minimax-hailuo-2.3",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -140,12 +140,8 @@ public class Main {
 
 | モデル ID | デフォルト解像度 | 対応する長さ | 説明 |
 |---------|-----------|---------|------|
-| `hailuo-2.3` | 768P | 6秒 / 10秒 | Hailuo 2.3、4K・キャラクター参照に対応 |
-| `hailuo-2.3-fast` | 768P | 6秒 / 10秒 | Hailuo 2.3 高速版 |
-| `hailuo-02` | 768P | 6秒 / 10秒 | Hailuo 02、先頭末尾フレームに対応 |
-| `T2V-01-Director` | 768P | 6秒 | ディレクターモード、カメラ構文制御に対応 |
-| `I2V-01-Director` | 720P | 6秒 | 画像から動画ディレクターモード |
-| `S2V-01` | 720P | 6秒 | キャラクター参照モード、キャラクターの一貫性を維持 |
+| `minimax-hailuo-2.3` | 768P | 6秒 / 10秒 | Hailuo 2.3、キャラクター参照に対応 |
+| `minimax-hailuo-2.3-fast` | 768P | 6秒 / 10秒 | Hailuo 2.3 高速版、画像から動画のみ対応 |
 
 ## 統一パラメータ
 
@@ -174,7 +170,7 @@ public class Main {
 </ParamField>
 
 <ParamField body="last_frame" type="string">
-  末尾フレーム画像 URL、`image_urls` と併用が必要。`hailuo-02` のみ対応
+  末尾フレーム画像 URL、`image_urls` と併用が必要
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -213,23 +209,7 @@ public class Main {
     </ParamField>
   </Tab>
 
-  <Tab title="Hailuo 02">
-    **resolution の選択可能な値：** `512p`、`768p`、`1080p`
 
-    先頭末尾フレームモード（`image_urls` + `last_frame`）に対応。
-
-    <ParamField body="extra.prompt_optimizer" type="boolean" default="true">
-      プロンプト最適化を有効にするかどうか
-    </ParamField>
-
-    <ParamField body="extra.fast_pretreatment" type="boolean">
-      高速前処理モード
-    </ParamField>
-
-    <ParamField body="extra.aigc_watermark" type="boolean">
-      AIGC 透かしを追加するかどうか
-    </ParamField>
-  </Tab>
 </Tabs>
 
 ## 生成モード
@@ -238,8 +218,7 @@ public class Main {
 |------|------|---------|
 | テキストから動画 | `prompt` | 全て |
 | 画像から動画 | `prompt` + `image_urls`(1枚) | 全て |
-| 先頭末尾フレーム | `image_urls`(1枚) + `last_frame` | hailuo-02 |
-| キャラクター参照 | `prompt` + `extra.subject_reference` | hailuo-2.3 シリーズ |
+| キャラクター参照 | `prompt` + `extra.subject_reference` | minimax-hailuo-2.3 |
 
 ## レスポンス
 

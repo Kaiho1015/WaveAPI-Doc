@@ -15,7 +15,7 @@ curl --location 'https://www.qingbo.dev/v1/videos/generations' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --header 'Content-Type: application/json' \
 --data '{
-    "model": "veo3.1-quality",
+    "model": "veo-3.1-quality",
     "prompt": "海豚在蔚蓝的海洋中跃出水面",
     "aspect_ratio": "16:9",
     "resolution": "1080p"
@@ -31,7 +31,7 @@ headers = {
     "Content-Type": "application/json"
 }
 data = {
-    "model": "veo3.1-quality",
+    "model": "veo-3.1-quality",
     "prompt": "海豚在蔚蓝的海洋中跃出水面",
     "aspect_ratio": "16:9",
     "resolution": "1080p"
@@ -50,7 +50,7 @@ const headers = {
   'Content-Type': 'application/json'
 };
 const data = {
-  model: 'veo3.1-quality',
+  model: 'veo-3.1-quality',
   prompt: '海豚在蔚蓝的海洋中跃出水面',
   aspect_ratio: '16:9',
   resolution: '1080p'
@@ -74,7 +74,7 @@ import (
 func main() {
 	url := "https://www.qingbo.dev/v1/videos/generations"
 	data := map[string]interface{}{
-		"model":        "veo3.1-quality",
+		"model":        "veo-3.1-quality",
 		"prompt":       "海豚在蔚蓝的海洋中跃出水面",
 		"aspect_ratio": "16:9",
 		"resolution":   "1080p",
@@ -163,7 +163,7 @@ func main() {
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-可选值：`veo3.1-fast`（快速生成）, `veo3.1-quality`（高画质）
+可选值：`veo-3.1-fast`（快速生成）, `veo-3.1-quality`（高画质）
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
@@ -183,7 +183,7 @@ func main() {
 </ParamField>
 
 <ParamField body="generation_type" type="string" default="frame">
-生成模式：`frame`（首尾帧模式）, `reference`（参考图模式）。注意：`veo3.1-quality` 不支持 `reference` 模式。
+生成模式：`frame`（首尾帧模式）, `reference`（参考图模式）。注意：`veo-3.1-quality` 不支持 `reference` 模式。
 </ParamField>
 
 <ParamField body="resolution" type="string" default="720p">
@@ -210,7 +210,7 @@ func main() {
 
 ```json theme={null}
 {
-  "model": "veo3.1-quality",
+  "model": "veo-3.1-quality",
   "prompt": "海豚在蔚蓝的海洋中跃出水面",
   "aspect_ratio": "16:9",
   "resolution": "1080p"
@@ -221,7 +221,7 @@ func main() {
 
 ```json theme={null}
 {
-  "model": "veo3.1-fast",
+  "model": "veo-3.1-fast",
   "prompt": "一个人在草地上行走",
   "image_urls": ["https://example.com/start.jpg", "https://example.com/end.jpg"],
   "generation_type": "frame"
@@ -232,5 +232,5 @@ func main() {
 
 - 接口为异步处理，返回任务 ID 后请通过查询接口获取结果。
 - 视频链接有效期为 24 小时，过期后将无法访问，请及时转存。
-- `veo3.1-quality` 模式下暂不支持参考图模式。
+- `veo-3.1-quality` 模式下暂不支持参考图模式。
 - `enable_gif` 与高分辨率（1080p/4k）不可同时使用。

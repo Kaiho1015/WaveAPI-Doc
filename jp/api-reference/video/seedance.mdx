@@ -12,7 +12,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "seedance-2.0",
+    "model": "doubao-seedance-2.0",
     "action": "generate",
     "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
     "aspect_ratio": "16:9",
@@ -32,7 +32,7 @@ response = requests.post(
     "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
-        "model": "seedance-2.0",
+        "model": "doubao-seedance-2.0",
         "action": "generate",
         "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
         "aspect_ratio": "16:9",
@@ -57,7 +57,7 @@ const response = await fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'seedance-2.0',
+    model: 'doubao-seedance-2.0',
     action: 'generate',
     prompt: '一只柴犬穿宇航服在月球上行走，电影感光影',
     aspect_ratio: '16:9',
@@ -87,7 +87,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "seedance-2.0",
+        "model":      "doubao-seedance-2.0",
         "action":     "generate",
         "prompt":     "一只柴犬穿宇航服在月球上行走，电影感光影",
         "aspect_ratio": "16:9",
@@ -119,7 +119,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "seedance-2.0",
+          "model": "doubao-seedance-2.0",
           "action": "generate",
           "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
           "aspect_ratio": "16:9",
@@ -152,7 +152,7 @@ public class Main {
 ```json 200
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "seedance-2.0",
+  "model": "doubao-seedance-2.0",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -165,11 +165,9 @@ public class Main {
 
 | モデル ID | 説明 |
 |---------|------|
-| `seedance-2.0` | Seedance 2.0、ネイティブ音声・先頭末尾フレーム・マルチモーダル参照・最大 2K に対応 |
-| `seedance-2.0-fast` | Seedance 2.0 高速版 |
-| `seedance-1.5-pro` | Seedance 1.5 プロフェッショナル版 |
-| `seedance-1.0-pro-fast` | Seedance 1.0 高速版 |
-| `seedance-1.0-pro-quality` | Seedance 1.0 高画質版 |
+| `doubao-seedance-2.0` | Seedance 2.0、ネイティブ音声・先頭末尾フレーム・マルチモーダル参照・最大 2K に対応 |
+| `doubao-seedance-2.0-fast` | Seedance 2.0 高速版 |
+| `doubao-seedance-1.5-pro` | Seedance 1.5 プロフェッショナル版 |
 
 ## 統一パラメータ
 
@@ -294,19 +292,7 @@ public class Main {
     </ParamField>
   </Tab>
 
-  <Tab title="Seedance 1.0 Pro">
-    **2つのサブバージョン：** `seedance-1.0-pro-fast`（高速）と `seedance-1.0-pro-quality`（高画質）
 
-    **duration の範囲：** 2-12秒
-
-    **resolution の選択可能な値：** `480p`、`720p`、`1080p`
-
-    **入力制限：** 画像最大1枚
-
-    <Note>
-    1.0 Quality バージョンは `last_frame`（末尾フレーム）と `reference`（スタイル参照）ロールに対応しています。reference ロール使用時は 1080p 解像度に非対応です。
-    </Note>
-  </Tab>
 </Tabs>
 
 ## 生成モード
@@ -315,7 +301,7 @@ public class Main {
 |------|------|---------|
 | テキストから動画 | `prompt` | 全て |
 | 画像から動画 | `prompt` + `image_urls`(1枚) または `first_frame` | 全て |
-| 先頭末尾フレーム | `first_frame` + `last_frame` | 1.0-quality / 1.5 / 2.0 |
+| 先頭末尾フレーム | `first_frame` + `last_frame` | 1.5 / 2.0 |
 | マルチモーダル参照 | `image_urls` + `video_urls` + `audio_urls` | 2.0 のみ |
 
 ## レスポンス

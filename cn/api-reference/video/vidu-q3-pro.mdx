@@ -14,7 +14,7 @@ curl https://www.qingbo.dev/v1/videos/generations \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "vidu-q3-pro",
+    "model": "viduq3-pro",
     "prompt": "宇航员在月球表面行走，地球在远处升起",
     "resolution": "1080p"
   }'
@@ -29,7 +29,7 @@ headers = {
     "Content-Type": "application/json"
 }
 data = {
-    "model": "vidu-q3-pro",
+    "model": "viduq3-pro",
     "prompt": "宇航员在月球表面行走，地球在远处升起",
     "resolution": "1080p"
 }
@@ -46,7 +46,7 @@ const response = await fetch('https://www.qingbo.dev/v1/videos/generations', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    "model": "vidu-q3-pro",
+    "model": "viduq3-pro",
     "prompt": "宇航员在月球表面行走，地球在远处升起",
     "resolution": "1080p"
   })
@@ -69,7 +69,7 @@ import (
 func main() {
 	url := "https://www.qingbo.dev/v1/videos/generations"
 	payload := map[string]interface{}{
-		"model": "vidu-q3-pro",
+		"model": "viduq3-pro",
 		"prompt": "宇航员在月球表面行走，地球在远处升起",
 		"resolution": "1080p",
 	}
@@ -114,7 +114,7 @@ func main() {
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-  模型 ID：`vidu-q3-pro`
+  模型 ID：`viduq3-pro`
 </ParamField>
 
 <ParamField body="prompt" type="string">
@@ -148,7 +148,7 @@ func main() {
 ### 文本生成视频
 ```json theme={null}
 {
-  "model": "vidu-q3-pro",
+  "model": "viduq3-pro",
   "prompt": "宇航员在月球表面行走，地球在远处升起",
   "resolution": "1080p"
 }
@@ -157,7 +157,7 @@ func main() {
 ### 首尾帧视频生成
 ```json theme={null}
 {
-  "model": "vidu-q3-pro",
+  "model": "viduq3-pro",
   "image_urls": ["https://example.com/start.jpg", "https://example.com/end.jpg"],
   "prompt": "镜头平滑地从起景过渡到终景"
 }

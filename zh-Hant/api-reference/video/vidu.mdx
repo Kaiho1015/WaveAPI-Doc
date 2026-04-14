@@ -145,12 +145,9 @@ public class Main {
 
 | 模型 ID | 說明 |
 |---------|------|
-| `viduq3` | Vidu Q3，原生音訊、16 秒、1080p |
+| `viduq3` | Vidu Q3，僅支援圖生影片（需 1-7 張參考圖） |
 | `viduq3-pro` | Vidu Q3 Pro，最高畫質 |
 | `viduq3-turbo` | Vidu Q3 Turbo，速度優先 |
-| `viduq3-mix` | Vidu Q3 Mix，多參考圖多實體一致性 |
-| `viduq2` | Vidu Q2 |
-| `viduq1` | Vidu Q1 |
 
 ## 統一參數
 
@@ -190,7 +187,6 @@ public class Main {
   參考圖片 URL 陣列，數量決定生成模式：
   - 1 張 → 圖生影片
   - 2 張 → 首尾幀模式
-  - 3+ 張 → 參考圖引導（自動使用 viduq2）
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -226,7 +222,6 @@ public class Main {
 | 文生影片 | `prompt` | 純文字生成 |
 | 圖生影片 | `prompt` + `image_urls`(1張) | 單圖參考 |
 | 首尾幀 | `image_urls`(2張) | 起止畫面過渡 |
-| 參考圖引導 | `image_urls`(3+張) | 多圖參考（自動切換為 viduq2） |
 
 ## 回應
 

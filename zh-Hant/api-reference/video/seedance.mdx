@@ -12,7 +12,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "seedance-2.0",
+    "model": "doubao-seedance-2.0",
     "action": "generate",
     "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
     "aspect_ratio": "16:9",
@@ -32,7 +32,7 @@ response = requests.post(
     "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
-        "model": "seedance-2.0",
+        "model": "doubao-seedance-2.0",
         "action": "generate",
         "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
         "aspect_ratio": "16:9",
@@ -57,7 +57,7 @@ const response = await fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'seedance-2.0',
+    model: 'doubao-seedance-2.0',
     action: 'generate',
     prompt: '一只柴犬穿宇航服在月球上行走，电影感光影',
     aspect_ratio: '16:9',
@@ -87,7 +87,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "seedance-2.0",
+        "model":      "doubao-seedance-2.0",
         "action":     "generate",
         "prompt":     "一只柴犬穿宇航服在月球上行走，电影感光影",
         "aspect_ratio": "16:9",
@@ -119,7 +119,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "seedance-2.0",
+          "model": "doubao-seedance-2.0",
           "action": "generate",
           "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
           "aspect_ratio": "16:9",
@@ -152,7 +152,7 @@ public class Main {
 ```json 200
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "seedance-2.0",
+  "model": "doubao-seedance-2.0",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -165,11 +165,9 @@ public class Main {
 
 | 模型 ID | 說明 |
 |---------|------|
-| `seedance-2.0` | Seedance 2.0，支援原生音訊、首尾幀、多模態參考、最高 2K |
-| `seedance-2.0-fast` | Seedance 2.0 快速版 |
-| `seedance-1.5-pro` | Seedance 1.5 專業版 |
-| `seedance-1.0-pro-fast` | Seedance 1.0 快速版 |
-| `seedance-1.0-pro-quality` | Seedance 1.0 高畫質版 |
+| `doubao-seedance-2.0` | Seedance 2.0，支援原生音訊、首尾幀、多模態參考、最高 2K |
+| `doubao-seedance-2.0-fast` | Seedance 2.0 快速版 |
+| `doubao-seedance-1.5-pro` | Seedance 1.5 專業版 |
 
 ## 統一參數
 
@@ -294,19 +292,7 @@ public class Main {
     </ParamField>
   </Tab>
 
-  <Tab title="Seedance 1.0 Pro">
-    **兩個子版本：** `seedance-1.0-pro-fast`（快速）和 `seedance-1.0-pro-quality`（高畫質）
 
-    **duration 範圍：** 2-12 秒
-
-    **resolution 可選值：** `480p`、`720p`、`1080p`
-
-    **輸入限制：** 圖片最多 1 張
-
-    <Note>
-    1.0 Quality 版本支援 `last_frame`（尾幀）和 `reference`（風格參考）角色。使用 reference 角色時不支援 1080p 解析度。
-    </Note>
-  </Tab>
 </Tabs>
 
 ## 生成模式
@@ -315,7 +301,7 @@ public class Main {
 |------|------|---------|
 | 文生影片 | `prompt` | 全部 |
 | 圖生影片 | `prompt` + `image_urls`(1張) 或 `first_frame` | 全部 |
-| 首尾幀 | `first_frame` + `last_frame` | 1.0-quality / 1.5 / 2.0 |
+| 首尾幀 | `first_frame` + `last_frame` | 1.5 / 2.0 |
 | 多模態參考 | `image_urls` + `video_urls` + `audio_urls` | 僅 2.0 |
 
 ## 回應

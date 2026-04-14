@@ -15,7 +15,7 @@ curl --location 'https://www.qingbo.dev/v1/videos/generations' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --data '{
-    "model": "doubao-seedance-1-5-pro",
+    "model": "doubao-seedance-1.5-pro",
     "prompt": "城市霓虹灯下的雨夜街道",
     "aspect_ratio": "16:9"
 }'
@@ -30,7 +30,7 @@ headers = {
     "Authorization": "Bearer YOUR_API_KEY"
 }
 data = {
-    "model": "doubao-seedance-1-5-pro",
+    "model": "doubao-seedance-1.5-pro",
     "prompt": "城市霓虹灯下的雨夜街道",
     "aspect_ratio": "16:9"
 }
@@ -47,7 +47,7 @@ fetch('https://www.qingbo.dev/v1/videos/generations', {
     'Authorization': 'Bearer YOUR_API_KEY'
   },
   body: JSON.stringify({
-    "model": "doubao-seedance-1-5-pro",
+    "model": "doubao-seedance-1.5-pro",
     "prompt": "城市霓虹灯下的雨夜街道",
     "aspect_ratio": "16:9"
   })
@@ -69,7 +69,7 @@ import (
 func main() {
 	url := "https://www.qingbo.dev/v1/videos/generations"
 	payload := map[string]interface{}{
-		"model":        "doubao-seedance-1-5-pro",
+		"model":        "doubao-seedance-1.5-pro",
 		"prompt":       "城市霓虹灯下的雨夜街道",
 		"aspect_ratio": "16:9",
 	}
@@ -121,7 +121,7 @@ Authorization: Bearer YOUR_API_KEY
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-  模型名称，固定为 `doubao-seedance-1-5-pro`
+  模型名称，固定为 `doubao-seedance-1.5-pro`
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
@@ -163,7 +163,7 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json theme={null}
 {
-    "model": "doubao-seedance-1-5-pro",
+    "model": "doubao-seedance-1.5-pro",
     "prompt": "城市霓虹灯下的雨夜街道",
     "aspect_ratio": "16:9"
 }

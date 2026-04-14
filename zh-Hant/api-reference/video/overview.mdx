@@ -22,14 +22,10 @@ POST https://www.qingbo.dev/v1/tasks
 | `prompt` | string | 是 | 影片描述文字 |
 | `duration` | integer | 否 | 影片時長（秒） |
 | `aspect_ratio` | string | 否 | 寬高比，如 `"16:9"` |
-| `first_frame` | string | 否 | 首幀圖片 URL（圖生影片） |
-| `last_frame` | string | 否 | 尾幀圖片 URL（需配合 first_frame） |
-| `video_url` | string | 否 | 參考影片 URL |
-| `video_urls` | array | 否 | 多個參考影片 URL |
-| `image_url` | string | 否 | 參考圖片 URL |
-| `image_urls` | array | 否 | 多張參考圖片 URL |
-| `generate_audio` | boolean | 否 | 是否同時生成音訊 |
-| `watermark` | boolean | 否 | 是否新增浮水印 |
+| `resolution` | string | 否 | 解析度，如 `"1080p"` |
+| `first_frame` | string | 否 | 首幀圖片 URL |
+| `last_frame` | string | 否 | 尾幀圖片 URL |
+| `image_urls` | array | 否 | 參考圖片 URL 陣列 |
 | `callback_url` | string | 否 | 完成後的回呼位址 |
 | `extra` | object | 否 | 模型特定的透傳參數 |
 
@@ -37,44 +33,44 @@ POST https://www.qingbo.dev/v1/tasks
 
 ```json
 {
-  "task_id": "task_xxx",
-  "status": "completed",
-  "result": {
-    "videos": [
-      {
-        "url": "https://...",
-        "expires_at": 1720000000
-      }
-    ]
-  }
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo-3.1-fast",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
 }
 ```
 
 ## 支援的模型
 
 <CardGroup cols={2}>
-  <Card title="VEO3" href="/zh-Hant/api-reference/video/veo3">
-    Google 影片生成模型
+  <Card title="VEO 系列" href="/zh-Hant/api-reference/video/veo">
+    Google VEO 3.1 Fast / Lite / Quality
   </Card>
-  <Card title="Sora2" href="/zh-Hant/api-reference/video/sora2">
-    OpenAI 影片生成模型
+  <Card title="Seedance 系列" href="/zh-Hant/api-reference/video/seedance">
+    字節跳動 Seedance 2.0 / 1.5
   </Card>
-  <Card title="Kling" href="/zh-Hant/api-reference/video/kling-v2-6">
+  <Card title="Sora 系列" href="/zh-Hant/api-reference/video/sora">
+    OpenAI Sora 2 / 2 Pro
+  </Card>
+  <Card title="可靈 Kling" href="/zh-Hant/api-reference/video/kling">
     快手可靈系列
   </Card>
-  <Card title="更多模型" icon="ellipsis">
-    海螺、豆包、Vidu、萬象 等
+  <Card title="海螺 Hailuo" href="/zh-Hant/api-reference/video/hailuo">
+    MiniMax 海螺 2.3
+  </Card>
+  <Card title="Vidu 系列" href="/zh-Hant/api-reference/video/vidu">
+    Vidu Q3 / Q3 Pro / Q3 Turbo
   </Card>
 </CardGroup>
 
 ## 生成模式
 
-大部分影片模型支援以下模式：
-
 | 模式 | 參數 | 說明 |
 |------|------|------|
 | 文生影片 | `prompt` | 純文字描述生成影片 |
-| 圖生影片 | `prompt` + `first_frame` 或 `image_url` | 基於圖片生成影片 |
+| 圖生影片 | `prompt` + `first_frame` 或 `image_urls` | 基於圖片生成影片 |
 | 首尾幀 | `first_frame` + `last_frame` | 指定首尾畫面生成過渡影片 |
 
 <Note>

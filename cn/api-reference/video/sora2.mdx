@@ -15,7 +15,7 @@ curl --location 'https://www.qingbo.dev/v1/videos/generations' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --header 'Content-Type: application/json' \
 --data '{
-    "model": "sora-2-vip",
+    "model": "sora-2",
     "prompt": "瀑布倾泻而下形成彩虹",
     "aspect_ratio": "16:9",
     "duration": 15
@@ -31,7 +31,7 @@ headers = {
     "Content-Type": "application/json"
 }
 data = {
-    "model": "sora-2-vip",
+    "model": "sora-2",
     "prompt": "瀑布倾泻而下形成彩虹",
     "aspect_ratio": "16:9",
     "duration": 15
@@ -50,7 +50,7 @@ const headers = {
   'Content-Type': 'application/json'
 };
 const data = {
-  model: 'sora-2-vip',
+  model: 'sora-2',
   prompt: '瀑布倾泻而下形成彩虹',
   aspect_ratio: '16:9',
   duration: 15
@@ -74,7 +74,7 @@ import (
 func main() {
 	url := "https://www.qingbo.dev/v1/videos/generations"
 	data := map[string]interface{}{
-		"model":        "sora-2-vip",
+		"model":        "sora-2",
 		"prompt":       "瀑布倾泻而下形成彩虹",
 		"aspect_ratio": "16:9",
 		"duration":     15,
@@ -163,7 +163,7 @@ func main() {
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-可选值：`sora-2`（标准版）, `sora-2-vip`（VIP版）, `sora-2-pro`（专业版,支持更长时长）
+可选值：`sora-2`（标准版）, `sora-2`（VIP版）, `sora-2-pro`（专业版,支持更长时长）
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
@@ -171,7 +171,7 @@ func main() {
 </ParamField>
 
 <ParamField body="duration" type="number" default="10">
-视频时长。`sora-2` 和 `sora-2-vip` 支持 `10`, `15` 秒；`sora-2-pro` 支持 `10`, `15`, `25` 秒。
+视频时长。`sora-2` 和 `sora-2` 支持 `10`, `15` 秒；`sora-2-pro` 支持 `10`, `15`, `25` 秒。
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="16:9">
@@ -226,7 +226,7 @@ func main() {
 
 ```json theme={null}
 {
-  "model": "sora-2-vip",
+  "model": "sora-2",
   "prompt": "瀑布倾泻而下形成彩虹",
   "aspect_ratio": "16:9",
   "duration": 15

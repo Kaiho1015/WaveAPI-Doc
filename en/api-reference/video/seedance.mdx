@@ -12,7 +12,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "seedance-2.0",
+    "model": "doubao-seedance-2.0",
     "action": "generate",
     "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
     "aspect_ratio": "16:9",
@@ -32,7 +32,7 @@ response = requests.post(
     "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
-        "model": "seedance-2.0",
+        "model": "doubao-seedance-2.0",
         "action": "generate",
         "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
         "aspect_ratio": "16:9",
@@ -57,7 +57,7 @@ const response = await fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'seedance-2.0',
+    model: 'doubao-seedance-2.0',
     action: 'generate',
     prompt: '一只柴犬穿宇航服在月球上行走，电影感光影',
     aspect_ratio: '16:9',
@@ -87,7 +87,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "seedance-2.0",
+        "model":      "doubao-seedance-2.0",
         "action":     "generate",
         "prompt":     "一只柴犬穿宇航服在月球上行走，电影感光影",
         "aspect_ratio": "16:9",
@@ -119,7 +119,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "seedance-2.0",
+          "model": "doubao-seedance-2.0",
           "action": "generate",
           "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
           "aspect_ratio": "16:9",
@@ -152,7 +152,7 @@ public class Main {
 ```json 200
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "seedance-2.0",
+  "model": "doubao-seedance-2.0",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -165,11 +165,9 @@ public class Main {
 
 | Model ID | Description |
 |----------|-------------|
-| `seedance-2.0` | Seedance 2.0, supports native audio, first/last frame, multimodal reference, up to 2K |
-| `seedance-2.0-fast` | Seedance 2.0 fast version |
-| `seedance-1.5-pro` | Seedance 1.5 professional version |
-| `seedance-1.0-pro-fast` | Seedance 1.0 fast version |
-| `seedance-1.0-pro-quality` | Seedance 1.0 high-quality version |
+| `doubao-seedance-2.0` | Seedance 2.0, supports native audio, first/last frame, multimodal reference, up to 2K |
+| `doubao-seedance-2.0-fast` | Seedance 2.0 fast version |
+| `doubao-seedance-1.5-pro` | Seedance 1.5 professional version |
 
 ## Common Parameters
 
@@ -294,19 +292,7 @@ public class Main {
     </ParamField>
   </Tab>
 
-  <Tab title="Seedance 1.0 Pro">
-    **Two sub-versions:** `seedance-1.0-pro-fast` (fast) and `seedance-1.0-pro-quality` (high quality)
 
-    **duration range:** 2-12 seconds
-
-    **resolution options:** `480p`, `720p`, `1080p`
-
-    **Input limits:** Up to 1 image
-
-    <Note>
-    The 1.0 Quality version supports `last_frame` and `reference` (style reference) roles. 1080p resolution is not supported when using the reference role.
-    </Note>
-  </Tab>
 </Tabs>
 
 ## Generation Modes
@@ -315,7 +301,7 @@ public class Main {
 |------|-----------|-------------------|
 | Text-to-video | `prompt` | All |
 | Image-to-video | `prompt` + `image_urls` (1 image) or `first_frame` | All |
-| First/Last frame | `first_frame` + `last_frame` | 1.0-quality / 1.5 / 2.0 |
+| First/Last frame | `first_frame` + `last_frame` | 1.5 / 2.0 |
 | Multimodal reference | `image_urls` + `video_urls` + `audio_urls` | 2.0 only |
 
 ## Response

@@ -1,5 +1,5 @@
 ---
-title: "MiniMax-Hailuo-2.3 视频生成"
+title: "minimax-hailuo-2.3 视频生成"
 description: "使用 MiniMax 海螺 2.3 模型生成高质量视频"
 api: "POST https://www.qingbo.dev/v1/videos/generations"
 ---
@@ -15,7 +15,7 @@ curl --location 'https://www.qingbo.dev/v1/videos/generations' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer YOUR_API_KEY' \
 --data '{
-    "model": "MiniMax-Hailuo-2.3",
+    "model": "minimax-hailuo-2.3",
     "prompt": "一只可爱的小猫在草地上奔跑 [推进]",
     "resolution": "768p",
     "duration": 6
@@ -31,7 +31,7 @@ headers = {
     "Authorization": "Bearer YOUR_API_KEY"
 }
 data = {
-    "model": "MiniMax-Hailuo-2.3",
+    "model": "minimax-hailuo-2.3",
     "prompt": "一只可爱的小猫在草地上奔跑 [推进]",
     "resolution": "768p",
     "duration": 6
@@ -49,7 +49,7 @@ fetch('https://www.qingbo.dev/v1/videos/generations', {
     'Authorization': 'Bearer YOUR_API_KEY'
   },
   body: JSON.stringify({
-    "model": "MiniMax-Hailuo-2.3",
+    "model": "minimax-hailuo-2.3",
     "prompt": "一只可爱的小猫在草地上奔跑 [推进]",
     "resolution": "768p",
     "duration": 6
@@ -72,7 +72,7 @@ import (
 func main() {
 	url := "https://www.qingbo.dev/v1/videos/generations"
 	payload := map[string]interface{}{
-		"model":      "MiniMax-Hailuo-2.3",
+		"model":      "minimax-hailuo-2.3",
 		"prompt":     "一只可爱的小猫在草地上奔跑 [推进]",
 		"resolution": "768p",
 		"duration":   6,
@@ -125,7 +125,7 @@ Authorization: Bearer YOUR_API_KEY
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-  模型名称，固定为 `MiniMax-Hailuo-2.3`
+  模型名称，固定为 `minimax-hailuo-2.3`
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
@@ -142,7 +142,7 @@ Authorization: Bearer YOUR_API_KEY
   * `1080p`: 1920x1080 (横屏) / 1080x1920 (竖屏)
 </ParamField>
 
-<ParamField body="first_frame_image" type="string">
+<ParamField body="first_frame" type="string">
   首帧图片。支持 URL 或 Base64 编码字符串。提供此参数后，模型将基于该图片生成视频。
 </ParamField>
 
@@ -196,9 +196,9 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json theme={null}
 {
-    "model": "MiniMax-Hailuo-2.3",
+    "model": "minimax-hailuo-2.3",
     "prompt": "一只可爱的小猫在草地上奔跑",
-    "first_frame_image": "https://example.com/cat.jpg",
+    "first_frame": "https://example.com/cat.jpg",
     "duration": 6
 }
 ```

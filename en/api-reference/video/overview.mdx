@@ -22,14 +22,10 @@ POST https://www.qingbo.dev/v1/tasks
 | `prompt` | string | Yes | Video description text |
 | `duration` | integer | No | Video duration (seconds) |
 | `aspect_ratio` | string | No | Aspect ratio, e.g., `"16:9"` |
-| `first_frame` | string | No | First frame image URL (image-to-video) |
-| `last_frame` | string | No | Last frame image URL (requires first_frame) |
-| `video_url` | string | No | Reference video URL |
-| `video_urls` | array | No | Multiple reference video URLs |
-| `image_url` | string | No | Reference image URL |
-| `image_urls` | array | No | Multiple reference image URLs |
-| `generate_audio` | boolean | No | Whether to generate audio simultaneously |
-| `watermark` | boolean | No | Whether to add a watermark |
+| `resolution` | string | No | Resolution, e.g., `"1080p"` |
+| `first_frame` | string | No | First frame image URL |
+| `last_frame` | string | No | Last frame image URL |
+| `image_urls` | array | No | Reference image URL array |
 | `callback_url` | string | No | Webhook callback URL upon completion |
 | `extra` | object | No | Model-specific pass-through parameters |
 
@@ -37,44 +33,44 @@ POST https://www.qingbo.dev/v1/tasks
 
 ```json
 {
-  "task_id": "task_xxx",
-  "status": "completed",
-  "result": {
-    "videos": [
-      {
-        "url": "https://...",
-        "expires_at": 1720000000
-      }
-    ]
-  }
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo-3.1-fast",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
 }
 ```
 
 ## Supported Models
 
 <CardGroup cols={2}>
-  <Card title="VEO3" href="/en/api-reference/video/veo3">
-    Google video generation model
+  <Card title="VEO Series" href="/en/api-reference/video/veo">
+    Google VEO 3.1 Fast / Lite / Quality
   </Card>
-  <Card title="Sora2" href="/en/api-reference/video/sora2">
-    OpenAI video generation model
+  <Card title="Seedance Series" href="/en/api-reference/video/seedance">
+    ByteDance Seedance 2.0 / 1.5
   </Card>
-  <Card title="Kling" href="/en/api-reference/video/kling-v2-6">
+  <Card title="Sora Series" href="/en/api-reference/video/sora">
+    OpenAI Sora 2 / 2 Pro
+  </Card>
+  <Card title="Kling" href="/en/api-reference/video/kling">
     Kuaishou Kling series
   </Card>
-  <Card title="More Models" icon="ellipsis">
-    Hailuo, Doubao, Vidu, Wan, and more
+  <Card title="Hailuo" href="/en/api-reference/video/hailuo">
+    MiniMax Hailuo 2.3
+  </Card>
+  <Card title="Vidu Series" href="/en/api-reference/video/vidu">
+    Vidu Q3 / Q3 Pro / Q3 Turbo
   </Card>
 </CardGroup>
 
 ## Generation Modes
 
-Most video models support the following modes:
-
 | Mode | Parameters | Description |
 |------|-----------|-------------|
 | Text-to-video | `prompt` | Generate video from text description |
-| Image-to-video | `prompt` + `first_frame` or `image_url` | Generate video from an image |
+| Image-to-video | `prompt` + `first_frame` or `image_urls` | Generate video from an image |
 | First/Last frame | `first_frame` + `last_frame` | Generate a transition video between specified start and end frames |
 
 <Note>

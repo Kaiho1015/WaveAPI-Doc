@@ -22,14 +22,10 @@ POST https://www.qingbo.dev/v1/tasks
 | `prompt` | string | はい | 動画の説明テキスト |
 | `duration` | integer | いいえ | 動画の長さ（秒） |
 | `aspect_ratio` | string | いいえ | アスペクト比、例：`"16:9"` |
-| `first_frame` | string | いいえ | 先頭フレーム画像 URL（画像から動画生成） |
-| `last_frame` | string | いいえ | 末尾フレーム画像 URL（first_frame と併用が必要） |
-| `video_url` | string | いいえ | 参照動画 URL |
-| `video_urls` | array | いいえ | 複数の参照動画 URL |
-| `image_url` | string | いいえ | 参照画像 URL |
-| `image_urls` | array | いいえ | 複数の参照画像 URL |
-| `generate_audio` | boolean | いいえ | 音声も同時に生成するかどうか |
-| `watermark` | boolean | いいえ | 透かしを追加するかどうか |
+| `resolution` | string | いいえ | 解像度、例：`"1080p"` |
+| `first_frame` | string | いいえ | 先頭フレーム画像 URL |
+| `last_frame` | string | いいえ | 末尾フレーム画像 URL |
+| `image_urls` | array | いいえ | 参照画像 URL 配列 |
 | `callback_url` | string | いいえ | 完了後のコールバックアドレス |
 | `extra` | object | いいえ | モデル固有のパススルーパラメータ |
 
@@ -37,44 +33,44 @@ POST https://www.qingbo.dev/v1/tasks
 
 ```json
 {
-  "task_id": "task_xxx",
-  "status": "completed",
-  "result": {
-    "videos": [
-      {
-        "url": "https://...",
-        "expires_at": 1720000000
-      }
-    ]
-  }
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo-3.1-fast",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
 }
 ```
 
 ## 対応モデル
 
 <CardGroup cols={2}>
-  <Card title="VEO3" href="/jp/api-reference/video/veo3">
-    Google 動画生成モデル
+  <Card title="VEO シリーズ" href="/jp/api-reference/video/veo">
+    Google VEO 3.1 Fast / Lite / Quality
   </Card>
-  <Card title="Sora2" href="/jp/api-reference/video/sora2">
-    OpenAI 動画生成モデル
+  <Card title="Seedance シリーズ" href="/jp/api-reference/video/seedance">
+    ByteDance Seedance 2.0 / 1.5
   </Card>
-  <Card title="Kling" href="/jp/api-reference/video/kling-v2-6">
+  <Card title="Sora シリーズ" href="/jp/api-reference/video/sora">
+    OpenAI Sora 2 / 2 Pro
+  </Card>
+  <Card title="Kling" href="/jp/api-reference/video/kling">
     Kuaishou Kling シリーズ
   </Card>
-  <Card title="その他のモデル" icon="ellipsis">
-    Hailuo、Doubao、Vidu、Wan など
+  <Card title="Hailuo" href="/jp/api-reference/video/hailuo">
+    MiniMax Hailuo 2.3
+  </Card>
+  <Card title="Vidu シリーズ" href="/jp/api-reference/video/vidu">
+    Vidu Q3 / Q3 Pro / Q3 Turbo
   </Card>
 </CardGroup>
 
 ## 生成モード
 
-ほとんどの動画モデルは以下のモードに対応しています：
-
 | モード | パラメータ | 説明 |
 |------|------|------|
 | テキストから動画 | `prompt` | テキスト説明から動画を生成 |
-| 画像から動画 | `prompt` + `first_frame` または `image_url` | 画像に基づいて動画を生成 |
+| 画像から動画 | `prompt` + `first_frame` または `image_urls` | 画像に基づいて動画を生成 |
 | 先頭末尾フレーム | `first_frame` + `last_frame` | 先頭と末尾の画面を指定して遷移動画を生成 |
 
 <Note>

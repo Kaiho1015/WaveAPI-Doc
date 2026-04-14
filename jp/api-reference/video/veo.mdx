@@ -12,7 +12,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "veo-3.1",
+    "model": "veo-3.1-fast",
     "action": "generate",
     "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
     "aspect_ratio": "16:9",
@@ -28,7 +28,7 @@ response = requests.post(
     "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
-        "model": "veo-3.1",
+        "model": "veo-3.1-fast",
         "action": "generate",
         "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
         "aspect_ratio": "16:9",
@@ -49,7 +49,7 @@ const response = await fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'veo-3.1',
+    model: 'veo-3.1-fast',
     action: 'generate',
     prompt: 'A golden retriever running on a beach at sunset, cinematic lighting, slow motion',
     aspect_ratio: '16:9',
@@ -75,7 +75,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "veo-3.1",
+        "model":      "veo-3.1-fast",
         "action":     "generate",
         "prompt":     "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
         "aspect_ratio": "16:9",
@@ -103,7 +103,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "veo-3.1",
+          "model": "veo-3.1-fast",
           "action": "generate",
           "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
           "aspect_ratio": "16:9",
@@ -132,7 +132,7 @@ public class Main {
 ```json 200
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "veo-3.1",
+  "model": "veo-3.1-fast",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -145,9 +145,9 @@ public class Main {
 
 | モデル ID | 説明 |
 |---------|------|
-| `veo-3.1` | VEO 3.1、4K・ネイティブ音声に対応 |
 | `veo-3.1-fast` | VEO 3.1 高速版 |
-| `veo-3.0` | VEO 3.0 |
+| `veo-3.1-lite` | VEO 3.1 軽量版、低コスト |
+| `veo-3.1-quality` | VEO 3.1 高画質版 |
 
 ## 統一パラメータ
 
@@ -194,7 +194,7 @@ public class Main {
 ## モデル固有のパラメータ
 
 <Tabs>
-  <Tab title="VEO 3.1">
+  <Tab title="VEO 3.1 Fast">
     **resolution の選択可能な値：** `720p`、`1080p`、`4k`
 
     <ParamField body="extra.personGeneration" type="string" default="allow_all">
@@ -204,24 +204,22 @@ public class Main {
       - `allow_adult` — 成人のみ許可
       - `dont_allow` — 人物生成を禁止
     </ParamField>
-
-    **固有の機能：**
-    - ネイティブ音声生成（セリフ + 環境音 + 効果音、追加パラメータ不要）
-    - 4K 解像度出力
   </Tab>
 
-  <Tab title="VEO 3.1 Fast">
-    **resolution の選択可能な値：** `720p`、`1080p`、`4k`
+  <Tab title="VEO 3.1 Lite">
+    **resolution の選択可能な値：** `720p`、`1080p`（4K 非対応）
 
-    パラメータは VEO 3.1 と同じですが、処理速度が速くなります。
+    低コストの軽量版。
 
     <ParamField body="extra.personGeneration" type="string" default="allow_all">
       人物生成の制御：`allow_all`、`allow_adult`、`dont_allow`
     </ParamField>
   </Tab>
 
-  <Tab title="VEO 3.0">
-    **resolution の選択可能な値：** `720p`、`1080p`
+  <Tab title="VEO 3.1 Quality">
+    **resolution の選択可能な値：** `720p`、`1080p`、`4k`
+
+    最高画質版。
 
     <ParamField body="extra.personGeneration" type="string" default="allow_all">
       人物生成の制御：`allow_all`、`allow_adult`、`dont_allow`
@@ -234,7 +232,7 @@ public class Main {
 | 条件 | 要件 |
 |------|------|
 | 解像度 `1080p` または `4k` | `duration` は `8` である必要があります |
-| 解像度 `4k` | VEO 3.1 および 3.1 Fast のみ対応 |
+| 解像度 `4k` | VEO 3.1 Fast および Quality のみ対応、Lite は非対応 |
 | 出力フレームレート | 24 FPS |
 | 出力フォーマット | MP4 |
 

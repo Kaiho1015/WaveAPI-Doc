@@ -12,7 +12,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "veo-3.1",
+    "model": "veo-3.1-fast",
     "action": "generate",
     "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
     "aspect_ratio": "16:9",
@@ -28,7 +28,7 @@ response = requests.post(
     "https://www.qingbo.dev/v1/tasks",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
     json={
-        "model": "veo-3.1",
+        "model": "veo-3.1-fast",
         "action": "generate",
         "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
         "aspect_ratio": "16:9",
@@ -49,7 +49,7 @@ const response = await fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'veo-3.1',
+    model: 'veo-3.1-fast',
     action: 'generate',
     prompt: 'A golden retriever running on a beach at sunset, cinematic lighting, slow motion',
     aspect_ratio: '16:9',
@@ -75,7 +75,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "veo-3.1",
+        "model":      "veo-3.1-fast",
         "action":     "generate",
         "prompt":     "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
         "aspect_ratio": "16:9",
@@ -103,7 +103,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "veo-3.1",
+          "model": "veo-3.1-fast",
           "action": "generate",
           "prompt": "A golden retriever running on a beach at sunset, cinematic lighting, slow motion",
           "aspect_ratio": "16:9",
@@ -132,7 +132,7 @@ public class Main {
 ```json 200
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "veo-3.1",
+  "model": "veo-3.1-fast",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -145,9 +145,9 @@ public class Main {
 
 | Model ID | Description |
 |----------|-------------|
-| `veo-3.1` | VEO 3.1, supports 4K and native audio |
 | `veo-3.1-fast` | VEO 3.1 fast version |
-| `veo-3.0` | VEO 3.0 |
+| `veo-3.1-lite` | VEO 3.1 lite version, lower cost |
+| `veo-3.1-quality` | VEO 3.1 quality version |
 
 ## Common Parameters
 
@@ -194,7 +194,7 @@ public class Main {
 ## Model-Specific Parameters
 
 <Tabs>
-  <Tab title="VEO 3.1">
+  <Tab title="VEO 3.1 Fast">
     **resolution options:** `720p`, `1080p`, `4k`
 
     <ParamField body="extra.personGeneration" type="string" default="allow_all">
@@ -204,24 +204,22 @@ public class Main {
       - `allow_adult` — Allow adults only
       - `dont_allow` — Disallow person generation
     </ParamField>
-
-    **Unique capabilities:**
-    - Native audio generation (dialogue + ambient sound + sound effects, no additional parameters required)
-    - 4K resolution output
   </Tab>
 
-  <Tab title="VEO 3.1 Fast">
-    **resolution options:** `720p`, `1080p`, `4k`
+  <Tab title="VEO 3.1 Lite">
+    **resolution options:** `720p`, `1080p` (4K not supported)
 
-    Same parameters as VEO 3.1, with faster processing.
+    Lower cost lite version.
 
     <ParamField body="extra.personGeneration" type="string" default="allow_all">
       Person generation control: `allow_all`, `allow_adult`, `dont_allow`
     </ParamField>
   </Tab>
 
-  <Tab title="VEO 3.0">
-    **resolution options:** `720p`, `1080p`
+  <Tab title="VEO 3.1 Quality">
+    **resolution options:** `720p`, `1080p`, `4k`
+
+    Highest quality version.
 
     <ParamField body="extra.personGeneration" type="string" default="allow_all">
       Person generation control: `allow_all`, `allow_adult`, `dont_allow`
@@ -234,7 +232,7 @@ public class Main {
 | Constraint | Requirement |
 |------------|-------------|
 | Resolution `1080p` or `4k` | `duration` must be `8` |
-| Resolution `4k` | VEO 3.1 and 3.1 Fast only |
+| Resolution `4k` | VEO 3.1 Fast and Quality only, Lite not supported |
 | Output frame rate | 24 FPS |
 | Output format | MP4 |
 

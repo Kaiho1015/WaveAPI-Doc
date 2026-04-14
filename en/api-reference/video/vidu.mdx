@@ -145,12 +145,9 @@ public class Main {
 
 | Model ID | Description |
 |----------|-------------|
-| `viduq3` | Vidu Q3, native audio, 16 seconds, 1080p |
+| `viduq3` | Vidu Q3, image-to-video only (requires 1-7 reference images) |
 | `viduq3-pro` | Vidu Q3 Pro, highest quality |
 | `viduq3-turbo` | Vidu Q3 Turbo, speed-optimized |
-| `viduq3-mix` | Vidu Q3 Mix, multi-reference multi-entity consistency |
-| `viduq2` | Vidu Q2 |
-| `viduq1` | Vidu Q1 |
 
 ## Common Parameters
 
@@ -190,7 +187,6 @@ public class Main {
   Reference image URL array. The number of images determines the generation mode:
   - 1 image: Image-to-video
   - 2 images: First/last frame mode
-  - 3+ images: Reference-guided generation (automatically uses viduq2)
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -226,7 +222,6 @@ public class Main {
 | Text-to-video | `prompt` | Pure text generation |
 | Image-to-video | `prompt` + `image_urls` (1 image) | Single image reference |
 | First/Last frame | `image_urls` (2 images) | Transition between start and end frames |
-| Reference-guided | `image_urls` (3+ images) | Multi-image reference (auto-switches to viduq2) |
 
 ## Response
 

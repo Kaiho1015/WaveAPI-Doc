@@ -145,12 +145,9 @@ public class Main {
 
 | モデル ID | 説明 |
 |---------|------|
-| `viduq3` | Vidu Q3、ネイティブ音声・16秒・1080p |
+| `viduq3` | Vidu Q3、画像から動画のみ対応（参照画像 1-7 枚が必要） |
 | `viduq3-pro` | Vidu Q3 Pro、最高画質 |
 | `viduq3-turbo` | Vidu Q3 Turbo、速度優先 |
-| `viduq3-mix` | Vidu Q3 Mix、複数参照画像・複数エンティティの一貫性 |
-| `viduq2` | Vidu Q2 |
-| `viduq1` | Vidu Q1 |
 
 ## 統一パラメータ
 
@@ -190,7 +187,6 @@ public class Main {
   参照画像 URL 配列、枚数により生成モードが決まります：
   - 1枚 → 画像から動画
   - 2枚 → 先頭末尾フレームモード
-  - 3枚以上 → 参照画像ガイド（自動的に viduq2 に切り替え）
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -226,7 +222,6 @@ public class Main {
 | テキストから動画 | `prompt` | テキストのみで生成 |
 | 画像から動画 | `prompt` + `image_urls`(1枚) | 単一画像参照 |
 | 先頭末尾フレーム | `image_urls`(2枚) | 開始・終了画面の遷移 |
-| 参照画像ガイド | `image_urls`(3枚以上) | 複数画像参照（自動的に viduq2 に切り替え） |
 
 ## レスポンス
 
