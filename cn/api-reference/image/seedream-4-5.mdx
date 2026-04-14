@@ -17,7 +17,7 @@ curl https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "seedream-4.5",
+    "model": "doubao-seedream-4.5",
     "prompt": "油画风格的向日葵花田",
     "size": "1:1"
   }'
@@ -32,7 +32,7 @@ headers = {
     "Content-Type": "application/json"
 }
 data = {
-    "model": "seedream-4.5",
+    "model": "doubao-seedream-4.5",
     "prompt": "油画风格的向日葵花田",
     "size": "1:1"
 }
@@ -49,7 +49,7 @@ fetch('https://www.qingbo.dev/v1/tasks', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'seedream-4.5',
+    model: 'doubao-seedream-4.5',
     prompt: '油画风格的向日葵花田',
     size: '1:1'
   })
@@ -71,7 +71,7 @@ import (
 func main() {
 	url := "https://www.qingbo.dev/v1/tasks"
 	payload := map[string]interface{}{
-		"model":  "seedream-4.5",
+		"model":  "doubao-seedream-4.5",
 		"prompt": "油画风格的向日葵花田",
 		"size":   "1:1",
 	}
@@ -159,7 +159,7 @@ func main() {
 ## 请求参数
 
 <ParamField body="model" type="string" required>
-  模型 ID，固定为 `seedream-4.5`。
+  模型 ID，固定为 `doubao-seedream-4.5`。
 </ParamField>
 
 <ParamField body="prompt" type="string" required>

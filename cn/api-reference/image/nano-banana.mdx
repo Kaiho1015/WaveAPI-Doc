@@ -15,7 +15,7 @@ api: "POST https://www.qingbo.dev/v1/tasks"
     --header 'Authorization: Bearer <token>' \
     --header 'Content-Type: application/json' \
     --data '{
-      "model": "gemini-2.5-flash-image-preview",
+      "model": "gemini-2.5-flash-image",
       "prompt": "月光下的竹林小径，水墨画风格",
       "size": "1:1",
       "n": 1,
@@ -31,7 +31,7 @@ api: "POST https://www.qingbo.dev/v1/tasks"
   url = "https://www.qingbo.dev/v1/tasks"
 
   payload = {
-      "model": "gemini-2.5-flash-image-preview",
+      "model": "gemini-2.5-flash-image",
       "prompt": "月光下的竹林小径，水墨画风格",
       "size": "1:1",
       "n": 1,
@@ -54,7 +54,7 @@ api: "POST https://www.qingbo.dev/v1/tasks"
   const url = "https://www.qingbo.dev/v1/tasks";
 
   const payload = {
-    model: "gemini-2.5-flash-image-preview",
+    model: "gemini-2.5-flash-image",
     prompt: "月光下的竹林小径，水墨画风格",
     size: "1:1",
     n: 1,
@@ -93,7 +93,7 @@ api: "POST https://www.qingbo.dev/v1/tasks"
       url := "https://www.qingbo.dev/v1/tasks"
 
       payload := map[string]interface{}{
-          "model":  "gemini-2.5-flash-image-preview",
+          "model":  "gemini-2.5-flash-image",
           "prompt": "月光下的竹林小径，水墨画风格",
           "size":   "1:1",
           "n":      1,
@@ -196,10 +196,10 @@ api: "POST https://www.qingbo.dev/v1/tasks"
 
 ## 请求参数
 
-<ParamField body="model" type="string" default="gemini-2.5-flash-image-preview" required>
+<ParamField body="model" type="string" default="gemini-2.5-flash-image" required>
   图像生成模型名称
 
-  示例：`"gemini-2.5-flash-image-preview"`
+  示例：`"gemini-2.5-flash-image"`
 </ParamField>
 
 <ParamField body="prompt" type="string" required>

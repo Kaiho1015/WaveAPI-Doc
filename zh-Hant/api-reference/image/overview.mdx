@@ -7,10 +7,6 @@ description: "透過 /v1/tasks 統一端點生成圖像，支援多種模型"
 
 WaveAPI 支援多種圖像生成模型，統一透過非同步任務介面 `/v1/tasks` 呼叫。
 
-<Note>
-簡單的同步圖像生成也可以使用 `/v1/tasks`（OpenAI 相容格式），但建議使用 `/v1/tasks` 以獲得更多模型和參數支援。
-</Note>
-
 ## 請求端點
 
 ```
@@ -22,15 +18,13 @@ POST https://www.qingbo.dev/v1/tasks
 | 參數 | 類型 | 必填 | 說明 |
 |------|------|------|------|
 | `model` | string | 是 | 模型名稱 |
-| `action` | string | 否 | 操作類型，預設 `"generate"`，可選 `"edit"`, `"upscale"`, `"variation"` |
+| `action` | string | 否 | 操作類型，預設 `"generate"` |
 | `prompt` | string | 是 | 圖像描述文字 |
 | `negative_prompt` | string | 否 | 不希望出現的內容 |
 | `n` | integer | 否 | 生成數量，預設 1 |
-| `size` | string | 否 | 圖像尺寸，如 `"1024x1024"` |
-| `aspect_ratio` | string | 否 | 寬高比，如 `"16:9"` |
-| `quality` | string | 否 | 品質，如 `"standard"`, `"hd"` |
-| `image_url` | string | 否 | 參考圖片 URL（圖生圖） |
-| `image_urls` | array | 否 | 多張參考圖片 URL |
+| `size` | string | 否 | 寬高比，如 `"16:9"` |
+| `resolution` | string | 否 | 解析度，如 `"2K"` |
+| `image_urls` | array | 否 | 參考圖片 URL 陣列 |
 | `callback_url` | string | 否 | 完成後的回呼位址 |
 | `extra` | object | 否 | 模型特定的透傳參數 |
 
@@ -40,33 +34,29 @@ POST https://www.qingbo.dev/v1/tasks
 
 ```json
 {
-  "task_id": "task_xxx",
-  "status": "completed",
-  "result": {
-    "images": [
-      {
-        "url": "https://...",
-        "expires_at": 1720000000
-      }
-    ]
-  }
+  "task_id": "task-wave1775285160b950328499",
+  "model": "doubao-seedream-5.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
 }
 ```
 
 ## 支援的模型
 
 <CardGroup cols={2}>
+  <Card title="Seedream 系列" href="/zh-Hant/api-reference/image/seedream">
+    位元組跳動 Seedream 5.0 / 4.5 / 4.0
+  </Card>
+  <Card title="Gemini 圖像系列" href="/zh-Hant/api-reference/image/gemini">
+    Gemini 2.5 Flash / 3 Pro / 3.1 Flash
+  </Card>
   <Card title="GPT-4o Image" href="/zh-Hant/api-reference/image/gpt4o-image">
-    OpenAI 圖像生成模型
+    OpenAI 圖像生成（即將上線）
   </Card>
-  <Card title="FLUX Kontext" href="/zh-Hant/api-reference/image/flux-kontext">
-    FLUX 系列圖像生成
-  </Card>
-  <Card title="Seedream" href="/zh-Hant/api-reference/image/seedream-4">
-    位元組跳動 Seedream 系列
-  </Card>
-  <Card title="更多模型" icon="ellipsis">
-    Nano Banana、Gemini Flash 等
+  <Card title="FLUX 系列" href="/zh-Hant/api-reference/image/flux">
+    FLUX Kontext / FLUX 2.0（即將上線）
   </Card>
 </CardGroup>
 

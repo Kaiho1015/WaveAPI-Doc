@@ -7,10 +7,6 @@ description: "Generate images through the unified /v1/tasks endpoint with suppor
 
 WaveAPI supports multiple image generation models, all accessible through the unified async task endpoint `/v1/tasks`.
 
-<Note>
-Simple synchronous image generation can also use `/v1/tasks` (OpenAI compatible format), but `/v1/tasks` is recommended for broader model and parameter support.
-</Note>
-
 ## Request Endpoint
 
 ```
@@ -22,15 +18,13 @@ POST https://www.qingbo.dev/v1/tasks
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `model` | string | Yes | Model name |
-| `action` | string | No | Operation type, defaults to `"generate"`, options include `"edit"`, `"upscale"`, `"variation"` |
+| `action` | string | No | Operation type, defaults to `"generate"` |
 | `prompt` | string | Yes | Image description text |
 | `negative_prompt` | string | No | Content you do not want to appear |
 | `n` | integer | No | Number of images to generate, default 1 |
-| `size` | string | No | Image size, e.g., `"1024x1024"` |
-| `aspect_ratio` | string | No | Aspect ratio, e.g., `"16:9"` |
-| `quality` | string | No | Quality level, e.g., `"standard"`, `"hd"` |
-| `image_url` | string | No | Reference image URL (image-to-image) |
-| `image_urls` | array | No | Multiple reference image URLs |
+| `size` | string | No | Aspect ratio, e.g., `"16:9"` |
+| `resolution` | string | No | Resolution, e.g., `"2K"` |
+| `image_urls` | array | No | Reference image URL array |
 | `callback_url` | string | No | Webhook callback URL upon completion |
 | `extra` | object | No | Model-specific pass-through parameters |
 
@@ -40,33 +34,29 @@ After task submission, a `task_id` is returned. Query results via `GET /v1/tasks
 
 ```json
 {
-  "task_id": "task_xxx",
-  "status": "completed",
-  "result": {
-    "images": [
-      {
-        "url": "https://...",
-        "expires_at": 1720000000
-      }
-    ]
-  }
+  "task_id": "task-wave1775285160b950328499",
+  "model": "doubao-seedream-5.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
 }
 ```
 
 ## Supported Models
 
 <CardGroup cols={2}>
+  <Card title="Seedream Series" href="/en/api-reference/image/seedream">
+    ByteDance Seedream 5.0 / 4.5 / 4.0
+  </Card>
+  <Card title="Gemini Image Series" href="/en/api-reference/image/gemini">
+    Gemini 2.5 Flash / 3 Pro / 3.1 Flash
+  </Card>
   <Card title="GPT-4o Image" href="/en/api-reference/image/gpt4o-image">
-    OpenAI image generation model
+    OpenAI image generation (coming soon)
   </Card>
-  <Card title="FLUX Kontext" href="/en/api-reference/image/flux-kontext">
-    FLUX series image generation
-  </Card>
-  <Card title="Seedream" href="/en/api-reference/image/seedream-4">
-    ByteDance Seedream series
-  </Card>
-  <Card title="More Models" icon="ellipsis">
-    Nano Banana, Gemini Flash, and more
+  <Card title="FLUX Series" href="/en/api-reference/image/flux">
+    FLUX Kontext / FLUX 2.0 (coming soon)
   </Card>
 </CardGroup>
 
