@@ -158,6 +158,12 @@ public class Main {
 ## 支持的模型
 
 <CardGroup cols={2}>
+  <Card title="Gemini 3.1 Pro Preview">
+    最新一代预览版
+  </Card>
+  <Card title="Gemini 3 Flash Preview">
+    新一代快速版
+  </Card>
   <Card title="Gemini 2.5 Pro">
     专业版，强大的推理能力
   </Card>
@@ -167,21 +173,17 @@ public class Main {
   <Card title="Gemini 2.5 Flash Lite">
     超轻量版，极致响应速度
   </Card>
-  <Card title="Gemini 3 Pro Preview">
-    最新一代预览版，支持深度思考
-  </Card>
 </CardGroup>
 
 ## 请求参数
 
 <ParamField path="model" type="string" required>
   模型 ID，作为 URL 路径参数：
+  - `gemini-3.1-pro-preview`
+  - `gemini-3-flash-preview`
   - `gemini-2.5-pro`
   - `gemini-2.5-flash`
   - `gemini-2.5-flash-lite`
-  - `gemini-2.5-pro-thinking`
-  - `gemini-3-pro-preview`
-  - `gemini-3-pro-preview-thinking`
 </ParamField>
 
 <ParamField body="contents" type="array" required>
@@ -389,16 +391,10 @@ response = model.generate_content(
 
 ## 特性对比
 
-| 特性 | Gemini 2.0 Flash | Gemini 1.5 Pro | Gemini 1.5 Flash |
-|------|------------------|----------------|------------------|
-| 上下文窗口 | 100万 tokens | 200万 tokens | 100万 tokens |
-| 多模态输入 | ✅ | ✅ | ✅ |
-| 代码生成 | ✅ | ✅ | ✅ |
-| 速度 | 极快 | 快 | 极快 |
-
-<Tip>
-  **长上下文处理：** Gemini 1.5 Pro 支持最多 200 万 tokens 的上下文，适合处理长文档和视频分析。
-</Tip>
-
-
+| 特性 | Gemini 3.1 Pro | Gemini 3 Flash | Gemini 2.5 Pro | Gemini 2.5 Flash | Gemini 2.5 Flash Lite |
+|------|---------------|----------------|----------------|------------------|-----------------------|
+| 上下文窗口 | 100万 tokens | 100万 tokens | 100万 tokens | 100万 tokens | 100万 tokens |
+| 多模态输入 | 可用 | 可用 | 可用 | 可用 | 可用 |
+| 代码生成 | 可用 | 可用 | 可用 | 可用 | 可用 |
+| 速度 | 快 | 极快 | 快 | 极快 | 极快 |
 

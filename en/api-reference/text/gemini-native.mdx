@@ -158,6 +158,12 @@ public class Main {
 ## Supported Models
 
 <CardGroup cols={2}>
+  <Card title="Gemini 3.1 Pro Preview">
+    Latest generation preview version
+  </Card>
+  <Card title="Gemini 3 Flash Preview">
+    Next-generation fast version
+  </Card>
   <Card title="Gemini 2.5 Pro">
     Professional version with powerful reasoning capabilities
   </Card>
@@ -167,21 +173,17 @@ public class Main {
   <Card title="Gemini 2.5 Flash Lite">
     Ultra-lightweight version for maximum response speed
   </Card>
-  <Card title="Gemini 3 Pro Preview">
-    Latest generation preview with deep thinking support
-  </Card>
 </CardGroup>
 
 ## Request Parameters
 
 <ParamField path="model" type="string" required>
   Model ID, as a URL path parameter:
+  - `gemini-3.1-pro-preview`
+  - `gemini-3-flash-preview`
   - `gemini-2.5-pro`
   - `gemini-2.5-flash`
   - `gemini-2.5-flash-lite`
-  - `gemini-2.5-pro-thinking`
-  - `gemini-3-pro-preview`
-  - `gemini-3-pro-preview-thinking`
 </ParamField>
 
 <ParamField body="contents" type="array" required>
@@ -389,13 +391,9 @@ response = model.generate_content(
 
 ## Feature Comparison
 
-| Feature | Gemini 2.0 Flash | Gemini 1.5 Pro | Gemini 1.5 Flash |
-|---------|------------------|----------------|------------------|
-| Context window | 1M tokens | 2M tokens | 1M tokens |
-| Multimodal input | Yes | Yes | Yes |
-| Code generation | Yes | Yes | Yes |
-| Speed | Very fast | Fast | Very fast |
-
-<Tip>
-  **Long context processing:** Gemini 1.5 Pro supports up to 2 million tokens of context, making it ideal for processing long documents and video analysis.
-</Tip>
+| Feature | Gemini 3.1 Pro | Gemini 3 Flash | Gemini 2.5 Pro | Gemini 2.5 Flash | Gemini 2.5 Flash Lite |
+|---------|---------------|----------------|----------------|------------------|-----------------------|
+| Context window | 1M tokens | 1M tokens | 1M tokens | 1M tokens | 1M tokens |
+| Multimodal input | Yes | Yes | Yes | Yes | Yes |
+| Code generation | Yes | Yes | Yes | Yes | Yes |
+| Speed | Fast | Very fast | Fast | Very fast | Very fast |

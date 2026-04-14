@@ -275,12 +275,13 @@ public class Main {
 
   支持的模型包括：
 
-  * **OpenAI**: `gpt-5`, `gpt-5-chat-latest`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`
-  * **Anthropic**: `claude-sonnet-4-5-20250929`, `claude-opus-4-1-20250805`, `claude-haiku-4-5-20251001`, `claude-opus-4-1-20250805-thinking`, `claude-sonnet-4-5-20250929-thinking`
-  * **Google**: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-pro-thinking`, `gemini-2.5-flash-lite`,`gemini-3-pro-preview-thinking`,`gemini-3-pro-image-preview`,`gemini-3-pro-preview`
-  * **DeepSeek**: `deepseek-v3.1-250821`, `deepseek-v3.1-think-250821`, `deepseek-v3-0324`
-  * **Doubao**: `doubao-seed-1-6-251015`, `doubao-seed-1-6-flash-250828`, `doubao-seed-1-6-thinking-250715`
-  * **X.AI**: `grok-4.1`
+  * **OpenAI**: `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.1`, `gpt-5.2`, `gpt-5.4`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-4o`, `gpt-4o-mini`, `o1`, `o3-mini`, `o4-mini`
+  * **Anthropic**: `claude-opus-4.6`, `claude-sonnet-4.6`, `claude-opus-4.5`, `claude-sonnet-4.5`, `claude-haiku-4.5`
+  * **Google**: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-3-flash-preview`, `gemini-3.1-pro-preview`
+  * **DeepSeek**: `deepseek-r1-0528`, `deepseek-v3.2`, `deepseek-v3.2-exp`
+  * **MiniMax**: `minimax-m2.1`, `minimax-m2.5`
+  * **MoonshotAI**: `kimi-k2.5`, `kimi-k2-thinking`
+  * **Z.ai**: `glm-4.6`, `glm-4.7`, `glm-5`, `glm-5.1`
   * 更多模型持续更新中...
 </ParamField>
 
@@ -482,45 +483,58 @@ public class Main {
 ### OpenAI 系列
 
 * `gpt-5` - GPT-5 基础模型
-* `gpt-5-chat-latest` - GPT-5 最新对话版本
-* `gpt-5-mini` - GPT-5 轻量级版本，性价比高
-* `gpt-5-nano` - GPT-5 超轻量版本
-* `gpt-5-pro` - GPT-5 专业增强版
-
-
-###X.ai 系列
-* `grok-4.1` - Grok 4.1 快速响应版本
-
-
+* `gpt-5-mini` - GPT-5 轻量版
+* `gpt-5-nano` - GPT-5 超轻量版
+* `gpt-5.1` - GPT-5.1
+* `gpt-5.2` - GPT-5.2
+* `gpt-5.4` - GPT-5.4
+* `gpt-4.1` - GPT-4.1
+* `gpt-4.1-mini` - GPT-4.1 轻量版
+* `gpt-4.1-nano` - GPT-4.1 超轻量版
+* `gpt-4o` - GPT-4o 多模态模型
+* `gpt-4o-mini` - GPT-4o 轻量版
+* `o1` - OpenAI o1 推理模型
+* `o3-mini` - OpenAI o3 Mini
+* `o4-mini` - OpenAI o4 Mini
 
 ### Anthropic 系列
 
-* `claude-haiku-4-5-20251001` - Claude 4.5 快速响应版本
-* `claude-sonnet-4-5-20250929` - Claude 4.5 平衡版本
-* `claude-opus-4-1-20250805` - 最强大的 Claude 4.1 旗舰模型
-* `claude-opus-4-1-20250805-thinking` - Claude 4.1 Opus 深度思考版
-* `claude-sonnet-4-5-20250929-thinking` - Claude 4.5 Sonnet 深度思考版
+* `claude-opus-4.6` - Claude 4.6 Opus 最新旗舰模型
+* `claude-sonnet-4.6` - Claude 4.6 Sonnet 最新版
+* `claude-opus-4.5` - Claude 4.5 Opus 旗舰模型
+* `claude-sonnet-4.5` - Claude 4.5 Sonnet 平衡版
+* `claude-haiku-4.5` - Claude 4.5 Haiku 快速响应版
 
 ### Google 系列
 
-* `gemini-2.5-flash` - Gemini 2.5 快速版
+* `gemini-3.1-pro-preview` - Gemini 3.1 Pro 预览版
+* `gemini-3-flash-preview` - Gemini 3 Flash 预览版
 * `gemini-2.5-pro` - Gemini 2.5 专业版
+* `gemini-2.5-flash` - Gemini 2.5 快速版
 * `gemini-2.5-flash-lite` - Gemini 2.5 超轻量版
-* `gemini-2.5-pro-thinking` - Gemini 2.5 Pro 深度思考版
-* `gemini-3-pro-preview-thinking` - Gemini 3 Pro 深度思考版
-* `gemini-3-pro-preview` - Gemini 3 Pro 深度思考版
 
 ### DeepSeek 系列
 
-* `deepseek-v3.1-250821` - DeepSeek V3.1 基础版
-* `deepseek-v3.1-think-250821` - DeepSeek V3.1 思考版
-* `deepseek-v3-0324` - DeepSeek V3 标准版
+* `deepseek-r1-0528` - DeepSeek R1 推理模型
+* `deepseek-v3.2` - DeepSeek V3.2
+* `deepseek-v3.2-exp` - DeepSeek V3.2 实验版
 
-### Doubao 系列
+### MiniMax 系列
 
-* `doubao-seed-1-6-flash-250828` - Doubao Seed 1.6 快速版
-* `doubao-seed-1-6-thinking-250715` - Doubao Seed 1.6 思考版
-* `doubao-seed-1-6-251015` - Doubao Seed 1.6 标准版
+* `minimax-m2.1` - MiniMax M2.1
+* `minimax-m2.5` - MiniMax M2.5
+
+### MoonshotAI 系列
+
+* `kimi-k2.5` - Kimi K2.5
+* `kimi-k2-thinking` - Kimi K2 思考版
+
+### Z.ai 系列
+
+* `glm-4.6` - GLM 4.6
+* `glm-4.7` - GLM 4.7
+* `glm-5` - GLM 5
+* `glm-5.1` - GLM 5.1
 
 ## 使用示例
 
@@ -539,7 +553,7 @@ public class Main {
 
 ```json  theme={null}
 {
-  "model": "claude-sonnet-4-5-20250929",
+  "model": "claude-sonnet-4.5",
   "messages": [
     {"role": "system", "content": "你是一位专业的Python编程导师"},
     {"role": "user", "content": "如何使用列表推导式？"}

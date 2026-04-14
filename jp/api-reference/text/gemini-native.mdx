@@ -158,6 +158,12 @@ public class Main {
 ## 対応モデル
 
 <CardGroup cols={2}>
+  <Card title="Gemini 3.1 Pro Preview">
+    最新世代プレビュー版
+  </Card>
+  <Card title="Gemini 3 Flash Preview">
+    新世代高速版
+  </Card>
   <Card title="Gemini 2.5 Pro">
     プロフェッショナル版、強力な推論能力
   </Card>
@@ -167,21 +173,17 @@ public class Main {
   <Card title="Gemini 2.5 Flash Lite">
     超軽量版、極めて速いレスポンス
   </Card>
-  <Card title="Gemini 3 Pro Preview">
-    最新世代プレビュー版、深層思考に対応
-  </Card>
 </CardGroup>
 
 ## リクエストパラメータ
 
 <ParamField path="model" type="string" required>
   モデル ID、URL パスパラメータとして指定：
+  - `gemini-3.1-pro-preview`
+  - `gemini-3-flash-preview`
   - `gemini-2.5-pro`
   - `gemini-2.5-flash`
   - `gemini-2.5-flash-lite`
-  - `gemini-2.5-pro-thinking`
-  - `gemini-3-pro-preview`
-  - `gemini-3-pro-preview-thinking`
 </ParamField>
 
 <ParamField body="contents" type="array" required>
@@ -389,13 +391,9 @@ response = model.generate_content(
 
 ## 機能比較
 
-| 機能 | Gemini 2.0 Flash | Gemini 1.5 Pro | Gemini 1.5 Flash |
-|------|------------------|----------------|------------------|
-| コンテキストウィンドウ | 100万 Token | 200万 Token | 100万 Token |
-| マルチモーダル入力 | ✅ | ✅ | ✅ |
-| コード生成 | ✅ | ✅ | ✅ |
-| 速度 | 非常に速い | 速い | 非常に速い |
-
-<Tip>
-  **長文コンテキスト処理：** Gemini 1.5 Pro は最大200万 Token のコンテキストに対応しており、長文ドキュメントや動画分析の処理に適しています。
-</Tip>
+| 機能 | Gemini 3.1 Pro | Gemini 3 Flash | Gemini 2.5 Pro | Gemini 2.5 Flash | Gemini 2.5 Flash Lite |
+|------|---------------|----------------|----------------|------------------|-----------------------|
+| コンテキストウィンドウ | 100万 Token | 100万 Token | 100万 Token | 100万 Token | 100万 Token |
+| マルチモーダル入力 | 対応 | 対応 | 対応 | 対応 | 対応 |
+| コード生成 | 対応 | 対応 | 対応 | 対応 | 対応 |
+| 速度 | 速い | 非常に速い | 速い | 非常に速い | 非常に速い |

@@ -280,10 +280,18 @@ public class Main {
 
   Supported models include:
 
-  * `gpt-5` - OpenAI latest multimodal model
-  * `gpt-4o` - GPT-4 optimized multimodal model
-  * `gpt-4-vision` - GPT-4 vision understanding model
-  * More models are continuously being added...
+  * `gpt-5` - GPT-5 base model
+  * `gpt-5-pro` - GPT-5 professional enhanced version (this endpoint only)
+  * `gpt-5-codex` - GPT-5 Codex code model (this endpoint only)
+  * `gpt-5.1-codex` - GPT-5.1 Codex code model (this endpoint only)
+  * `gpt-5.1-codex-mini` - GPT-5.1 Codex Mini (this endpoint only)
+  * `gpt-5.2-codex` - GPT-5.2 Codex code model (this endpoint only)
+  * `gpt-5.3-codex` - GPT-5.3 Codex code model (this endpoint only)
+  * Plus all models supported by `/v1/chat/completions`
+
+  <Note>
+  `gpt-5-pro` and all Codex series models are exclusive to this endpoint (`/v1/responses`) and are not supported by `/v1/chat/completions`.
+  </Note>
 </ParamField>
 
 <ParamField body="input" type="string or array" required>

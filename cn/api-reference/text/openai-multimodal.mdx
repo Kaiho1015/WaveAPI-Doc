@@ -280,10 +280,18 @@ public class Main {
 
   支持的模型包括：
 
-  * `gpt-5` - OpenAI 最新多模态模型
-  * `gpt-4o` - GPT-4 优化版多模态模型
-  * `gpt-4-vision` - GPT-4 视觉理解模型
-  * 更多模型持续更新中...
+  * `gpt-5` - GPT-5 基础模型
+  * `gpt-5-pro` - GPT-5 专业增强版（仅支持此接口）
+  * `gpt-5-codex` - GPT-5 Codex 代码模型（仅支持此接口）
+  * `gpt-5.1-codex` - GPT-5.1 Codex 代码模型（仅支持此接口）
+  * `gpt-5.1-codex-mini` - GPT-5.1 Codex Mini（仅支持此接口）
+  * `gpt-5.2-codex` - GPT-5.2 Codex 代码模型（仅支持此接口）
+  * `gpt-5.3-codex` - GPT-5.3 Codex 代码模型（仅支持此接口）
+  * 以及所有支持 `/v1/chat/completions` 的模型
+
+  <Note>
+  `gpt-5-pro` 和所有 Codex 系列模型仅支持此接口（`/v1/responses`），不支持 `/v1/chat/completions`。
+  </Note>
 </ParamField>
 
 <ParamField body="input" type="string or array" required>

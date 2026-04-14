@@ -280,10 +280,18 @@ public class Main {
 
   対応モデル：
 
-  * `gpt-5` - OpenAI 最新マルチモーダルモデル
-  * `gpt-4o` - GPT-4 最適化版マルチモーダルモデル
-  * `gpt-4-vision` - GPT-4 視覚理解モデル
-  * その他のモデルも随時追加中...
+  * `gpt-5` - GPT-5 ベースモデル
+  * `gpt-5-pro` - GPT-5 プロフェッショナル強化版（このエンドポイントのみ）
+  * `gpt-5-codex` - GPT-5 Codex コードモデル（このエンドポイントのみ）
+  * `gpt-5.1-codex` - GPT-5.1 Codex コードモデル（このエンドポイントのみ）
+  * `gpt-5.1-codex-mini` - GPT-5.1 Codex Mini（このエンドポイントのみ）
+  * `gpt-5.2-codex` - GPT-5.2 Codex コードモデル（このエンドポイントのみ）
+  * `gpt-5.3-codex` - GPT-5.3 Codex コードモデル（このエンドポイントのみ）
+  * および `/v1/chat/completions` で対応している全てのモデル
+
+  <Note>
+  `gpt-5-pro` および全ての Codex シリーズモデルはこのインターフェース（`/v1/responses`）のみ対応しており、`/v1/chat/completions` には対応していません。
+  </Note>
 </ParamField>
 
 <ParamField body="input" type="string or array" required>

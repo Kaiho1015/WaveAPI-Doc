@@ -14,7 +14,7 @@ curl -X POST https://www.qingbo.dev/v1/messages \
   -H "Content-Type: application/json" \
   -H "anthropic-version: 2023-06-01" \
   -d '{
-    "model": "claude-sonnet-4-5-20250929",
+    "model": "claude-sonnet-4.5",
     "max_tokens": 1024,
     "system": "你是一个专业的AI助手。",
     "messages": [
@@ -35,7 +35,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="claude-sonnet-4-5-20250929",
+    model="claude-sonnet-4.5",
     max_tokens=1024,
     system="你是一个专业的AI助手。",
     messages=[
@@ -55,7 +55,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: 'claude-sonnet-4-5-20250929',
+  model: 'claude-sonnet-4.5',
   max_tokens: 1024,
   system: '你是一个专业的AI助手。',
   messages: [
@@ -79,7 +79,7 @@ import (
 
 func main() {
     payload := map[string]interface{}{
-        "model":      "claude-sonnet-4-5-20250929",
+        "model":      "claude-sonnet-4.5",
         "max_tokens": 1024,
         "system":     "你是一个专业的AI助手。",
         "messages": []map[string]string{
@@ -112,7 +112,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String payload = """
         {
-          "model": "claude-sonnet-4-5-20250929",
+          "model": "claude-sonnet-4.5",
           "max_tokens": 1024,
           "system": "你是一个专业的AI助手。",
           "messages": [
@@ -150,7 +150,7 @@ public class Main {
         "text": "你好！我是Claude。很高兴见到你。"
     }
   ],
-    "model": "claude-sonnet-4-5-20250929",
+    "model": "claude-sonnet-4.5",
   "stop_reason": "end_turn",
     "stop_sequence": null,
   "usage": {
@@ -228,11 +228,11 @@ public class Main {
 <ParamField body="model" type="string" required>
   モデル名
 
-  * `claude-haiku-4-5-20251001` - Claude 4.5 高速レスポンスバージョン
-  * `claude-sonnet-4-5-20250929` - Claude 4.5 バランスバージョン
-  * `claude-opus-4-1-20250805` - 最も強力な Claude 4.1 フラッグシップモデル
-  * `claude-opus-4-1-20250805-thinking` - Claude 4.1 Opus 深層思考版
-  * `claude-sonnet-4-5-20250929-thinking` - Claude 4.5 Sonnet 深層思考版
+  * `claude-opus-4.6` - Claude 4.6 Opus 最新フラッグシップモデル
+  * `claude-sonnet-4.6` - Claude 4.6 Sonnet 最新版
+  * `claude-opus-4.5` - Claude 4.5 Opus フラッグシップモデル
+  * `claude-sonnet-4.5` - Claude 4.5 Sonnet バランス版
+  * `claude-haiku-4.5` - Claude 4.5 Haiku 高速レスポンス版
 </ParamField>
 
 <ParamField body="messages" type="array" required>
@@ -405,7 +405,7 @@ public class Main {
 
 ```json theme={null}
 {
-  "model": "claude-sonnet-4-5-20250929",
+  "model": "claude-sonnet-4.5",
   "max_tokens": 1024,
   "messages": [
     {"role": "user", "content": "解释一下量子计算"}
@@ -417,7 +417,7 @@ public class Main {
 
 ```json theme={null}
 {
-  "model": "claude-sonnet-4-5-20250929",
+  "model": "claude-sonnet-4.5",
   "max_tokens": 1024,
   "messages": [
     {"role": "user", "content": "你好"},
@@ -431,7 +431,7 @@ public class Main {
 
 ```json theme={null}
 {
-  "model": "claude-sonnet-4-5-20250929",
+  "model": "claude-sonnet-4.5",
   "max_tokens": 1024,
   "system": "你是一位经验丰富的数据科学家，专长包括统计分析和机器学习。",
   "messages": [
@@ -444,7 +444,7 @@ public class Main {
 
 ```json theme={null}
 {
-  "model": "claude-sonnet-4-5-20250929",
+  "model": "claude-sonnet-4.5",
   "max_tokens": 1024,
   "messages": [
     {"role": "user", "content": "列出5个Python最佳实践"},
