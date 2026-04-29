@@ -14,7 +14,7 @@ curl https://www.qingbo.dev/v1/audio/speech \
   -d '{
     "model": "tts-1",
     "voice": "nova",
-    "input": "欢迎使用 WaveAPI 文字转语音服务。"
+    "input": "欢迎使用 清波 API 文字转语音服务。"
   }' \
   --output output.mp3
 ```
@@ -30,7 +30,7 @@ client = OpenAI(
 response = client.audio.speech.create(
     model="tts-1",
     voice="nova",
-    input="欢迎使用 WaveAPI 文字转语音服务。"
+    input="欢迎使用 清波 API 文字转语音服务。"
 )
 
 response.stream_to_file("output.mp3")
@@ -48,7 +48,7 @@ const client = new OpenAI({
 const response = await client.audio.speech.create({
   model: 'tts-1',
   voice: 'nova',
-  input: '欢迎使用 WaveAPI 文字转语音服务。'
+  input: '欢迎使用 清波 API 文字转语音服务。'
 });
 
 const buffer = Buffer.from(await response.arrayBuffer());
@@ -70,7 +70,7 @@ func main() {
     payload := map[string]string{
         "model": "tts-1",
         "voice": "nova",
-        "input": "欢迎使用 WaveAPI 文字转语音服务。",
+        "input": "欢迎使用 清波 API 文字转语音服务。",
     }
 
     body, _ := json.Marshal(payload)
@@ -98,7 +98,7 @@ public class Main {
         {
           "model": "tts-1",
           "voice": "nova",
-          "input": "欢迎使用 WaveAPI 文字转语音服务。"
+          "input": "欢迎使用 清波 API 文字转语音服务。"
         }
         """;
 

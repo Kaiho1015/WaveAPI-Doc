@@ -13,7 +13,7 @@ curl https://www.qingbo.dev/v1/embeddings \
   -H "Content-Type: application/json" \
   -d '{
     "model": "text-embedding-3-small",
-    "input": "WaveAPI 是统一的 AI 模型网关"
+    "input": "清波 API 是统一的 AI 模型网关"
   }'
 ```
 
@@ -27,7 +27,7 @@ client = OpenAI(
 
 response = client.embeddings.create(
     model="text-embedding-3-small",
-    input="WaveAPI 是统一的 AI 模型网关"
+    input="清波 API 是统一的 AI 模型网关"
 )
 
 vector = response.data[0].embedding
@@ -44,7 +44,7 @@ const client = new OpenAI({
 
 const response = await client.embeddings.create({
   model: 'text-embedding-3-small',
-  input: 'WaveAPI 是统一的 AI 模型网关'
+  input: '清波 API 是统一的 AI 模型网关'
 });
 
 console.log(`向量维度: ${response.data[0].embedding.length}`);
@@ -64,7 +64,7 @@ import (
 func main() {
     payload := map[string]string{
         "model": "text-embedding-3-small",
-        "input": "WaveAPI 是统一的 AI 模型网关",
+        "input": "清波 API 是统一的 AI 模型网关",
     }
 
     body, _ := json.Marshal(payload)
@@ -88,7 +88,7 @@ public class Main {
         String payload = """
         {
           "model": "text-embedding-3-small",
-          "input": "WaveAPI 是统一的 AI 模型网关"
+          "input": "清波 API 是统一的 AI 模型网关"
         }
         """;
 
