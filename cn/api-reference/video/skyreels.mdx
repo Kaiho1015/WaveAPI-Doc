@@ -186,14 +186,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   视频描述文本,最多 5000 字符。**T2V 模式必填**;其他模式可选作引导
 </ParamField>
 
-<ParamField body="n" type="integer" default="1">
-  并行生成数量,范围 1-4。每个返回单独 video URL,均按单条计费
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="16:9">
   画面宽高比,**T2V 生效**;含媒体素材的模式跟随源素材比例。可选值:
   - `16:9` — 横版宽屏

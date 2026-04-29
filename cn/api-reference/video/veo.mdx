@@ -174,14 +174,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   视频描述文本,所有 action 必填
 </ParamField>
 
-<ParamField body="n" type="integer" default="1">
-  生成数量,等价于 `sample_count`(取较大者)
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="16:9">
   画面宽高比,可选值:
   - `16:9` — 横版宽屏

@@ -125,14 +125,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   风格 / 内容参考图片 URL 数组,**最多 4 张**
 </ParamField>
 
-<ParamField body="n" type="integer" default="1">
-  并发生成数量
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="adaptive">
   画面宽高比,可选值:
   - `16:9` — 横版宽屏

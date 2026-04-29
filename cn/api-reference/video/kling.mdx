@@ -144,14 +144,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   视频描述文本。Omni / O1 中可用 `<<<image_N>>>` 语法引用 `image_urls` 第 N 张图(N 从 1 开始)
 </ParamField>
 
-<ParamField body="n" type="integer" default="1">
-  一次生成几条候选,通常为 `1`
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="16:9">
   画面宽高比,**仅 T2V 生效**;图 / 视频参考模式跟随源素材比例。可选值:
   - `16:9` — 横版宽屏

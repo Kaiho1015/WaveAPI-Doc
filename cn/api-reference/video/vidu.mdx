@@ -132,14 +132,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   视频描述文本,建议描述 **动作 / 镜头 / 氛围**,人物外观由 `image_urls` 决定
 </ParamField>
 
-<ParamField body="n" type="integer" default="1">
-  生成数量,默认 1
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="16:9">
   画面宽高比,可选值:
   - `16:9` — 横版宽屏

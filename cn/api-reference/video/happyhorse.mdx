@@ -172,10 +172,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   参考音频 URL 数组(`reference_audio` 模式)
 </ParamField>
 
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="callback_url" type="string">
   Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
 </ParamField>

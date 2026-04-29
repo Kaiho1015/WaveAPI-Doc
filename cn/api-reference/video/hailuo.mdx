@@ -120,14 +120,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   视频描述文本,最多 **2000 字符**;在文中以 `[指令]` 中括号嵌入运镜标签可触发对应镜头运动(详见下方 [运镜指令](#运镜指令-2-3-2-3-fast))
 </ParamField>
 
-<ParamField body="n" type="integer" default="1">
-  本次任务生成的视频数量
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="16:9">
   画面宽高比,可选值:
   - `16:9` — 横版宽屏
