@@ -1,0 +1,135 @@
+---
+title: "QWave API"
+description: "Unified AI model API gateway — call every major LLM through a single endpoint"
+---
+
+An OpenAI-compatible unified API endpoint. Call GPT-4o, Claude, Gemini, Sora, VEO, and other leading models with a single line of code. Just swap your `base_url` — no other changes required.
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://www.qingbo.dev/v1",
+    api_key="your-api-key"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://www.qingbo.dev/v1',
+  apiKey: 'your-api-key'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: 'Hello!' }]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://www.qingbo.dev/v1/chat/completions \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+</CodeGroup>
+
+## AI Model Capabilities
+
+Access a full range of AI models through QWave API.
+
+<CardGroup cols={3}>
+  <Card
+    title="Text Generation"
+    img="/images/cards/text-generation.svg"
+    href="/en/api-reference/text/general-chat"
+  >
+    GPT-4o, Claude Sonnet, Gemini, and other leading LLMs with streaming support
+  </Card>
+  <Card
+    title="Image Generation"
+    img="/images/cards/image-generation.svg"
+    href="/en/api-reference/image/gpt4o-image"
+  >
+    GPT-4o Image, FLUX Kontext, Seedream, and more image generation models
+  </Card>
+  <Card
+    title="Video Generation"
+    img="/images/cards/video-generation.svg"
+    href="/en/api-reference/video/veo3"
+  >
+    VEO3, Sora2, Kling, Hailuo, and other video generation models
+  </Card>
+</CardGroup>
+
+<CardGroup cols={3}>
+  <Card
+    title="Audio Processing"
+    img="/images/cards/audio.svg"
+    href="/en/api-reference/audio/tts"
+  >
+    Whisper speech recognition and TTS text-to-speech
+  </Card>
+  <Card
+    title="Task Management"
+    img="/images/cards/task-management.svg"
+    href="/en/api-reference/task/get-status"
+  >
+    Track asynchronous task status and monitor image/video generation progress
+  </Card>
+  <Card
+    title="OpenAI Compatible"
+    img="/images/cards/openai-compatible.svg"
+    href="/en/guides/quickstart"
+  >
+    Fully compatible with the OpenAI SDK — just change the URL
+  </Card>
+</CardGroup>
+
+## Why QWave API
+
+<CardGroup cols={2}>
+  <Card title="Zero-Cost Migration" icon="rotate">
+    OpenAI-compatible format — point your existing code at a new base_url and you're done
+  </Card>
+  <Card title="Unified Model Access" icon="layer-group">
+    One API key, every major model. Switch between providers via the model parameter
+  </Card>
+  <Card title="Async Task System" icon="clock-rotate-left">
+    Image and video generation run as asynchronous tasks with real-time status and progress
+  </Card>
+  <Card title="Stable & Reliable" icon="shield-check">
+    High-performance gateway with intelligent routing for dependable service
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+<Steps>
+  <Step title="Get an API Key">
+    Sign up and grab your API key at the [Dashboard](https://qingbo.dev/dashboard/keys)
+  </Step>
+  <Step title="Swap the Base URL">
+    Point your OpenAI SDK at `https://www.qingbo.dev/v1`
+  </Step>
+  <Step title="Pick a Model and Call It">
+    Specify the model you want via the `model` parameter and send your request
+  </Step>
+</Steps>

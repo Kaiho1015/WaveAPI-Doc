@@ -1,0 +1,50 @@
+---
+title: "Sync vs. Async"
+description: "Understand QWave API's synchronous endpoints and asynchronous task system"
+---
+
+## Overview
+
+QWave API endpoints fall into two categories:
+
+<CardGroup cols={2}>
+  <Card title="Synchronous Endpoints" icon="bolt">
+    The request blocks until the result is ready. Best for fast operations like text generation and speech synthesis.
+  </Card>
+  <Card title="Asynchronous Tasks" icon="clock-rotate-left">
+    The request returns a task_id immediately. Retrieve results via polling or webhook. Best for long-running jobs like image and video generation.
+  </Card>
+</CardGroup>
+
+## Synchronous Endpoints
+
+These endpoints return results directly once processing completes:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `/v1/chat/completions` | Text generation (OpenAI compatible) |
+| `/v1/messages` | Text generation (Claude native) |
+| `/v1/beta/models/{model}:generateContent` | Text generation (Gemini native) |
+| `/v1/audio/speech` | TTS text-to-speech |
+| `/v1/audio/transcriptions` | STT speech recognition |
+| `/v1/images/generations` | Synchronous image generation |
+| `/v1/embeddings` | Text embeddings |
+| `/v1/responses` | OpenAI Responses API |
+
+## Asynchronous Task Endpoints
+
+Image and video generation use a unified asynchronous task system:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /v1/tasks` | Submit an asynchronous task and receive a task_id |
+| `POST /v1/tasks/sync` | Submit and wait for completion (falls back to polling on timeout) |
+| `GET /v1/tasks/{task_id}` | Query task status and results |
+| `POST /v1/tasks/{task_id}/cancel` | Cancel a queued task |
+
+## Choosing the Right Pattern
+
+- **Text chat** → Use synchronous endpoints with SSE streaming
+- **Image generation** → `/v1/images/generations` for simple cases, `/v1/tasks` for advanced workflows
+- **Video generation** → Use `/v1/tasks` (operations are long-running)
+- **Need callback notifications** → Use `/v1/tasks` with `callback_url`

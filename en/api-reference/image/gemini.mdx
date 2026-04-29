@@ -1,0 +1,343 @@
+---
+title: "Gemini Image Series"
+description: "Google Gemini image generation — Nano Banana series (original / Pro / 2), generation / editing / multi-image reference / search augmentation"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Google Gemini's native multimodal image series, **three generations of Nano Banana plus dual-tier access**:
+
+- **Nano Banana 2 (Gemini 3.1 Flash Image Preview)** — lightweight fast tier, low latency, low cost, **exclusive support for Google text / image search augmentation**, ideal for previewing, batches, and iteration
+- **Nano Banana Pro (Gemini 3 Pro Image Preview)** — flagship tier, native 4K output, professional fidelity, multi-step planning, built-in quality analysis
+- **Nano Banana (Gemini 2.5 Flash Image Preview)** — previous-generation workhorse, low latency, high cost-performance, multi-image fusion, character consistency
+
+Each generation offers two tiers: **standard tier** (economical, value-oriented) and **official direct tier** (higher SLA, higher stability, higher price). The two tiers share the same model and capabilities; the difference lies in the channel and billing. **We recommend selecting the corresponding `-official` model id directly to switch channels** (clearer semantics), or you can set `official_fallback: true` on the standard tier to switch at runtime.
+
+Per-image billing. All versions support both Chinese and English prompts.
+
+## Pricing
+
+| Model | Price (per image) |
+|---|---|
+| `gemini-3-pro-image-preview-official` | `$0.1139` |
+| `gemini-3-pro-image-preview` | `$0.0425` |
+| `gemini-3.1-flash-image-preview-official` | `$0.05695` |
+| `gemini-3.1-flash-image-preview` | `$0.031875` |
+| `gemini-2.5-flash-image-preview-official` | `$0.03315` |
+| `gemini-2.5-flash-image-preview` | `$0.01328125` |
+
+## Mode Quick Reference
+
+| Mode | Trigger Fields | Supported Versions |
+|---|---|---|
+| **Text-to-image** | `prompt` only | All |
+| **Image-to-image** | `+ image_urls` + `action: "image2image"` | All |
+| **Image editing (instruction-based)** | `+ image_urls` + `action: "edit"` | All |
+| **Multi-image reference fusion** | `+ image_urls` (multiple) + `action: "reference"` | All |
+| **Search augmentation (grounding)** | `action: "search_grounded"` or `google_search: true` | **3.1 Flash series only** |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-image (minimal, Nano Banana Pro)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3-pro-image-preview",
+    "prompt": "极简主义工作室人像,柔和侧光,胶片质感,4K 锐利",
+    "resolution": "4K",
+    "aspect_ratio": "3:2"
+  }'
+```
+
+```bash Multi-image fusion (Nano Banana Pro)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3-pro-image-preview",
+    "action": "reference",
+    "prompt": "把第一张图的角色融入第二张图的场景,保持光影一致",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/scene.jpg"
+    ],
+    "resolution": "4K",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image editing (Nano Banana, 2.5 Flash)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-2.5-flash-image-preview",
+    "action": "edit",
+    "prompt": "把背景换成海边日落,人物保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "aspect_ratio": "1:1"
+  }'
+```
+
+```bash Search augmentation (3.1 Flash exclusive)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.1-flash-image-preview",
+    "action": "search_grounded",
+    "prompt": "画一张本周登顶 App Store 的热门游戏的关键画面海报",
+    "google_search": true,
+    "google_image_search": true,
+    "resolution": "2K",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Official direct tier (higher SLA)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3-pro-image-preview-official",
+    "prompt": "复杂排版海报,包含中英双语标语和密集小字,要求清晰可读",
+    "resolution": "4K",
+    "aspect_ratio": "2:3"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submitted
+{
+  "task_id": "task-wave1775309821b950328499",
+  "model": "gemini-3-pro-image-preview",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775309821040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submitting, poll task status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Series | Description |
+|---|---|---|
+| `gemini-3-pro-image-preview-official` | Nano Banana Pro · Official Direct | Flagship tier, official direct, higher stability |
+| `gemini-3-pro-image-preview` | Nano Banana Pro · Standard | Flagship tier, native 4K, professional fidelity, multi-step planning |
+| `gemini-3.1-flash-image-preview-official` | Nano Banana 2 · Official Direct | Fast tier with direct channel, search augmentation |
+| `gemini-3.1-flash-image-preview` | Nano Banana 2 · Standard | Fast tier with Google text + image search augmentation |
+| `gemini-2.5-flash-image-preview-official` | Nano Banana · Official Direct | Previous-gen direct, high cost-performance |
+| `gemini-2.5-flash-image-preview` | Nano Banana · Standard | Previous-gen workhorse, low latency, multi-image fusion |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Pick one from the [Available Models](#available-models) list
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type, allowed values:
+  - `generate` — text-to-image (default)
+  - `image2image` — image-to-image (requires `image_urls`)
+  - `edit` — image editing (instruction-based / inpainting)
+  - `reference` — multi-image reference fusion
+  - `search_grounded` — search augmentation (**3.1 Flash series only**)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description text; supports CN/EN. The Gemini series excels at natural-language instructions and handles multi-step, multi-constraint prompts well.
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate (multiple per call)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed; `-1` means random. A fixed value reproduces similar results.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio. **Allowed values depend on the model**:
+
+  Standard 10 (supported by all models):
+  - `1:1` — square
+  - `2:3` / `3:2` — portrait/landscape camera
+  - `3:4` / `4:3` — portrait/landscape standard
+  - `4:5` / `5:4` — portrait/landscape social
+  - `9:16` / `16:9` — portrait/landscape widescreen
+  - `21:9` — ultra-wide
+
+  Extreme ratios (**3.1 Flash series only**):
+  - `1:4` / `4:1` — tall column / banner
+  - `1:8` / `8:1` — extreme column / extreme banner
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1K">
+  Output resolution, **depends on model**:
+  - 3 Pro: `1K` / `2K` / `4K`
+  - 3.1 Flash: `0.5K` / `1K` / `2K` / `4K`
+  - 2.5 Flash: `1K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array. `image2image` / `edit` typically takes one image; `reference` takes multiple.
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook).
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Callback event filter, e.g. `["completed", "failed"]`
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="3 Pro Official">
+    **model id**: `gemini-3-pro-image-preview-official`
+
+    **Series**: Nano Banana Pro · Official Direct
+
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference`
+
+    **resolution**: `1K` / `2K` / `4K`
+
+    **aspect_ratio**: standard 10
+
+    **Highlights**: **Identical model** to the 3 Pro standard tier, with a better channel and stability — suited for SLA-sensitive production lines. Priced ~2.7× the standard tier.
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      This model is already on the official direct tier, so this is typically unnecessary. The field is kept for upstream parameter-template compatibility.
+    </ParamField>
+  </Tab>
+
+  <Tab title="3 Pro">
+    **model id**: `gemini-3-pro-image-preview`
+
+    **Series**: Nano Banana Pro · Standard
+
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference`
+
+    **resolution**: `1K` / `2K` / `4K`
+
+    **aspect_ratio**: standard 10
+
+    **Highlights**: Flagship tier with native 4K output, professional fidelity, multi-step planning and built-in quality analysis; excels at complex composition and detailed typography.
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      Switch to the official direct tier at runtime — higher stability but higher price. We recommend selecting the `-official` model id directly for clearer semantics.
+    </ParamField>
+  </Tab>
+
+  <Tab title="3.1 Flash Official">
+    **model id**: `gemini-3.1-flash-image-preview-official`
+
+    **Series**: Nano Banana 2 · Official Direct
+
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `search_grounded`
+
+    **resolution**: `0.5K` / `1K` / `2K` / `4K`
+
+    **aspect_ratio**: standard 10 + 4 extreme (`1:4` / `4:1` / `1:8` / `8:1`)
+
+    **Highlights**: Same model as the 3.1 Flash standard tier, with a better channel and SLA.
+
+    <ParamField body="google_search" type="boolean" default="false">
+      Enable Google text search augmentation — the model can generate based on real-time web information.
+    </ParamField>
+
+    <ParamField body="google_image_search" type="boolean" default="false">
+      Enable Google image search augmentation — uses web images as visual references.
+    </ParamField>
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      This model is already on the official direct tier, so this is typically unnecessary.
+    </ParamField>
+  </Tab>
+
+  <Tab title="3.1 Flash">
+    **model id**: `gemini-3.1-flash-image-preview`
+
+    **Series**: Nano Banana 2 · Standard
+
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `search_grounded`
+
+    **resolution**: `0.5K` / `1K` / `2K` / `4K`
+
+    **aspect_ratio**: standard 10 + 4 extreme (`1:4` / `4:1` / `1:8` / `8:1`)
+
+    **Highlights**: Lightweight fast tier — low latency, low cost, ideal for previewing, batches, and iteration. **Exclusive support for Google text and image search augmentation**, generating images grounded in real-time web information; supports extreme column / banner ratios.
+
+    <ParamField body="google_search" type="boolean" default="false">
+      Enable Google text search augmentation — the model can generate based on real-time web information.
+    </ParamField>
+
+    <ParamField body="google_image_search" type="boolean" default="false">
+      Enable Google image search augmentation — uses web images as visual references.
+    </ParamField>
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      Switch to the official direct tier at runtime. We recommend selecting the `-official` model id directly.
+    </ParamField>
+  </Tab>
+
+  <Tab title="2.5 Flash Official">
+    **model id**: `gemini-2.5-flash-image-preview-official`
+
+    **Series**: Nano Banana · Official Direct
+
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference`
+
+    **resolution**: `1K`
+
+    **aspect_ratio**: standard 10
+
+    **Highlights**: Previous-generation Nano Banana with official direct channel — stable, suited for legacy pipelines built on 2.5 Flash.
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      This model is already on the official direct tier, so this is typically unnecessary.
+    </ParamField>
+  </Tab>
+
+  <Tab title="2.5 Flash">
+    **model id**: `gemini-2.5-flash-image-preview`
+
+    **Series**: Nano Banana · Standard
+
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference`
+
+    **resolution**: `1K`
+
+    **aspect_ratio**: standard 10
+
+    **Highlights**: Previous-generation workhorse for image generation and editing — low latency, high cost-performance, with reliable multi-image fusion and character consistency. The most economical Gemini image tier currently available.
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      Switch to the official direct tier at runtime. We recommend selecting the `-official` model id directly.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference images | `reference` mode recommends ≤ 4; `edit` / `image2image` typically 1 |
+| Per-image size | ≤ 30MB; supports JPG / PNG / WEBP |
+| Output resolution | See each tab (3 Pro up to 4K / 3.1 Flash up to 4K / 2.5 Flash 1K only) |
+| Output file | JPG; URLs valid for 24 hours |
+| Search augmentation | 3.1 Flash series only; enabling `google_search` / `google_image_search` may slightly increase latency |
+
+## Related
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key application and usage

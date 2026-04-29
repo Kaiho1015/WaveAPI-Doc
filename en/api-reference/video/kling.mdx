@@ -1,0 +1,294 @@
+---
+title: "Kling Series"
+description: "Kuaishou Kling video generation — v2.6 / v3 / v3-omni / video-o1, four generations covering text-to-video, image-to-video, first/last frame, multimodal reference, and reasoning-enhanced"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Kuaishou Kling video generation series.
+
+**Four-generation lineup**:
+
+- **kling-v2.6** — Classic stable release, 720P silent / 1080P with optional audio, further refined semantic adherence and motion stability
+- **kling-v3** — Next-generation base model, adds **4K resolution**, T2V duration extended to **15 seconds**, native audio support
+- **kling-v3-omni** — Unified **multimodal interface** for the v3 family — T2V, I2V, and video reference all share one endpoint, with `<<<image_N>>>` reference syntax in the prompt
+- **kling-video-o1** — First **reasoning-enhanced** video model, performs deep planning over the prompt and reference assets before generation, delivering best-in-class physical consistency, complex motion, and long-form motion semantic adherence
+
+Billed by **resolution**, in `$/second`, with `resolution` selecting 720p / 1080p / 4K.
+
+## Pricing
+
+| Model | 720P | 1080P | 4K | Notes |
+|---|---|---|---|---|
+| `kling-v2.6` | `$0.0391` | `$0.06641` | — | 1080P with audio uplifts to `$0.159375` |
+| `kling-v3` | `$0.0714` | `$0.0952` | `$0.455345` | With audio: 720P `$0.1071` / 1080P `$0.1428` / 4K same price |
+| `kling-v3-omni` | `$0.0714` | `$0.0952` | `$0.455345` | With audio: 720P `$0.0952` / 1080P `$0.119`; video reference: 720P `$0.1071` / 1080P `$0.1428` |
+| `kling-video-o1` | `$0.0714` | `$0.0952` | — | Video reference: 720P `$0.1071` / 1080P `$0.1428` |
+
+<Note>
+Prices are **per second**; actual charge = unit price × `duration`. Enabling `audio` or attaching a `video_list` video reference switches to the corresponding higher tier.
+</Note>
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-video (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v3",
+    "prompt": "A Shiba Inu in a spacesuit walking on the moon, cinematic lighting",
+    "duration": 5,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "audio": true
+  }'
+```
+
+```bash Image-to-video (first frame)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v2.6",
+    "action": "image2video",
+    "prompt": "The character walks slowly toward the camera, hair gently moved by the breeze",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```bash Omni multimodal reference
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v3-omni",
+    "action": "reference",
+    "prompt": "Place the character from <<<image_1>>> running through the forest scene from <<<image_2>>>",
+    "image_urls": [
+      "https://cdn.example.com/char.jpg",
+      "https://cdn.example.com/forest.jpg"
+    ],
+    "duration": 6,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash O1 reasoning-enhanced (video reference)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-video-o1",
+    "action": "reference_video",
+    "prompt": "Keep the character look from <<<image_1>>>, follow the camera movement of the reference video",
+    "image_urls": ["https://cdn.example.com/char.jpg"],
+    "video_list": [
+      {
+        "video_url": "https://cdn.example.com/ref.mp4",
+        "refer_type": "feature",
+        "keep_original_sound": "no"
+      }
+    ],
+    "duration": 10,
+    "resolution": "1080p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission accepted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "kling-v3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status); see [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Resolution | Duration | Supported actions | Highlights |
+|---|---|---|---|---|
+| `kling-video-o1` | 720P / 1080P | 5 / 10 sec | `generate` · `image2video` · `first_last_frame` · `reference` · `reference_video` | Reasoning-enhanced, best physical consistency |
+| `kling-v3-omni` | 720P / 1080P / 4K | 3-15 sec | `generate` · `image2video` · `reference` · `reference_video` | Unified multimodal endpoint |
+| `kling-v3` | 720P / 1080P / 4K | 3-15 sec | `generate` · `image2video` · `first_last_frame` | 4K + native audio |
+| `kling-v2.6` | 720P / 1080P | 5 / 10 sec | `generate` · `image2video` · `first_last_frame` | 1080P with optional audio, top stability |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID; see the [Available Models](#available-models) table
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. Allowed values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video; pair with `first_frame_image` or `image_urls`
+  - `first_last_frame` — first/last frame interpolation; requires `first_frame_image` + `last_frame_image` (v2.6 / v3 / o1)
+  - `reference` — multimodal reference-to-video; pair with `image_urls` (omni / o1)
+  - `reference_video` — video reference-to-video; pair with `video_list` (omni / o1)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text. In Omni / O1 you can use the `<<<image_N>>>` syntax to reference the N-th image in `image_urls` (N starts at 1)
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio, **applies to T2V only**; image / video reference modes follow the source asset's ratio. Allowed values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait
+  - `1:1` — square
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution. See [Available Models](#available-models) for per-model support:
+  - `720p`
+  - `1080p`
+  - `4K` (v3 / omni only)
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Video duration in seconds. v2.6 / o1 accept only `5` or `10`; v3 / omni accept any integer from 3-15
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array. A **single-element array** triggers I2V; multiple images feed the multimodal reference for Omni / O1 (referenceable via `<<<image_N>>>`)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  First-frame image URL. Used with `image2video` or `first_last_frame` action (v2.6 / v3 / o1)
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  Last-frame image URL, used with `first_last_frame` action
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  Reference video URL array (single element). Simplified form for Omni / O1, equivalent to attaching a `video_list` entry with `refer_type=feature`
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Event types to push; defaults to all terminal events
+</ParamField>
+
+## Model-specific Parameters
+
+<Tabs>
+
+<Tab title="kling-video-o1">
+
+<ParamField body="video_list" type="object[]">
+  Reference video list, **at most 1 clip**. Same structure as Omni:
+  - `video_url` — video URL
+  - `refer_type` — `base` / `feature`
+  - `keep_original_sound` — `yes` / `no`
+
+  O1 does not support the `audio` field; for audio output use v3 / omni.
+</ParamField>
+
+</Tab>
+
+<Tab title="kling-v3-omni">
+
+<ParamField body="audio" type="boolean" default="false">
+  Whether to generate audio. **Mutually exclusive with `video_list`** — cannot be enabled when a video reference is attached
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  Whether to add a watermark
+</ParamField>
+
+<ParamField body="video_list" type="object[]">
+  Reference video list, **at most 1 clip**. Each element:
+  - `video_url` — public video URL
+  - `refer_type` — reference type, `base` (overall replication) / `feature` (motion / style features)
+  - `keep_original_sound` — keep original audio track, `yes` / `no`
+
+  Once `video_list` is attached, billing switches to the "video reference" tier and `audio` cannot be enabled.
+</ParamField>
+
+</Tab>
+
+<Tab title="kling-v3">
+
+<ParamField body="audio" type="boolean" default="false">
+  Whether to generate audio. Native audio is supported across all resolutions
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  Whether to add a watermark
+</ParamField>
+
+</Tab>
+
+<Tab title="kling-v2.6">
+
+<ParamField body="audio" type="boolean" default="false">
+  Whether to auto-generate audio. **Only effective at `resolution=1080p`**; **mutually exclusive with last frame** (cannot enable with `first_last_frame`)
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  Whether to add a watermark
+</ParamField>
+
+</Tab>
+
+</Tabs>
+
+## Special Syntax
+
+**`<<<image_N>>>` prompt image reference** (Omni / O1)
+
+Within `prompt`, use the `<<<image_N>>>` placeholder to explicitly reference the N-th image in `image_urls` (N starts at **1**). The model substitutes the placeholder with the corresponding image content for:
+
+- Character consistency — `<<<image_1>>>` locks the subject's appearance
+- Scene composition — the character from `<<<image_1>>>` appears in the environment of `<<<image_2>>>`
+- Multi-asset guidance — embed N reference images at any position
+
+```text Example
+"Take the girl in red from <<<image_1>>> and place her into the snow-mountain scene of <<<image_2>>>, camera slowly zooming in"
+```
+
+Corresponding `image_urls`:
+
+```json
+"image_urls": [
+  "https://cdn.example.com/girl-red.jpg",
+  "https://cdn.example.com/snow-mountain.jpg"
+]
+```
+
+<Note>
+Non-Omni / O1 models (v2.6 / v3) do not parse `<<<image_N>>>` placeholders and forward them to the model as literal text.
+</Note>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference image (per file) | ≤ 30MB, JPG / PNG / WEBP |
+| Reference image (count) | I2V: 1; Omni / O1 multimodal: ≤ 4 recommended |
+| Reference video (`video_list`) | MP4 / MOV, ≤ 100MB, 2-30 sec, **at most 1 clip** |
+| Prompt | ≤ 2500 characters |
+| Output | MP4, link valid for 24 hours |
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key signup and usage

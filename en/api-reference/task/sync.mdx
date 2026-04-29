@@ -1,0 +1,55 @@
+---
+title: "Synchronous Wait"
+description: "POST /v1/tasks/sync — Submit a task and wait for completion"
+---
+
+## Endpoint
+
+```
+POST https://www.qingbo.dev/v1/tasks/sync
+```
+
+Submit a task and block until the result is ready. If it completes within the timeout, the result is returned directly; otherwise a `poll_url` is returned for continued polling.
+
+## Request Parameters
+
+Identical to `POST /v1/tasks`.
+
+## Response
+
+### Completed Within Timeout
+
+```json
+{
+  "task_id": "task_xxx",
+  "model": "gpt-4o-image",
+  "status": "completed",
+  "created_at": 1720000000,
+  "completed_at": 1720000010,
+  "progress": 100,
+  "result": {
+    "images": [
+      { "url": "https://...", "expires_at": 1720086400 }
+    ]
+  }
+}
+```
+
+### Not Completed Within Timeout
+
+```json
+{
+  "task_id": "task_xxx",
+  "status": "processing",
+  "progress": 45,
+  "poll_url": "/v1/tasks/task_xxx"
+}
+```
+
+After receiving `poll_url`, use `GET /v1/tasks/{task_id}` to continue polling.
+
+## When to Use
+
+- Tasks that complete relatively quickly, such as image generation
+- Simple scenarios where you don't want to implement polling logic
+- Prototyping and testing

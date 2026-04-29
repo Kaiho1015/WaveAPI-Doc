@@ -1,0 +1,137 @@
+---
+title: "Z.ai Image"
+description: "Zhipu Z.ai image generation — lightweight and fast, bilingual prompts, low latency and low cost"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Lightweight and fast image generation from Zhipu Z.ai, with strong support for both Chinese and English prompts. **Low latency, low price** — suited for high-frequency scenarios like batch sketches, operations creatives, and quick previews.
+
+Per-image pricing. Pure text-to-image (no reference images), fixed at 1 image per call.
+
+## Pricing
+
+| Model | Price (per image) |
+|---|---|
+| `z-image-turbo` | `$0.010625` |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-image (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "z-image-turbo",
+    "prompt": "Seaside cafe at sunset, wooden deck, warm tones",
+    "aspect_ratio": "16:9",
+    "resolution": "1K"
+  }'
+```
+
+```bash Enable smart rewrite
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "z-image-turbo",
+    "prompt": "A Shiba Inu",
+    "prompt_extend": true,
+    "aspect_ratio": "1:1",
+    "resolution": "2K"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission successful
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "z-image-turbo",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `z-image-turbo` | Lightweight and fast, bilingual, 1K/2K, pure text-to-image (no reference images) |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Choose one from the [Available Models](#available-models) list
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. `z-image-turbo` only supports `generate` (text-to-image)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description. Strong support for both Chinese and English. **Max 800 characters**
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images. **This model is fixed at 1 image per call; `n > 1` is not supported**
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed. `-1` for random; a fixed value reproduces similar results
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio. Options:
+  - `1:1` — Square
+  - `4:3` / `3:4` — Standard landscape / portrait
+  - `16:9` / `9:16` — Widescreen landscape / portrait
+  - `3:2` / `2:3` — Camera ratio landscape / portrait
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1K">
+  Output resolution. Options: `1K` / `2K`
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Events to receive callbacks for. Defaults to terminal events only. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+## Model-Specific Parameters
+
+<ParamField body="prompt_extend" type="boolean" default="false">
+  Smart prompt rewrite. When enabled, AI auto-optimizes the prompt for better results, but **adds extra cost**
+</ParamField>
+
+## Notes
+
+- **Single image per call** — `n` is fixed at 1; submit multiple tasks for multiple images
+- **Prompt limit 800 characters** — trim long prompts yourself
+- **Enabling `prompt_extend` increases cost** — AI rewrite consumes extra inference cost; enable selectively for batch scenarios
+- **Pure text-to-image** — does not accept `image_urls` reference images; use other models for image-to-image
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Images per call | Fixed at 1 |
+| Prompt length | ≤ 800 characters |
+| Output resolution | `1K` / `2K` |
+| Output file | JPG, URL valid for 24 hours |
+
+## Related Docs
+
+- [Task System](/en/docs/task-system) — Task state machine / polling cadence / async push
+- [Request & Response](/en/docs/request-response) — Common error codes / Headers / rate limits
+- [Authentication](/en/docs/authentication) — API Key application and usage

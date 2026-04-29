@@ -162,6 +162,102 @@
             ]
           }
         ]
+      },
+      {
+        "language": "en",
+        "tabs": [
+          {
+            "tab": "Documentation",
+            "icon": "book-open",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "en/index",
+                  "en/guides/quickstart",
+                  "en/docs/authentication"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "en/docs/request-response",
+                  "en/docs/sync-async",
+                  "en/docs/task-system",
+                  "en/docs/streaming",
+                  "en/docs/models"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API Reference",
+            "icon": "code",
+            "groups": [
+              {
+                "group": "Text Generation",
+                "pages": [
+                  "en/api-reference/text/general-chat",
+                  "en/api-reference/text/claude-messages",
+                  "en/api-reference/text/gemini-native",
+                  "en/api-reference/text/openai-multimodal"
+                ]
+              },
+              {
+                "group": "Image Generation",
+                "pages": [
+                  "en/api-reference/image/overview",
+                  "en/api-reference/image/gemini",
+                  "en/api-reference/image/gpt-image",
+                  "en/api-reference/image/seedream",
+                  "en/api-reference/image/imagen",
+                  "en/api-reference/image/qwen-image",
+                  "en/api-reference/image/wan-image",
+                  "en/api-reference/image/z-image"
+                ]
+              },
+              {
+                "group": "Video Generation",
+                "pages": [
+                  "en/api-reference/video/overview",
+                  "en/api-reference/video/veo",
+                  "en/api-reference/video/seedance",
+                  "en/api-reference/video/kling",
+                  "en/api-reference/video/hailuo",
+                  "en/api-reference/video/vidu",
+                  "en/api-reference/video/wan",
+                  "en/api-reference/video/happyhorse",
+                  "en/api-reference/video/skyreels",
+                  "en/api-reference/video/grok-imagine-video"
+                ]
+              },
+              {
+                "group": "Audio",
+                "pages": [
+                  "en/api-reference/audio/tts",
+                  "en/api-reference/audio/whisper-transcription"
+                ]
+              },
+              {
+                "group": "Tools & Embeddings",
+                "pages": [
+                  "en/api-reference/tools/embeddings",
+                  "en/api-reference/tools/moderations",
+                  "en/api-reference/tools/rerank"
+                ]
+              },
+              {
+                "group": "Task Management",
+                "pages": [
+                  "en/api-reference/task/submit",
+                  "en/api-reference/task/sync",
+                  "en/api-reference/task/status",
+                  "en/api-reference/task/cancel"
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   },

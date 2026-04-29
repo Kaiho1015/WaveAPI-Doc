@@ -1,0 +1,97 @@
+---
+title: "Task System"
+description: "Complete asynchronous workflow for image and video generation"
+---
+
+## Task Lifecycle
+
+```
+submit → queued → processing → completed / failed
+                ↓
+          cancelled (quota refunded)
+```
+
+## Task States
+
+| State | Description |
+|-------|-------------|
+| `queued` | Task submitted and waiting to be processed |
+| `processing` | Generation in progress; progress is available |
+| `completed` | Generation succeeded; results are ready |
+| `failed` | Generation failed; check the error field |
+| `cancelled` | Cancelled by the user; quota has been refunded |
+
+## Submit a Task
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://www.qingbo.dev/v1",
+    api_key="your-api-key"
+)
+
+# Submit an asynchronous task
+response = client.post("/tasks", body={
+    "model": "veo3",
+    "action": "generate",
+    "prompt": "A cat walking on the beach",
+    "duration": 5
+})
+
+task_id = response["task_id"]
+print(f"Task submitted: {task_id}")
+```
+
+## Poll for Status
+
+```python
+import time
+
+def wait_for_task(client, task_id, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        result = client.get(f"/tasks/{task_id}")
+        status = result["status"]
+
+        if status == "completed":
+            return result["result"]
+        elif status == "failed":
+            raise Exception(f"Task failed: {result['error']['message']}")
+
+        time.sleep(2)  # Poll every 2 seconds
+    raise TimeoutError("Task timed out")
+```
+
+## Synchronous Wait Mode
+
+If you'd rather not poll manually, use `/v1/tasks/sync`:
+
+- Task completes within the timeout → result is returned directly
+- Timeout exceeded → returns a `poll_url` so you can continue polling
+
+## Webhook Callbacks
+
+Set `callback_url` when submitting a task and QWave API will push the result to your endpoint when the task finishes:
+
+```json
+{
+  "model": "veo3",
+  "action": "generate",
+  "prompt": "...",
+  "callback_url": "https://your-server.com/webhook/task-done"
+}
+```
+
+## Cancel a Task
+
+Only `queued` tasks can be cancelled. Cancellation automatically refunds the quota:
+
+```bash
+curl -X POST https://www.qingbo.dev/v1/tasks/{task_id}/cancel \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+Image and video URLs in task results have a limited lifetime — download and store them promptly.
+</Note>

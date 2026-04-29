@@ -1,0 +1,84 @@
+---
+title: "Submit Task"
+description: "POST /v1/tasks — Submit an asynchronous generation task"
+---
+
+## Endpoint
+
+```
+POST https://www.qingbo.dev/v1/tasks
+```
+
+Submit an image, video, or audio generation task and immediately receive a `task_id`.
+
+## Request Parameters
+
+<ParamField body="model" type="string" required>
+  Model name, such as `"veo3"`, `"gpt-4o-image"`, `"sora2"`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Action type: `generate`, `edit`, `upscale`, `variation`, `blend`
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  Generation prompt text
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook URL invoked when the task completes
+</ParamField>
+
+<ParamField body="extra" type="object">
+  Pass-through field for model-specific parameters; forwarded directly to the upstream model
+</ParamField>
+
+For more parameters, see [Image Generation Overview](/en/api-reference/image/overview) or [Video Generation Overview](/en/api-reference/video/overview).
+
+## Response
+
+```json
+{
+  "task_id": "task_01K8SGYNNNVBQTXNR4MM964S7K",
+  "model": "veo3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1720000000,
+  "progress": 0
+}
+```
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3",
+    "action": "generate",
+    "prompt": "A cat walking on the beach at sunset",
+    "duration": 5
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://www.qingbo.dev/v1/tasks",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "model": "veo3",
+        "action": "generate",
+        "prompt": "A cat walking on the beach at sunset",
+        "duration": 5
+    }
+)
+
+task_id = response.json()["task_id"]
+```
+
+</CodeGroup>

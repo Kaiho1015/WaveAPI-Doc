@@ -1,0 +1,125 @@
+---
+title: "Quickstart"
+description: "Get up and running with QWave API in 5 minutes"
+---
+
+## Prerequisites
+
+- A QWave API account ([sign up](https://qingbo.dev/login))
+- An API key
+- Basic programming knowledge
+
+## Get an API Key
+
+<Steps>
+  <Step title="Sign in to the dashboard">
+    Visit the [Dashboard](https://qingbo.dev/dashboard/keys) and log in
+  </Step>
+  <Step title="Create a key">
+    On the API keys page, click "Create new key"
+  </Step>
+  <Step title="Save your key">
+    Copy the key and store it somewhere safe — it's only shown once
+  </Step>
+</Steps>
+
+<Warning>
+Never expose your API key in frontend code or public repositories.
+</Warning>
+
+## Send Your First Request
+
+QWave API is fully compatible with the OpenAI SDK — just swap the `base_url`.
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://www.qingbo.dev/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "user", "content": "你好，介绍一下你自己"}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://www.qingbo.dev/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [
+    { role: 'user', content: '你好，介绍一下你自己' }
+  ]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://www.qingbo.dev/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "你好，介绍一下你自己"}
+    ]
+  }'
+```
+
+</CodeGroup>
+
+## Understanding the Response
+
+```json
+{
+  "id": "chatcmpl-123",
+  "object": "chat.completion",
+  "created": 1677652288,
+  "model": "gpt-4o",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "你好！我是一个 AI 助手..."
+    },
+    "finish_reason": "stop"
+  }],
+  "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 12,
+    "total_tokens": 21
+  }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication & Keys" href="/en/docs/authentication">
+    Learn about authentication and API key management
+  </Card>
+  <Card title="Sync vs. Async" href="/en/docs/sync-async">
+    Understand the two endpoint patterns
+  </Card>
+  <Card title="Text Generation API" href="/en/api-reference/text/general-chat">
+    Full chat API reference and parameters
+  </Card>
+  <Card title="Task System" href="/en/docs/task-system">
+    The async workflow for image and video generation
+  </Card>
+</CardGroup>

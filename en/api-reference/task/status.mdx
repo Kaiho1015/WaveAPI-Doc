@@ -1,0 +1,202 @@
+---
+title: "Query Task Status"
+description: "GET /v1/tasks/{task_id} — Query the status, progress, and final result of an asynchronous task"
+api: "GET https://www.qingbo.dev/v1/tasks/{task_id}"
+---
+
+The core query endpoint for asynchronous tasks. After submitting a task (`POST /v1/tasks`) and receiving a `task_id`, poll this endpoint until `status: completed` to retrieve the final result.
+
+## Example Request
+
+<CodeGroup>
+
+```bash Query Task
+curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
+  -H "Authorization: Bearer $WAVE_API_KEY"
+```
+
+</CodeGroup>
+
+## Example Responses (By Stage)
+
+<CodeGroup>
+
+```json queued
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "queued",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 0,
+  "created_at": 1720000000,
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+```json processing
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "processing",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 45,
+  "created_at": 1720000000,
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+```json completed (video)
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "completed",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 100,
+  "created_at": 1720000000,
+  "completed_at": 1720000030,
+  "result": {
+    "videos": [
+      {
+        "expires_at": 1720259200,
+        "url": ["https://cdn.qingbo.dev/output/xxx.mp4"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+```json completed (image)
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "completed",
+  "action": "generate",
+  "model": "doubao-seedream-4.5",
+  "progress": 100,
+  "created_at": 1720000000,
+  "completed_at": 1720000030,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1720259200,
+        "url": ["https://cdn.qingbo.dev/output/xxx.png"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+```json failed
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "failed",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 0,
+  "created_at": 1720000000,
+  "completed_at": 1720000005,
+  "error": {
+    "message": "Upstream returned: invalid prompt",
+    "code": "task_failed"
+  },
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+</CodeGroup>
+
+## Response Fields
+
+<ResponseField name="task_id" type="string">
+  Unique task ID (returned at submission)
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Task status:
+  - `queued` — Submitted, waiting to be processed
+  - `processing` — In progress; the `progress` field indicates progress (0–100)
+  - `completed` — Done; `result` contains the generated output
+  - `failed` — Failed; `error` contains the error details
+  - `cancelled` — Cancelled (only `queued` tasks can be cancelled)
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Action type, identical to the value submitted (generate / edit / image2video, etc.)
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model ID used (group_name)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  Progress as an integer 0–100. `0` for queued / failed / cancelled, `100` for completed
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation time (Unix millisecond timestamp)
+</ResponseField>
+
+<ResponseField name="completed_at" type="integer">
+  Completion time (Unix millisecond timestamp). **Only present in completed / failed / cancelled states**
+</ResponseField>
+
+<ResponseField name="error" type="object">
+  Error details. **Only present in the failed state**:
+  - `message` — Error description
+  - `code` — Error code (commonly `task_failed`)
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  Generation result. **Only present in the completed state**. Depending on the task's media type, the key is `images` / `videos` / `audios` (an array). Each item contains:
+  - `url` — `string[]` array (always an array, even with a single element)
+  - `expires_at` — Unix timestamp; link expiration (default 3 days)
+</ResponseField>
+
+<ResponseField name="urls" type="object">
+  Convenience action links so clients don't have to assemble URLs:
+  - `get` — Current query endpoint
+  - `cancel` — Cancel-task endpoint
+</ResponseField>
+
+## Polling Recommendations
+
+- **Polling interval**: every 2–5 seconds
+- **Maximum wait time**: 5-minute timeout recommended (videos may take longer)
+- **Display `progress`** to show real-time progress to users
+- **Prefer Webhooks**: set `callback_url` at submission to receive a push on completion and skip polling
+
+See [Task System](/en/docs/task-system) for the full workflow.
+
+<Warning>
+**Generated result links are valid for 24 hours to 3 days** (see the `expires_at` field). Download and persist them to your own storage promptly. After expiration the links become invalid and you'll need to resubmit the task.
+</Warning>
+
+## Error Codes
+
+| Status | Error | Description |
+|---|---|---|
+| 404 | `task_not_found` | task_id does not exist or doesn't belong to the current user |
+| 401 | Authentication failed | Invalid API key |
+
+## Related Documentation
+
+- [Submit Task](/en/api-reference/task/submit) — `POST /v1/tasks`
+- [Cancel Task](/en/api-reference/task/cancel) — `POST /v1/tasks/{task_id}/cancel`
+- [Synchronous Wait](/en/api-reference/task/sync) — `POST /v1/tasks/sync`
+- [Task System Guide](/en/docs/task-system)

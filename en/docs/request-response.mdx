@@ -1,0 +1,60 @@
+---
+title: "Request & Response Format"
+description: "Common headers, response structures, and error codes"
+---
+
+## Request Format
+
+All requests use JSON and require these headers:
+
+```bash
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Successful Responses
+
+Response shapes vary by endpoint, each following its own API spec:
+
+- **Chat Completions** — OpenAI standard response format
+- **Claude Messages** — Anthropic standard response format
+- **Gemini** — Google standard response format
+- **Asynchronous Tasks** — QWave API unified task response format
+
+## Error Responses
+
+Error structures differ slightly across endpoints:
+
+**Synchronous endpoints (chat / messages / images, etc.)** — OpenAI-compatible format with a `type` field:
+
+```json
+{
+  "error": {
+    "message": "Detailed error description",
+    "type": "invalid_request_error",
+    "code": "invalid_request"
+  }
+}
+```
+
+**Asynchronous task endpoints (`/v1/tasks/...`)** — Simplified format with only `message` + `code`:
+
+```json
+{
+  "error": {
+    "message": "Detailed error description",
+    "code": "task_failed"
+  }
+}
+```
+
+## Status Codes
+
+| Code | Meaning | How to Handle |
+|------|---------|---------------|
+| 400 | Invalid request parameters | Check the request payload |
+| 401 | Authentication failed | Verify your API key |
+| 402 | Insufficient balance | Top up your account |
+| 404 | Task or resource not found | Verify the task_id and that it belongs to your account |
+| 429 | Rate limit exceeded | Reduce request frequency |
+| 500 | Internal server error | Retry later |

@@ -1,0 +1,200 @@
+---
+title: "HappyHorse Series"
+description: "Alibaba Cloud Bailian HappyHorse Video — single model, unified entry, intelligent routing across T2V/I2V/R2V/EDIT"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Video generation model on Alibaba Cloud Bailian.
+
+**Single model, unified entry** — just one `happyhorse-1.0`. The backend automatically routes to T2V / I2V / R2V / EDIT based on the fields you pass, no model id switching needed.
+
+Billed by **resolution × duration**, any integer between 3-15 seconds.
+
+## Pricing
+
+| Resolution | Unit Price | 5-second video |
+|---|---|---|
+| 720P | `$0.138` / sec | `$0.69` |
+| 1080P | `$0.244` / sec | `$1.22` |
+
+## Mode Routing
+
+| Fields Passed | Routed Mode | Notes |
+|---|---|---|
+| `prompt` only | **T2V** (text-to-video) | Frame ratio controlled by `aspect_ratio` |
+| `+ first_frame_image` (single frame) | **I2V** (image-to-video) | `aspect_ratio` is ignored, follows the first frame's ratio |
+| `+ image_urls` (1-9 images) | **R2V** (reference-to-video) | Multi-image style / character consistency |
+| `+ video_urls` (single-element array) | **EDIT** (video editing) | Can layer `image_urls` ≤5 as style references |
+
+<Warning>
+**Mutually exclusive fields** — `first_frame_image` / `image_urls` / `video_urls` are pairwise mutually exclusive. Only `video_urls + image_urls` may be passed together (EDIT mode with style references layered on).
+</Warning>
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-video (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "prompt": "A Shiba Inu in a spacesuit walking on the moon, cinematic lighting",
+    "duration": 5,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image-to-video (I2V)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "prompt": "Character slowly walking toward the camera",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```bash Reference-to-video (R2V)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "prompt": "Keep the character consistent, running through a forest",
+    "image_urls": [
+      "https://cdn.example.com/char-1.jpg",
+      "https://cdn.example.com/char-2.jpg"
+    ],
+    "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```bash Video editing (EDIT)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "action": "edit",
+    "prompt": "Change the scene to a snowy day",
+    "video_urls": ["https://cdn.example.com/source.mp4"],
+    "audio_setting": "origin",
+    "duration": 0,
+    "resolution": "1080p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submitted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "happyhorse-1.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `happyhorse-1.0` | Unified entry, T2V/I2V/R2V/EDIT auto-routing, 720P/1080P, 3-15 seconds |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Fixed value `happyhorse-1.0`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. **Usually no need to pass explicitly** — the backend auto-routes based on media fields. Allowed values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video (I2V), used with `first_frame_image`
+  - `reference` — reference-to-video (R2V), used with `image_urls`
+  - `edit` — video editing, used with `video_url`
+  - `reference_audio` — used with `audio_urls` for audio-driven generation
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  Video description, up to 5000 characters. **Required for T2V**; optional as guidance for other modes
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Video duration in seconds, any integer in 3-15. In EDIT mode, `0` means follow the source video's duration
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution. Allowed values:
+  - `720p`
+  - `1080p`
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio. **Only effective in T2V**; in I2V / R2V / EDIT it follows the source media. Allowed values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait tall
+  - `4:3` — landscape
+  - `3:4` — portrait
+  - `1:1` — square
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array, **1-9 images**:
+  - Triggers **R2V** mode (multi-image style / character consistency)
+  - In EDIT mode, layered as style references (≤5 images)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  First-frame image URL, triggers **I2V** mode
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  Source video URL array (single element), **triggers EDIT mode**:
+  - base64 not currently supported
+  - Must be a publicly downloadable URL
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  Reference audio URL array (`reference_audio` mode)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callbacks](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+## Model-Specific Parameters
+
+<ParamField body="audio_setting" type="string" default="auto">
+  Audio setting, **only effective in EDIT mode**. Allowed values:
+  - `auto` — automatically generate audio matching the edited video
+  - `origin` — keep the source video's original audio track
+</ParamField>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference images | Up to 9, each ≤ 30MB, JPG/PNG/WEBP |
+| Source video (EDIT) | MP4/MOV, ≤ 100MB, 2-30 seconds |
+| Reference audio | WAV/MP3, ≤ 15MB, 3-30 seconds |
+| Output | MP4, link valid for 24 hours |
+
+## Related Docs
+
+- [Task System](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response Format](/en/docs/request-response) — common error codes / Headers / rate limits
+- [Authentication](/en/docs/authentication) — API Key issuance and usage

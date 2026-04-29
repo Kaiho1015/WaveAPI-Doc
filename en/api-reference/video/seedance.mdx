@@ -1,0 +1,337 @@
+---
+title: "Seedance Series"
+description: "Doubao Seedance — full lineup of multimodal video generation: 1.0 Lite / Pro / 1.5 / 2.0"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+ByteDance Doubao Seedance video generation series, covering the full range from **flagship fast (Pro Fast) → flagship high-quality (Pro Quality) → audio-enabled 1.5 → multimodal 2.0**.
+
+| Generation | Positioning |
+|---|---|
+| **1.0 Pro Fast** | Flagship fast tier, balanced quality and speed; about 3x faster than Pro Quality |
+| **1.0 Pro Quality** | Flagship high-quality tier, 1080P multi-shot storytelling, suited for final delivery |
+| **1.5 Pro** | New-generation audio-enabled video, joint audio-video generation, multilingual dialogue + lip sync |
+| **2.0** | Multimodal flagship, unified architecture for text + images (≤9) + videos (≤3) + audio (≤3); `@image1`/`@video2`/`@audio3` reference syntax |
+| **2.0 Face** | 2.0 with enhanced face/identity reference, suited for digital-human shorts and lip-sync content |
+| **2.0 Fast / Fast Face** | 2.0 fast tier, no 1080P, trades quality for faster output and lower cost |
+
+## Pricing
+
+Billed by **resolution × duration**, in `$/sec`.
+
+| Model | 480P | 720P | 1080P |
+|---|---|---|---|
+| `doubao-seedance-2.0-fast-face` | `$0.085` | `$0.18275` | — |
+| `doubao-seedance-2.0-fast` | `$0.06205` | `$0.13345` | — |
+| `doubao-seedance-2.0-face` | `$0.1054` | `$0.22695` | `$0.53125` |
+| `doubao-seedance-2.0` | `$0.077095` | `$0.16592` | `$0.374` |
+| `doubao-seedance-1.5-pro` | `$0.021675` | `$0.04675` | `$0.11475` |
+| `doubao-seedance-1.0-pro-quality` | `$0.021675` | `$0.04675` | `$0.1105` |
+| `doubao-seedance-1.0-pro-fast` | `$0.00935` | `$0.02125` | `$0.0442` |
+
+**2.0 series video-reference subprice** (when `video_urls` is present and triggers `reference_video` / `reference`, **the table below replaces the base price above**, in `$/sec`):
+
+| Model | 480P | 720P | 1080P |
+|---|---|---|---|
+| `doubao-seedance-2.0-fast-face` | `$0.051` | `$0.10965` | — |
+| `doubao-seedance-2.0-fast` | `$0.036975` | `$0.0799` | — |
+| `doubao-seedance-2.0-face` | `$0.06375` | `$0.13685` | `$0.31875` |
+| `doubao-seedance-2.0` | `$0.04675` | `$0.1003` | `$0.22695` |
+
+<Note>
+**Video reference is actually cheaper** — generations with `video_urls` are easier because they have a motion-rhythm reference, so the **subprice is significantly lower than the pure-generation base price** (e.g. 2.0 720P base `$0.16592` vs video reference `$0.1003`, about 60% of the base). Do not interpret it as a markup.
+</Note>
+
+## Mode Routing
+
+The whole series shares a field-routing convention — the backend automatically determines the action from the media fields you pass in, so you usually don't need to set `action` explicitly.
+
+| Fields passed | Routed mode | Notes |
+|---|---|---|
+| `prompt` only | **generate** (T2V) | Text-to-video; aspect controlled by `aspect_ratio` |
+| `+ first_frame_image` | **image2video** (I2V) | First-frame driven; follows the first frame's aspect |
+| `+ first_frame_image + last_frame_image` | **first_last_frame** | Interpolation constrained by first + last frame |
+| `+ image_urls` | **reference** | Multi-image character / style consistency |
+| `+ video_urls` (2.0) | **reference_video** | Video clip reference (2.0 only) |
+| `+ audio_urls` (2.0) | **reference_audio** | Audio-driven (2.0 only) |
+
+<Warning>
+**2.0 multi-asset reference syntax** — inside `prompt` you can use placeholders like `@image1` / `@video2` / `@audio3` to reference `image_urls[0]` / `video_urls[1]` / `audio_urls[2]`; indices are 1-based.
+</Warning>
+
+## Request Examples
+
+<CodeGroup>
+
+```bash Text-to-video (Pro Fast)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1.0-pro-fast",
+    "prompt": "A Shiba Inu in a spacesuit walking on the moon, cinematic lighting",
+    "duration": 5,
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image-to-video (Pro Quality)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1.0-pro-quality",
+    "prompt": "The person slowly walks toward the camera, the camera gently pushes in",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```bash First/last frame (1.5 Pro with audio)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1.5-pro",
+    "prompt": "She turns around and smiles, saying: You are here.",
+    "first_frame_image": "https://cdn.example.com/start.jpg",
+    "last_frame_image": "https://cdn.example.com/end.jpg",
+    "duration": 6,
+    "resolution": "1080p",
+    "audio": true
+  }'
+```
+
+```bash Multimodal reference (2.0)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2.0",
+    "prompt": "Keep the character look from @image1, follow the camera rhythm of @video1, with @audio1 as background score",
+    "image_urls": ["https://cdn.example.com/char.jpg"],
+    "video_urls": ["https://cdn.example.com/ref-cam.mp4"],
+    "audio_urls": ["https://cdn.example.com/bgm.mp3"],
+    "duration": 8,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "generate_audio": true
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submit success
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "doubao-seedance-2.0",
+  "action": "reference",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Series | Supported actions | Resolution | Duration (sec) |
+|---|---|---|---|---|
+| `doubao-seedance-2.0-fast-face` | 2.0 | Same as 2.0 | 480p / 720p | 4-15 |
+| `doubao-seedance-2.0-fast` | 2.0 | Same as 2.0 | 480p / 720p | 4-15 |
+| `doubao-seedance-2.0-face` | 2.0 | Same as 2.0 | 480p / 720p / 1080p | 4-15 |
+| `doubao-seedance-2.0` | 2.0 | generate / image2video / first_last_frame / reference / reference_video / reference_audio | 480p / 720p / 1080p | 4-15 |
+| `doubao-seedance-1.5-pro` | 1.5 | generate / image2video / first_last_frame | 480p / 720p / 1080p | 4-12 |
+| `doubao-seedance-1.0-pro-quality` | 1.0 Pro | generate / image2video / first_last_frame / reference | 480p / 720p / 1080p | 2-12 |
+| `doubao-seedance-1.0-pro-fast` | 1.0 Pro | generate / image2video / reference | 480p / 720p / 1080p | 2-12 |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID; see the "Available Models" table above
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type; **usually no need to pass explicitly** — the backend routes automatically based on media fields. Valid values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video (I2V); requires `first_frame_image`
+  - `first_last_frame` — first/last-frame constraint; requires `first_frame_image` + `last_frame_image`
+  - `reference` — reference-image driven; requires `image_urls`
+  - `reference_video` — video clip reference (2.0 series only); requires `video_urls`
+  - `reference_audio` — audio-driven (2.0 series only); requires `audio_urls`
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  Video description text. **Required for T2V**; optional as guidance for other modes. The 2.0 series supports `@image1` / `@video2` / `@audio3` reference syntax
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio. Valid values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait
+  - `1:1` — square
+  - `4:3` — landscape
+  - `3:4` — portrait
+  - `21:9` — ultrawide
+  - `adaptive` — adaptive (**2.0 series only**, follows the reference asset)
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution; valid values vary by model:
+  - `480p`
+  - `720p`
+  - `1080p` (not supported by Lite-i2v / 2.0-fast / 2.0-fast-face)
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Video duration in seconds. Range varies by series:
+  - 1.0 series: 2-12
+  - 1.5 Pro: 4-12
+  - 2.0 series: 4-15
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Array of reference-image URLs; triggers **reference** mode. 1.0 / 1.5 support 1-9 images; 2.0 supports up to 9
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  First-frame image URL; triggers **image2video** or **first_last_frame** mode
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  Last-frame image URL; combined with `first_frame_image` triggers **first_last_frame** mode
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  Array of reference-video URLs (**2.0 series only**), up to 3 clips; triggers **reference_video** mode. **Billing uses the "video-reference subprice" table above in place of the base price** (significantly lower than pure generation)
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  Array of reference-audio URLs (**2.0 series only**), up to 3 tracks; triggers **reference_audio** mode
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Subscribed callback event types; defaults to terminal states only (`completed` / `failed`)
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+
+<Tab title="2.0 Fast / 2.0 Fast Face">
+
+Parameters identical to 2.0 / 2.0 Face (`generate_audio` / `tools` / `image_with_roles` / `return_last_frame`).
+
+**Differences**:
+- Only 480P / 720P, **no 1080P**
+- Fast tier; slight quality trade-off for faster output and lower cost
+- Fast Face variant retains face-consistency capability
+- Duration 4-15 seconds
+
+**Typical use cases**:
+- Bulk production of digital-human short videos
+- Social-media lip-sync content
+- Rapid asset iteration
+
+</Tab>
+
+<Tab title="2.0 / 2.0 Face">
+
+<ParamField body="generate_audio" type="boolean" default="false">
+  Whether to generate audio (audio-enabled video). The 2.0 series uses the field name `generate_audio`
+</ParamField>
+
+<ParamField body="tools" type="array">
+  Tool list; e.g. `[{"type": "web_search"}]` enables web-search augmentation
+</ParamField>
+
+<ParamField body="image_with_roles" type="array">
+  Reference images with role tags; takes priority over `image_urls` + `first_frame_image` / `last_frame_image`. Element shape:
+  - `url` — image URL
+  - `role` — `first_frame` / `last_frame`
+</ParamField>
+
+<ParamField body="return_last_frame" type="boolean" default="false">
+  Whether to additionally return the last-frame image, useful for chained sequel generation
+</ParamField>
+
+**Features (2.0)**:
+- Multimodal unified architecture: any combination of text + images (≤9) + videos (≤3) + audio (≤3)
+- `@image1` / `@video2` / `@audio3` prompt reference syntax
+- `aspect_ratio` supports `adaptive`
+- Duration 4-15 seconds
+
+**2.0 Face additions**:
+- Enhanced face / identity consistency; stable features and skin tone across multi-shot
+- Suited for digital-human shorts / lip-sync
+
+</Tab>
+
+<Tab title="1.5 Pro">
+
+<ParamField body="audio" type="boolean" default="false">
+  Whether to generate audio (audio-enabled video). The 1.5 series uses the field name `audio` — **different from 2.0's `generate_audio`**
+</ParamField>
+
+<ParamField body="camerafixed" type="boolean" default="false">
+  Whether to lock the camera
+</ParamField>
+
+**Features**:
+- Joint audio-video generation, lip sync
+- Multilingual dialogue: Chinese / English / Japanese / Korean / Spanish
+- Dialects: Sichuanese / Cantonese
+- Duration 4-12 seconds
+
+</Tab>
+
+<Tab title="1.0 Pro Quality">
+
+No model-specific parameters; uses common parameters only.
+
+**Features**:
+- Flagship high-quality tier, top-tier visuals and motion
+- 1080P multi-shot storytelling, suited for final delivery
+- Full action support (generate / image2video / first_last_frame / reference)
+- Duration 2-12 seconds
+
+</Tab>
+
+<Tab title="1.0 Pro Fast">
+
+No model-specific parameters; uses common parameters only.
+
+**Features**:
+- Flagship fast tier, about 3x faster than Pro Quality
+- Full resolution: 480P / 720P / 1080P
+- Duration 2-12 seconds
+- Does not support `first_last_frame`
+
+</Tab>
+
+</Tabs>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference images (`image_urls`) | Up to 9, ≤ 30MB each, JPG / PNG / WEBP |
+| First/last frame (`first_frame_image` / `last_frame_image`) | ≤ 30MB each, JPG / PNG / WEBP |
+| Reference videos (`video_urls`, 2.0 only) | Up to 3 clips, MP4 / MOV, ≤ 100MB per clip |
+| Reference audio (`audio_urls`, 2.0 only) | Up to 3 tracks, WAV / MP3, ≤ 15MB per track |
+| Output | MP4, link valid for 24 hours |
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request and Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key application and usage

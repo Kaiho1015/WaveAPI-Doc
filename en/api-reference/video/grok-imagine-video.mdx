@@ -1,0 +1,168 @@
+---
+title: "Grok Imagine Video Series"
+description: "xAI Grok Imagine 1.0 video tier — text/image-to-video, 5 aspect ratios, 480p / 720p, 6-30 seconds"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+xAI Grok Imagine 1.0 video generation model — the video tier of the Grok multimodal family.
+
+Concise fields, low parameter overhead. Suited for social-media short videos, quick concept demos, and low-cost content pipelines.
+
+<Note>
+The Grok Imagine series has two lines: an **image tier** and a **video tier**. For image generation see [Grok Imagine Image](/en/api-reference/image/grok-imagine); this page only covers the video tier.
+</Note>
+
+## Pricing
+
+Billed per second by **video duration**, **flat unit price across all resolutions**: `$0.0074375` / sec.
+
+| Duration | Cost |
+|---|---|
+| 5 sec | `$0.037` |
+| 10 sec | `$0.074` |
+| 30 sec (max) | `$0.223` |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-video (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-video",
+    "prompt": "A rainy night street under neon lights, cyberpunk vibe, slow camera push-in",
+    "duration": 6,
+    "aspect_ratio": "16:9",
+    "resolution": "480p"
+  }'
+```
+
+```bash Image-to-video (single image)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-video",
+    "action": "image2video",
+    "prompt": "Character slowly turns to look at the camera",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 10,
+    "resolution": "720p"
+  }'
+```
+
+```bash Multi-image reference (up to 7)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-video",
+    "action": "image2video",
+    "prompt": "Keep the character consistent, running through a forest",
+    "image_urls": [
+      "https://cdn.example.com/ref-1.jpg",
+      "https://cdn.example.com/ref-2.jpg",
+      "https://cdn.example.com/ref-3.jpg",
+      "https://cdn.example.com/ref-4.jpg",
+      "https://cdn.example.com/ref-5.jpg",
+      "https://cdn.example.com/ref-6.jpg",
+      "https://cdn.example.com/ref-7.jpg"
+    ],
+    "duration": 8,
+    "resolution": "720p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submitted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "grok-imagine-1.0-video",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `grok-imagine-1.0-video` | xAI Grok Imagine 1.0 video tier, T2V / I2V, 5 aspect ratios, 480p / 720p, 6-30 seconds |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Fixed value `grok-imagine-1.0-video`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. Allowed values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video (I2V), used with `image_urls`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description. **Required for T2V**; in I2V mode, serves as motion / style guidance
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio. **Only effective in T2V**; in I2V mode, automatically follows the reference image's ratio. Allowed values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait tall
+  - `1:1` — square
+  - `3:2` — landscape
+  - `2:3` — portrait
+</ParamField>
+
+<ParamField body="resolution" type="string" default="480p">
+  Output resolution. Allowed values:
+  - `480p`
+  - `720p`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="6">
+  Video duration in seconds, **any integer in 6-30**. Note: 30 seconds is the upper bound, which differs from most other video models (typically 5/10/15)
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array, **up to 7 images**. Passing this triggers **I2V** mode; the system automatically matches the reference image's aspect ratio
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callbacks](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Callback event subscription list, by default only terminal-state events are pushed
+</ParamField>
+
+## Notes
+
+- **Aspect ratio auto-matched in I2V mode** — once `image_urls` is passed, the `aspect_ratio` field is ignored and the output ratio follows the first reference image.
+- **Unusual duration range** — `6-30` seconds, different from most video models in the catalog (which use the `5/10/15` tiers). When validating form input on the business side, remember to allow the full range.
+- **Availability subject to upstream** — upstream xAI / Grok quotas may fluctuate. For production, configure `callback_url` for async push instead of pure polling.
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference images | **Up to 7**, JPG/PNG/WEBP |
+| Duration | 6-30 seconds |
+| Resolution | 480p / 720p |
+| Output | MP4, link valid for 24 hours |
+
+## Related Docs
+
+- [Grok Imagine Image Tier](/en/api-reference/image/grok-imagine) — image generation in the same series
+- [Task System](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response Format](/en/docs/request-response) — common error codes / Headers / rate limits
+- [Authentication](/en/docs/authentication) — API Key issuance and usage

@@ -1,0 +1,911 @@
+---
+title: "Multimodal Responses API"
+api: "POST https://www.qingbo.dev/v1/responses"
+---
+
+- Fully compatible with the OpenAI Responses API format
+- Supports multimodal input (text and images)
+- Supports tool extensions: web search, file search, function calling, remote MCP
+
+<RequestExample>
+```bash cURL
+curl -X POST https://www.qingbo.dev/v1/responses \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-5",
+    "input": "解释一下冒泡排序算法。"
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://www.qingbo.dev/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.responses.create(
+    model="gpt-5",
+    input="解释一下冒泡排序算法。"
+)
+
+print(response.output_text)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://www.qingbo.dev/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+const response = await client.responses.create({
+  model: 'gpt-5',
+  input: '解释一下冒泡排序算法。'
+});
+
+console.log(response.output_text);
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "model": "gpt-5",
+        "input": "解释一下冒泡排序算法。",
+    }
+
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://www.qingbo.dev/v1/responses", bytes.NewBuffer(body))
+    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    result, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(result))
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String payload = """
+        {
+          "model": "gpt-5",
+          "input": "解释一下冒泡排序算法。"
+        }
+        """;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://www.qingbo.dev/v1/responses"))
+            .header("Authorization", "Bearer YOUR_API_KEY")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+
+        HttpResponse<String> response = client.send(request,
+            HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 theme={null}
+  {
+    "id": "resp_09e342953eda0be6006905acbcvoik1nhmezpmzzl7lex552vq",
+    "object": "response",
+    "created_at": 1761979488,
+    "model": "gpt-5-2025-08-07",
+    "status": "completed",
+    "output": [
+      {
+        "id": "rs_09e342953eda0be6006905ac62b6f48197aefa292b7dcdd477",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "msg_09e342953eda0be6006905ac649e0081979f9859a09c70d4db",
+        "type": "message",
+        "role": "assistant",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "text": "一幅温暖的插画：一只灰色虎斑猫正抱着一只带红色围巾的水獭，两只动物都闭着眼微笑，呈现亲密友好的场景。",
+            "annotations": [],
+            "logprobs": []
+          }
+        ]
+    }
+  ],
+  "usage": {
+      "input_tokens": 642,
+      "output_tokens": 184,
+      "total_tokens": 826,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 128
+      }
+    },
+    "reasoning": {
+      "effort": "medium",
+      "summary": null
+    },
+    "temperature": 1,
+    "top_p": 1,
+    "tool_choice": "auto",
+    "tools": [],
+    "parallel_tool_calls": true,
+    "store": true,
+    "service_tier": "default",
+    "truncation": "disabled",
+    "background": false,
+    "content_filters": null,
+    "error": null,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": null,
+    "max_tool_calls": null,
+    "metadata": {},
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "safety_identifier": null,
+    "text": {
+      "format": {
+        "type": "text"
+      },
+      "verbosity": "medium"
+    },
+    "top_logprobs": 0,
+    "user": null
+  }
+  ```
+
+  ```json 400 theme={null}
+  {
+    "error": {
+      "code": 400,
+      "message": "Invalid request parameters",
+      "type": "invalid_request_error"
+    }
+  }
+  ```
+
+  ```json 401 theme={null}
+  {
+    "error": {
+      "code": 401,
+      "message": "Authentication failed, please check your API key",
+      "type": "authentication_error"
+    }
+  }
+  ```
+
+  ```json 402 theme={null}
+  {
+    "error": {
+      "code": 402,
+      "message": "Insufficient account balance, please top up and try again",
+      "type": "payment_required"
+    }
+  }
+  ```
+
+  ```json 403 theme={null}
+  {
+    "error": {
+      "code": 403,
+      "message": "Access forbidden, you do not have permission to access this resource",
+      "type": "permission_error"
+    }
+  }
+  ```
+
+  ```json 429 theme={null}
+  {
+    "error": {
+      "code": 429,
+      "message": "Too many requests, please try again later",
+      "type": "rate_limit_error"
+    }
+  }
+  ```
+
+  ```json 500 theme={null}
+  {
+    "error": {
+      "code": 500,
+      "message": "Internal server error, please try again later",
+      "type": "server_error"
+    }
+  }
+```
+
+  ```json 502 theme={null}
+  {
+    "error": {
+      "code": 502,
+      "message": "Bad gateway, the server is temporarily unavailable",
+      "type": "bad_gateway"
+    }
+  }
+  ```
+</ResponseExample>
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required>
+  All endpoints require Bearer Token authentication.
+
+  Get your API Key:
+
+  Visit the [API Key management page](https://qingbo.dev/dashboard/keys) to obtain your API Key.
+
+  Add it to the request header:
+
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+</ParamField>
+
+## Body
+
+<ParamField body="model" type="string" required>
+  Model name.
+
+  Supported models include:
+
+  * `gpt-5` — GPT-5 base model
+  * `gpt-5-pro` — GPT-5 Pro (this endpoint only)
+  * `gpt-5-codex` — GPT-5 Codex code model (this endpoint only)
+  * `gpt-5.1-codex` — GPT-5.1 Codex code model (this endpoint only)
+  * `gpt-5.1-codex-mini` — GPT-5.1 Codex Mini (this endpoint only)
+  * `gpt-5.2-codex` — GPT-5.2 Codex code model (this endpoint only)
+  * `gpt-5.3-codex` — GPT-5.3 Codex code model (this endpoint only)
+  * Plus every model supported by `/v1/chat/completions`
+
+  <Note>
+  `gpt-5-pro` and all Codex models are only available on this endpoint (`/v1/responses`). They are not supported on `/v1/chat/completions`.
+  </Note>
+</ParamField>
+
+<ParamField body="input" type="string or array" required>
+  Input content. Accepts a string or an array of messages.
+
+  A string is treated as plain text input; the array form supports multi-turn conversations and multimodal content:
+
+  <Expandable title="Message object properties">
+    <ParamField body="role" type="string" required>
+      Role: `user`, `assistant`, or `system`.
+    </ParamField>
+
+    <ParamField body="content" type="array" required>
+      Content array. Each item has a `type` field:
+
+      - `input_text` — Text input, requires the `text` field
+      - `input_image` — Image input, requires the `image_url` field
+      - `input_video` — Video input (supported by some models)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="tools" type="array">
+  Tool list (optional).
+
+  Supported tool types:
+
+  * `web_search` — Web search
+  * `file_search` — File search
+  * `function` — Function calling
+  * `remote_mcp` — Remote MCP service
+
+  <Expandable title="Example">
+    ```json
+    [
+      {"type": "web_search"},
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "description": "获取天气信息",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "city": {"type": "string"}
+            },
+            "required": ["city"]
+          }
+        }
+      }
+    ]
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  Controls output randomness, range 0–2.
+
+  Default: 1.0
+</ParamField>
+
+<ParamField body="max_tokens" type="integer">
+  Maximum number of tokens to generate.
+</ParamField>
+
+<ParamField body="stream" type="boolean">
+  Whether to use streaming output.
+
+  Default: false
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Unique identifier of the response.
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  Object type, always `response`.
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  Creation timestamp.
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Name of the model that actually served the request (e.g., `gpt-5-2025-08-07`).
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Response status.
+
+  Possible values:
+
+  * `completed` — Done
+  * `in_progress` — Processing
+  * `failed` — Failed
+  * `cancelled` — Cancelled
+</ResponseField>
+
+<ResponseField name="output" type="array">
+  Output content array.
+
+  <Expandable title="Properties">
+    <ResponseField name="type" type="string">
+      Output type.
+
+      * `reasoning` — Reasoning trace (thinking models only)
+      * `message` — Message content
+    </ResponseField>
+
+    <ResponseField name="id" type="string">
+      Unique identifier of the output item.
+    </ResponseField>
+
+    <ResponseField name="summary" type="array">
+      Reasoning summary (when type is `reasoning`).
+    </ResponseField>
+
+    <ResponseField name="role" type="string">
+      Role, e.g., `assistant` (when type is `message`).
+    </ResponseField>
+
+    <ResponseField name="status" type="string">
+      Message status (when type is `message`).
+    </ResponseField>
+
+    <ResponseField name="content" type="array">
+      Message content array (when type is `message`).
+
+      <Expandable title="Content properties">
+        <ResponseField name="type" type="string">
+          Content type.
+
+          * `output_text` — Text output
+          * `output_image` — Image output
+        </ResponseField>
+
+        <ResponseField name="text" type="string">
+          Text content (when type is `output_text`).
+        </ResponseField>
+
+        <ResponseField name="annotations" type="array">
+          Annotation info.
+        </ResponseField>
+
+        <ResponseField name="logprobs" type="array">
+          Log probability info.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token usage statistics.
+
+  <Expandable title="Properties">
+    <ResponseField name="input_tokens" type="integer">
+      Input tokens.
+    </ResponseField>
+
+    <ResponseField name="output_tokens" type="integer">
+      Output tokens.
+    </ResponseField>
+
+    <ResponseField name="total_tokens" type="integer">
+      Total tokens.
+    </ResponseField>
+
+    <ResponseField name="input_tokens_details" type="object">
+      Input token breakdown.
+
+      <Expandable title="Properties">
+        <ResponseField name="cached_tokens" type="integer">
+          Cached tokens.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="output_tokens_details" type="object">
+      Output token breakdown.
+
+      <Expandable title="Properties">
+        <ResponseField name="reasoning_tokens" type="integer">
+          Reasoning tokens (thinking models only).
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="reasoning" type="object">
+  Reasoning configuration (thinking models only).
+
+  <Expandable title="Properties">
+    <ResponseField name="effort" type="string">
+      Reasoning effort.
+
+      * `low`
+      * `medium`
+      * `high`
+    </ResponseField>
+
+    <ResponseField name="summary" type="string">
+      Reasoning summary.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="temperature" type="number">
+  The sampling temperature actually used.
+</ResponseField>
+
+<ResponseField name="top_p" type="number">
+  The nucleus sampling parameter actually used.
+</ResponseField>
+
+<ResponseField name="tool_choice" type="string">
+  Tool selection strategy.
+</ResponseField>
+
+<ResponseField name="tools" type="array">
+  List of tools used.
+</ResponseField>
+
+<ResponseField name="parallel_tool_calls" type="boolean">
+  Whether parallel tool calls are allowed.
+</ResponseField>
+
+<ResponseField name="store" type="boolean">
+  Whether the conversation history is stored.
+</ResponseField>
+
+<ResponseField name="service_tier" type="string">
+  Service tier.
+</ResponseField>
+
+<ResponseField name="truncation" type="string">
+  Truncation strategy.
+</ResponseField>
+
+<ResponseField name="text" type="object">
+  Text format configuration.
+
+  <Expandable title="Properties">
+    <ResponseField name="format" type="object">
+      Format info.
+    </ResponseField>
+
+    <ResponseField name="verbosity" type="string">
+      Verbosity level: `low`, `medium`, `high`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="background" type="boolean">
+  Whether this is a background task.
+</ResponseField>
+
+<ResponseField name="error" type="object">
+  Error info, if any.
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Metadata.
+</ResponseField>
+
+## Examples
+
+### Image analysis
+
+```json theme={null}
+{
+  "model": "gpt-5",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "这张图片里有什么？请详细描述"
+        },
+        {
+          "type": "input_image",
+          "image_url": "https://example.com/image.jpg"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Video analysis
+
+```json theme={null}
+{
+  "model": "gemini-2.5-pro",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "分析一下这个视频的内容"
+        },
+        {
+          "type": "input_video",
+          "video_url": "https://example.com/video.mp4"
+        }
+      ]
+    }
+  ],
+  "max_tokens": 5000
+}
+```
+
+### Using the web search tool
+
+```json theme={null}
+{
+  "model": "gpt-5",
+  "tools": [
+    {"type": "web_search"}
+  ],
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "2025年最新的AI技术趋势是什么？"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Using function calling
+
+```json theme={null}
+{
+  "model": "gpt-5",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "获取城市天气信息",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string",
+              "description": "城市名称，例如：北京"
+            }
+          },
+          "required": ["city"]
+        }
+      }
+    }
+  ],
+  "input": "北京今天天气怎么样？"
+}
+```
+
+## Content Types
+
+### input_text
+
+Text input.
+
+**Properties:**
+
+* `type`: always `"input_text"`
+* `text`: text content (string)
+
+### input_image
+
+Image input.
+
+**Properties:**
+
+* `type`: always `"input_image"`
+* `image_url`: image URL or base64-encoded data URI
+
+**Supported image formats:**
+
+* JPEG
+* PNG
+* GIF
+* WebP
+
+**Image size limits:**
+
+* Max file size: 20MB
+* Recommended resolution: up to 2048x2048 pixels
+
+### input_video
+
+Video input (supported by some models).
+
+**Properties:**
+
+* `type`: always `"input_video"`
+* `video_url`: video URL
+
+**Supported video formats:**
+
+* MP4
+* MOV
+* AVI
+* WebM
+
+**Video size limits:**
+
+* Max file size: 200MB
+* Max duration: 10 minutes
+* Recommended resolution: 1080p
+
+## Tools in Detail
+
+### Web search
+
+The web search tool gives the model access to real-time information from the internet.
+
+**Configuration example:**
+
+```json theme={null}
+{
+  "tools": [{"type": "web_search"}]
+}
+```
+
+**Use cases:**
+
+* Latest news and current events
+* Real-time data (stocks, weather, exchange rates, etc.)
+* Latest technical docs and references
+* Fact verification
+
+### File search
+
+The file search tool lets the model search through documents you have uploaded.
+
+**Configuration example:**
+
+```json theme={null}
+{
+  "tools": [{"type": "file_search"}]
+}
+```
+
+**Use cases:**
+
+* Analyzing internal company documents
+* Searching technical specifications and manuals
+* Querying contracts and legal documents
+* Knowledge-base Q&A systems
+
+### Function calling
+
+Define custom functions so the model can call external APIs or perform specific actions.
+
+**Full configuration example:**
+
+```json theme={null}
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_stock_price",
+        "description": "获取股票的实时价格",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "type": "string",
+              "description": "股票代码，例如：AAPL"
+            },
+            "currency": {
+              "type": "string",
+              "enum": ["USD", "CNY"],
+              "description": "货币单位",
+              "default": "USD"
+            }
+          },
+          "required": ["symbol"]
+        }
+      }
+    }
+  ]
+}
+```
+
+**Parameters:**
+
+* `name`: function name (required)
+* `description`: function description (required)
+* `parameters`: parameter definitions in JSON Schema format
+  * `type`: parameter type
+  * `properties`: parameter property definitions
+  * `required`: list of required parameters
+
+**Use cases:**
+
+* Calling third-party APIs
+* Running database queries
+* Triggering business workflows
+* Integrating with internal systems
+
+### Remote MCP
+
+Connect to a remote Model Context Protocol (MCP) service to extend the model's capabilities.
+
+**Configuration example:**
+
+```json theme={null}
+{
+  "tools": [
+    {
+      "type": "remote_mcp",
+      "remote_mcp": {
+        "url": "https://your-mcp-server.com/api",
+        "auth_token": "your_auth_token",
+        "timeout": 30
+      }
+    }
+  ]
+}
+```
+
+**Parameters:**
+
+* `url`: MCP server URL (required)
+* `auth_token`: authentication token (optional)
+* `timeout`: timeout in seconds, default 30
+
+**Use cases:**
+
+* Connecting to enterprise AI services
+* Using domain-specific models
+* Accessing protected data sources
+* Integrating distributed AI systems
+
+## Tool Response Format
+
+When the model uses a tool, the response includes tool call information:
+
+```json theme={null}
+{
+  "id": "resp-123456",
+  "object": "response",
+  "created": 1677652288,
+  "model": "gpt-5",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+          {
+            "id": "call_abc123",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"city\": \"北京\"}"
+            }
+          }
+        ]
+      },
+      "finish_reason": "tool_calls"
+    }
+  ]
+}
+```
+
+**Tool call flow:**
+
+1. The model receives user input
+2. Decides whether a tool is needed
+3. If yes, returns a tool call request
+4. The client executes the tool call
+5. The result is returned to the model
+6. The model produces the final response
+
+## Notes
+
+1. **Image URL requirements:**
+   * Must be a publicly accessible URL
+   * Or use a base64-encoded data URI
+
+2. **Token billing:**
+   * Images consume tokens based on resolution
+   * High-resolution images are auto-resized to optimize cost
+   * Tool calls also consume additional tokens
+
+3. **Content order:**
+   * The order of items in the content array affects how the model interprets them
+   * We recommend placing the text instruction first, followed by images/videos
+
+4. **Multimodal mixing:**
+   * A single request can mix multiple text and image inputs
+   * Multi-turn conversations preserve context
+
+5. **Tool usage limits:**
+   * When multiple tools are available, the model picks the most appropriate one
+   * Function calling requires explicit function and parameter definitions
+   * Web search results may be subject to regional and time limits
+
+6. **API compatibility:**
+   * Fully compatible with the OpenAI Responses API format
+   * Existing OpenAI code can be migrated seamlessly
+   * Supports all OpenAI tool extensions

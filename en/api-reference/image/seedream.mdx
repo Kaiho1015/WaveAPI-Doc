@@ -1,0 +1,272 @@
+---
+title: "Seedream Series"
+description: "ByteDance Doubao image generation — multi-version evolution, multi-image reference / image editing / image group generation"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+ByteDance Seed team's image generation series, with **three generations**:
+
+- **5.0 Lite** — Visual reasoning (CoT) + real-time web search, 14 reference images, 2K/3K, strong identity preservation, cost-effective tier
+- **4.5** — Professional production grade, native 4K, 14 reference images, 94% typography accuracy, 90% cross-angle character consistency
+- **4.0** — Multimodal creation, 2-10 reference image fusion, unified interface for text-to-image / editing / image groups
+
+Per-image pricing, generates 1K-4K images (range varies by version).
+
+## Pricing
+
+| Model | Price (per image) |
+|---|---|
+| `doubao-seedream-5.0-lite` | `$0.02975` |
+| `doubao-seedream-4.5` | `$0.02975` |
+| `doubao-seedream-4.0` | `$0.0238` |
+
+## Mode Quick Reference
+
+| Mode | Trigger Field | Supported Versions |
+|---|---|---|
+| **Text-to-image** | `prompt` only | All |
+| **Image edit (inpainting / lighting changes)** | `+ image_urls` (single) + `action: "edit"` | 4.0 / 4.5 |
+| **Multi-image reference fusion** | `+ image_urls` (multiple) | All (4.0=2-10 / 4.5=14 / 5.0-lite=14) |
+| **Image group generation (themed set)** | `sequential_image_generation: "auto"` | All |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-image (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-5.0-lite",
+    "prompt": "Futuristic city night view, neon lights reflected on wet streets, cinematic composition",
+    "resolution": "2K",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Multi-image reference fusion (4.5)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-4.5",
+    "prompt": "Place the character from the first image into the scene from the second image",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/scene.jpg"
+    ],
+    "resolution": "4K",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image edit (4.0)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-4.0",
+    "action": "edit",
+    "prompt": "Replace the background with a sunset sky, keep the subject unchanged",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "resolution": "2K"
+  }'
+```
+
+```bash Image group (themed set)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-4.5",
+    "prompt": "Four e-commerce hero images: front / side / detail / lifestyle",
+    "sequential_image_generation": "auto",
+    "sequential_image_generation_options": {"max_images": 4},
+    "resolution": "4K",
+    "aspect_ratio": "1:1"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission successful
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "doubao-seedream-4.5",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `doubao-seedream-5.0-lite` | Visual reasoning + web search, 14 reference images, 2K/3K, strong identity preservation |
+| `doubao-seedream-4.5` | Professional production grade, 4K, 14 reference images, best typography / character consistency |
+| `doubao-seedream-4.0` | Multimodal creation, 2-10 reference images, unified interface for text-to-image / editing / image groups |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Choose one from the [Available Models](#available-models) list
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. Options:
+  - `generate` — Text-to-image (default)
+  - `image2image` — Image-to-image (use with `image_urls`)
+  - `edit` — Image editing (inpainting / lighting changes, **4.0 / 4.5 only**)
+  - `reference` — Multi-image reference fusion (**4.0 / 4.5 only**)
+  - `group` — Image group generation (all versions)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description. Supports Chinese and English. Seedream achieves ~94% accuracy on complex typography and small text rendering
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate (returned in a single call)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed. `-1` for random; a fixed value reproduces similar results
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio. Options:
+  - `1:1` — Square
+  - `4:3` / `3:4` — Standard landscape / portrait
+  - `16:9` / `9:16` — Widescreen landscape / portrait
+  - `3:2` / `2:3` — Camera ratio landscape / portrait
+  - `21:9` — Ultra-wide (all versions)
+  - `9:21` — Ultra-tall (4.0 / 4.5 only)
+  - `auto` — Smart selection (follows reference image ratio)
+</ParamField>
+
+<ParamField body="resolution" type="string" default="2K">
+  Output resolution, **depends on the model**:
+  - 4.0: `1K` / `2K` / `4K`
+  - 4.5: `2K` / `4K`
+  - 5.0-lite: `2K` / `3K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Array of reference image URLs. **Count depends on the model**:
+  - 4.0: 2-10 images (combined with final output ≤15)
+  - 4.5: up to 14
+  - 5.0-lite: up to 14
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="Seedream 5.0 Lite">
+    **Supported actions**: `generate` / `image2image` / `group` (note: **does not support `edit` or `reference`**)
+
+    **resolution**: `2K` / `3K`
+
+    **Key features**: Visual reasoning (CoT) + real-time web search, can reason from up-to-date world knowledge; strong identity preservation (eyes / jawline / proportions / skin tone preserved across styles)
+
+    <ParamField body="watermark" type="boolean" default="false">
+      AI-generated watermark
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="jpeg">
+      **5.0-lite only** — Output format. Options:
+      - `jpeg`
+      - `png`
+    </ParamField>
+
+    <ParamField body="sequential_image_generation" type="string" default="disabled">
+      Image group generation mode. Options:
+      - `disabled` — Single image (default)
+      - `auto` — Auto group (multiple themed images)
+    </ParamField>
+
+    <ParamField body="sequential_image_generation_options" type="object">
+      Group options, e.g. `{"max_images": 4}` (range 1-15)
+    </ParamField>
+  </Tab>
+
+  <Tab title="Seedream 4.5">
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `group`
+
+    **resolution**: `2K` / `4K`
+
+    **Key features**: Native 4K, 14 reference images, ~90% cross-angle character consistency, ~94% typography and dense-text rendering accuracy
+
+    <ParamField body="watermark" type="boolean" default="false">
+      AI-generated watermark
+    </ParamField>
+
+    <ParamField body="optimize_prompt_options" type="object">
+      Prompt optimization (nested object) with a `mode` field. Example: `{"mode": "standard"}`
+    </ParamField>
+
+    <ParamField body="sequential_image_generation" type="string" default="disabled">
+      Group mode. Options:
+      - `disabled` — Single image
+      - `auto` — Auto group
+    </ParamField>
+
+    <ParamField body="sequential_image_generation_options" type="object">
+      Group options, e.g. `{"max_images": 4}` (range 1-15)
+    </ParamField>
+  </Tab>
+
+  <Tab title="Seedream 4.0">
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `group`
+
+    **resolution**: `1K` / `2K` / `4K`
+
+    **Key features**: Origin of multimodal creation; unified interface for text-to-image / editing / image groups; 2-10 reference images, combined with final output ≤15
+
+    <ParamField body="watermark" type="boolean" default="false">
+      AI-generated watermark
+    </ParamField>
+
+    <ParamField body="optimize_prompt_options" type="string" default="standard">
+      Prompt optimization (string, unlike 4.5's nested object). Options:
+      - `standard` — Standard optimization (default)
+      - `fast` — Fast mode
+    </ParamField>
+
+    <ParamField body="sequential_image_generation" type="string" default="disabled">
+      Group mode. Options:
+      - `disabled` — Single image
+      - `auto` — Auto group
+    </ParamField>
+
+    <ParamField body="sequential_image_generation_options" type="object">
+      Group options, e.g. `{"max_images": 4}` (range 1-15)
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference images (4.0) | 2-10, combined with final output ≤15 |
+| Reference images (4.5 / 5.0-lite) | Up to 14 |
+| Single image size | ≤ 30MB, supports JPG/PNG/WEBP |
+| Output resolution | See each tab (up to 4K) |
+| Output file | JPG (default) / PNG (5.0-lite optional), URL valid for 24 hours |
+
+## Related Docs
+
+- [Task System](/en/docs/task-system) — Task state machine / polling cadence / async push
+- [Request & Response](/en/docs/request-response) — Common error codes / Headers / rate limits
+- [Authentication](/en/docs/authentication) — API Key application and usage

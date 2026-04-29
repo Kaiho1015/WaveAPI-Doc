@@ -1,0 +1,49 @@
+---
+title: "Models"
+description: "Browse available models and pricing"
+---
+
+## List Available Models
+
+```bash
+curl https://www.qingbo.dev/v1/models \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Retrieve a Single Model
+
+```bash
+curl https://www.qingbo.dev/v1/models/{model_name} \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Billing Types
+
+| Type | Description | Used For |
+|------|-------------|----------|
+| Token-based | Per input/output token | Text generation, embeddings |
+| Per-request | Fixed cost per request | Specialized endpoints |
+| Image | By count and resolution | Image generation |
+| Video | By duration and resolution | Video generation |
+| Audio | By audio duration | TTS, STT |
+
+## Supported Model Categories
+
+<CardGroup cols={2}>
+  <Card title="Text Generation" icon="comments" href="/en/api-reference/text/general-chat">
+    GPT, Claude, Gemini, DeepSeek, GLM, Kimi, and other leading LLMs
+  </Card>
+  <Card title="Image Generation" icon="image" href="/en/api-reference/image/overview">
+    Gemini (Nano Banana), GPT-Image, Seedream, Imagen, Qwen Image, Wan Image, and more
+  </Card>
+  <Card title="Video Generation" icon="video" href="/en/api-reference/video/overview">
+    Veo, Seedance, Kling, Hailuo, Vidu, Wan, Skyreels, HappyHorse, and more
+  </Card>
+  <Card title="Audio Processing" icon="headphones" href="/en/api-reference/audio/tts">
+    Whisper, TTS
+  </Card>
+</CardGroup>
+
+<Tip>
+For the full model catalog and current pricing, see [Explore](https://qingbo.dev/explore).
+</Tip>

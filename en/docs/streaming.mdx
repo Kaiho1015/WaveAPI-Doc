@@ -1,0 +1,72 @@
+---
+title: "Streaming"
+description: "Receive text generation results in real time over SSE"
+---
+
+## Overview
+
+Text generation endpoints support Server-Sent Events (SSE) streaming. Set `stream: true` to receive output token by token as it's generated.
+
+## Streaming-Enabled Endpoints
+
+- `/v1/chat/completions` — OpenAI compatible
+- `/v1/messages` — Claude Messages
+- `/v1/responses` — OpenAI Responses API
+
+## Example
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://www.qingbo.dev/v1",
+    api_key="your-api-key"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "写一首短诗"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://www.qingbo.dev/v1',
+  apiKey: 'your-api-key'
+});
+
+const stream = await client.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: '写一首短诗' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}
+```
+
+</CodeGroup>
+
+## SSE Data Format
+
+Each chunk is a single `data: {json}` SSE event:
+
+```
+data: {"id":"chatcmpl-xxx","choices":[{"delta":{"content":"你"},"index":0}]}
+
+data: {"id":"chatcmpl-xxx","choices":[{"delta":{"content":"好"},"index":0}]}
+
+data: [DONE]
+```
+
+When the stream ends, you'll receive `data: [DONE]`.

@@ -1,0 +1,132 @@
+---
+title: "Image Generation Overview"
+description: "Call all image generation models through the unified /v1/tasks endpoint as async tasks"
+---
+
+QWave API supports multiple image generation models, **all called through the unified async task endpoint** `/v1/tasks`. Image generation typically completes in 1-30 seconds. After submission, you receive a `task_id` and retrieve results via polling or webhook callback.
+
+## Endpoint
+
+```
+POST https://www.qingbo.dev/v1/tasks
+```
+
+For the async flow, see [Task System](/en/docs/task-system) — Submit → Status → Result + optional webhook.
+
+## Supported Models
+
+<CardGroup cols={2}>
+  <Card title="Gemini Image" href="/en/api-reference/image/gemini">
+    Google Gemini Image — Nano Banana series (2.5 Flash / 3 Pro / 3.1 Flash) + official direct
+  </Card>
+  <Card title="GPT Image" href="/en/api-reference/image/gpt-image">
+    OpenAI GPT-Image — 1 / 1.5 / 2, multimodal generation + edit + inpainting
+  </Card>
+  <Card title="Seedream" href="/en/api-reference/image/seedream">
+    ByteDance Doubao Seedream — 4.0 / 4.5 / 5.0-lite, up to 14 reference images, sequential image groups
+  </Card>
+  <Card title="Imagen" href="/en/api-reference/image/imagen">
+    Google Imagen 4.0 — flagship text-to-image, native 2K, strong CN/EN text rendering
+  </Card>
+  <Card title="Qwen Image" href="/en/api-reference/image/qwen-image">
+    Alibaba Tongyi Qwen Image 2.0 / Pro, 1K/2K, strong text rendering
+  </Card>
+  <Card title="Wan Image" href="/en/api-reference/image/wan-image">
+    Alibaba Tongyi Wan 2.7 — 6 actions, image groups / bbox selection / color themes
+  </Card>
+  <Card title="Z-Image" href="/en/api-reference/image/z-image">
+    Zhipu Z.ai Z-Image-Turbo — lightweight and fast, bilingual CN/EN
+  </Card>
+</CardGroup>
+
+## Common Parameters (shared across models)
+
+> Actual support varies per model — **see each vendor doc for details**.
+
+<ParamField body="model" type="string" required>
+  Model ID (group_name); pick one from the vendor docs above
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. Allowed values depend on the model. Common ones:
+  - `generate` — text-to-image (default)
+  - `image2image` — image-to-image (requires `image_urls`)
+  - `edit` — image editing (inpainting / lighting changes)
+  - `reference` — multi-image reference fusion
+  - `inpaint` — inpainting (requires `mask_url`, GPT-Image series)
+  - `group` — sequential image group (a thematically related set)
+  - `interactive_edit` — interactive editing with bbox selection (Wan Image only)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description text; supports both Chinese and English
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate (some vendors cap per-call count)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed; `-1` means random. A fixed value reproduces similar results.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string">
+  Aspect ratio, e.g. `16:9` / `9:16` / `1:1`. Some vendors support `auto` (smart selection).
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  Output resolution, e.g. `1K` / `2K` / `4K`. Supported range varies per vendor.
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array (for image-to-image / multi-image reference)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Task System](/en/docs/task-system#webhook).
+</ParamField>
+
+## Submit Response Example
+
+```json
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "doubao-seedream-4.5",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+
+After receiving the `task_id`, call [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status) to poll until `status = completed`, then read the image URLs.
+
+## Mode Quick Reference
+
+| Mode | Trigger Fields | Typical Vendors |
+|---|---|---|
+| **Text-to-image (T2I)** | `prompt` only | All |
+| **Image-to-image / multi-image reference** | `+ image_urls` (single or multiple) | Seedream / Gemini / GPT-Image / Wan / Qwen |
+| **Image editing (inpainting / lighting changes)** | `+ image_urls + action: edit` | Seedream 4.0/4.5 / Gemini / GPT-Image / Wan |
+| **Inpainting (with mask)** | `+ image_urls + mask_url + action: inpaint` | GPT-Image series |
+| **Sequential image group (thematic set)** | `sequential_image_generation: auto` or `enable_sequential: true` | Seedream / Wan |
+| **Interactive editing (bbox selection)** | `+ image_urls + bbox_list` | Wan Image |
+| **Search-augmented generation** | `google_search: true` or `google_image_search: true` | Gemini 3.1 Flash |
+
+<Note>
+Not every model supports every mode — check each vendor doc for the actual `action` list and field range. The backend validates request fields against the vendor's declared capabilities and rejects out-of-range requests.
+</Note>
+
+## Field Naming Conventions
+
+- **Media references are always plural** — always `image_urls`, even for a single image use a one-element array `["one.jpg"]`
+- **Aspect ratio is unified as** `aspect_ratio` — vendor internals using `size` / `ratio` are implementation details you don't need to track
+- **Resolution is unified as** `resolution` — vendor internals using `quality` are implementation details
+- **Mask field** `mask_url` (used for GPT-Image series inpainting)
+
+## Related
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / webhook
+- [Request & Response](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key application and usage
+- [Models](/en/docs/models) — full model lookup endpoint

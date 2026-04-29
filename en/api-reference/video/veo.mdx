@@ -1,0 +1,359 @@
+---
+title: "Veo Series"
+description: "Google Veo 3.1 — official direct Fast / Quality tiers, reverse-engineered Lite / Quality tiers, native audio, first/last frame, Remix"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Google Veo 3.1 video generation, available through both **official direct** and **reverse-engineered** channels, with **4 variants** in total.
+
+- **Official tiers** (Vertex AI direct): billed **per second**; supports 4 / 6 / 8 second durations and 720P / 1080P / 4K resolutions.
+- **Reverse-engineered tiers**: billed **per call** (fixed price per call); only **8-second** fixed duration.
+
+| Variant | Channel | Billing | Positioning |
+|---|---|---|---|
+| `veo3.1-quality-official` | Official direct | Per-second | Flagship tier, final-delivery quality |
+| `veo3.1-fast-official` | Official direct | Per-second | Fast tier, suited for iteration drafts |
+| `veo3.1-quality` | Reverse-engineered | Per-call | Reverse-engineered flagship, fixed 8 sec |
+| `veo3.1-lite` | Reverse-engineered | Per-call | Reverse-engineered lightweight, fixed 8 sec |
+
+Both channels natively support audio, first/last-frame keyframes, and Remix continuation.
+
+## Pricing
+
+<Note>
+**4K resolution does not support muted output** — you must set `generate_audio=true` (720p / 1080p can be either muted or with audio). In the table below, `720p_sound` / `1080p_sound` are the audio-on premium tiers, and `4k_sound` is the only available 4K tier.
+</Note>
+
+### Official Tiers (per-second)
+
+720P and 1080P share the same price (Google's official tiered pricing); enabling `generate_audio=true` **doubles** the unit price.
+
+#### `veo3.1-fast-official`
+
+| Spec | Unit price (per sec) | 8-second video |
+|---|---|---|
+| 720P muted | `$0.08` | `$0.64` |
+| 1080P muted | `$0.08` | `$0.64` |
+| 720P + audio | `$0.12` | `$0.96` |
+| 1080P + audio | `$0.12` | `$0.96` |
+| 4K + audio | `$0.28` | `$2.24` |
+
+#### `veo3.1-quality-official`
+
+| Spec | Unit price (per sec) | 8-second video |
+|---|---|---|
+| 720P muted | `$0.16` | `$1.28` |
+| 1080P muted | `$0.16` | `$1.28` |
+| 720P + audio | `$0.32` | `$2.56` |
+| 1080P + audio | `$0.32` | `$2.56` |
+| 4K + audio | `$0.48` | `$3.84` |
+
+### Reverse-Engineered Tiers (per-call)
+
+Reverse-engineered tiers use a **fixed per-call price** independent of duration, resolution, or audio (only 8 seconds is supported). Refer to the admin panel / console for the published price.
+
+| Model ID | Billing | Duration | Per-call price |
+|---|---|---|---|
+| `veo3.1-quality` | Per-call | 8 seconds (fixed) | TBD (see console) |
+| `veo3.1-lite` | Per-call | 8 seconds (fixed) | TBD (see console) |
+
+## Request Examples
+
+<CodeGroup>
+
+```bash Text-to-video (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3.1-fast-official",
+    "prompt": "Neon-lit street on a rainy night, a red sports car drives through a puddle, cinematic slow motion",
+    "duration": 8,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image-to-video (I2V first frame)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3.1-quality-official",
+    "action": "image2video",
+    "prompt": "The person slowly looks up and smiles, hair blown by the wind",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 6,
+    "resolution": "1080p",
+    "resize_mode": "pad"
+  }'
+```
+
+```bash With native audio (generate_audio=true)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3.1-quality-official",
+    "prompt": "Waves crashing on rocks, seagulls calling, a distant ship horn",
+    "duration": 8,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "generate_audio": true
+  }'
+```
+
+```bash Remix continuation
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3.1-fast-official",
+    "action": "remix",
+    "prompt": "Camera continues to push in, the figure turns and walks away",
+    "first_frame_image": "https://cdn.example.com/last-frame.jpg",
+    "duration": 4,
+    "resolution": "1080p",
+    "raw": true
+  }'
+```
+
+```bash Reverse-engineered tier (fixed 8 sec)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo3.1-quality",
+    "prompt": "A seaside town at sunset, doves flying past the bell tower",
+    "duration": 8,
+    "aspect_ratio": "16:9"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submit success
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo3.1-quality-official",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Channel | Variant | Billing | Duration | Resolution |
+|---|---|---|---|---|---|
+| `veo3.1-quality-official` | Official direct | Quality flagship | Per-second | 4 / 6 / 8 sec | 720P / 1080P / 4K |
+| `veo3.1-fast-official` | Official direct | Fast tier | Per-second | 4 / 6 / 8 sec | 720P / 1080P / 4K |
+| `veo3.1-quality` | Reverse-engineered | Quality flagship variant | Per-call | 8 sec (fixed) | 720P / 1080P |
+| `veo3.1-lite` | Reverse-engineered | Lite lightweight variant | Per-call | 8 sec (fixed) | 720P / 1080P |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID — one of `veo3.1-quality-official` / `veo3.1-fast-official` / `veo3.1-quality` / `veo3.1-lite`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type, valid values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video (I2V); requires `first_frame_image`
+  - `first_last_frame` — first/last-frame keyframes; requires both `first_frame_image` and `last_frame_image`
+  - `remix` — continuation based on an existing clip
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text; required for all actions
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio, valid values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1080p">
+  Output resolution, valid values:
+  - `720p`
+  - `1080p`
+  - `4k` — **official tiers only**, and **must** have `generate_audio=true` (4K does not support muted output)
+</ParamField>
+
+<ParamField body="duration" type="integer" default="8">
+  Video duration in seconds:
+  - **Official tiers**: `4` / `6` / `8`
+  - **Reverse-engineered tiers**: `8` only (fixed)
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Generic image-reference array (in some scenarios equivalent to `first_frame_image`)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  First-frame image URL. Required for `image2video` / `first_last_frame` / `remix` modes
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  Last-frame image URL — **required only in `first_last_frame` mode**
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Subscribed callback event types; defaults to terminal states (`completed` / `failed`)
+</ParamField>
+
+## Model-Specific Parameters
+
+<Note>
+**All four variants share the same parameters**; only the channel, billing model, and available duration / resolution differ. Tab order is Quality before Fast / Lite, and official before reverse-engineered.
+</Note>
+
+<Tabs>
+  <Tab title="veo3.1-quality-official">
+    <ParamField body="generate_audio" type="boolean" default="false">
+      Whether to generate the audio track. When enabled, unit price doubles; **4K must** be `true`
+    </ParamField>
+
+    <ParamField body="sample_count" type="integer" default="1">
+      Number of samples to generate; range 1-4
+    </ParamField>
+
+    <ParamField body="resize_mode" type="string" default="pad">
+      Image resize strategy for image-to-video, valid values:
+      - `pad` — edge padding, preserves the entire frame
+      - `crop` — center crop, fits the output ratio
+    </ParamField>
+
+    <ParamField body="enhance_prompt" type="boolean" default="true">
+      Upstream prompt enhancement; **must be `true`** (forced on by Vertex AI)
+    </ParamField>
+
+    <ParamField body="person_generation" type="string" default="allow_adult">
+      Person-generation policy, valid values:
+      - `allow_adult` — allow generating adult persons
+      - `disallow` — disallow generating persons
+    </ParamField>
+
+    <ParamField body="raw" type="boolean" default="false">
+      Remix-mode only; when `true`, returns only the extension, not concatenated with the original clip
+    </ParamField>
+  </Tab>
+
+  <Tab title="veo3.1-fast-official">
+    <ParamField body="generate_audio" type="boolean" default="false">
+      Whether to generate the audio track. When enabled, unit price doubles; **4K must** be `true`
+    </ParamField>
+
+    <ParamField body="sample_count" type="integer" default="1">
+      Number of samples to generate; range 1-4
+    </ParamField>
+
+    <ParamField body="resize_mode" type="string" default="pad">
+      Image resize strategy for image-to-video, valid values:
+      - `pad` — edge padding, preserves the entire frame
+      - `crop` — center crop, fits the output ratio
+    </ParamField>
+
+    <ParamField body="enhance_prompt" type="boolean" default="true">
+      Upstream prompt enhancement; **must be `true`** (forced on by Vertex AI)
+    </ParamField>
+
+    <ParamField body="person_generation" type="string" default="allow_adult">
+      Person-generation policy, valid values:
+      - `allow_adult` — allow generating adult persons
+      - `disallow` — disallow generating persons
+    </ParamField>
+
+    <ParamField body="raw" type="boolean" default="false">
+      Remix-mode only; when `true`, returns only the extension, not concatenated with the original clip
+    </ParamField>
+  </Tab>
+
+  <Tab title="veo3.1-quality (reverse)">
+    <ParamField body="generate_audio" type="boolean" default="false">
+      Whether to generate the audio track
+    </ParamField>
+
+    <ParamField body="sample_count" type="integer" default="1">
+      Number of samples to generate; range 1-4
+    </ParamField>
+
+    <ParamField body="resize_mode" type="string" default="pad">
+      Image resize strategy for image-to-video, valid values:
+      - `pad` — edge padding, preserves the entire frame
+      - `crop` — center crop, fits the output ratio
+    </ParamField>
+
+    <ParamField body="person_generation" type="string" default="allow_adult">
+      Person-generation policy, valid values:
+      - `allow_adult` — allow generating adult persons
+      - `disallow` — disallow generating persons
+    </ParamField>
+
+    <ParamField body="raw" type="boolean" default="false">
+      Remix-mode only; when `true`, returns only the extension, not concatenated with the original clip
+    </ParamField>
+
+    <Note>
+    Reverse-engineered tiers are **billed per call**; `duration` only accepts `8`, and `resolution` does not support `4k`.
+    </Note>
+  </Tab>
+
+  <Tab title="veo3.1-lite (reverse)">
+    <ParamField body="generate_audio" type="boolean" default="false">
+      Whether to generate the audio track
+    </ParamField>
+
+    <ParamField body="sample_count" type="integer" default="1">
+      Number of samples to generate; range 1-4
+    </ParamField>
+
+    <ParamField body="resize_mode" type="string" default="pad">
+      Image resize strategy for image-to-video, valid values:
+      - `pad` — edge padding, preserves the entire frame
+      - `crop` — center crop, fits the output ratio
+    </ParamField>
+
+    <ParamField body="person_generation" type="string" default="allow_adult">
+      Person-generation policy, valid values:
+      - `allow_adult` — allow generating adult persons
+      - `disallow` — disallow generating persons
+    </ParamField>
+
+    <ParamField body="raw" type="boolean" default="false">
+      Remix-mode only; when `true`, returns only the extension, not concatenated with the original clip
+    </ParamField>
+
+    <Note>
+    Reverse-engineered tiers are **billed per call**; `duration` only accepts `8`, and `resolution` does not support `4k`.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference image | JPG / PNG / WEBP, ≤ 20MB each, 720P or higher recommended |
+| Output video | MP4, link valid for 24 hours |
+| Duration | Official tiers 4 / 6 / 8 sec; reverse-engineered tiers fixed 8 sec only |
+| Resolution | 720P / 1080P freely; **4K only on official tiers** and requires `generate_audio=true` |
+| Audio | Natively generated, no extra TTS needed; 4K must include audio, 720P / 1080P optional |
+| Persons | Constrained by `person_generation`; non-compliant content is blocked upstream |
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request and Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key application and usage

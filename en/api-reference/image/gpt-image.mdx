@@ -1,0 +1,324 @@
+---
+title: "GPT-Image Series"
+description: "OpenAI GPT-Image generation — multi-generation lineup, multi-ratio multi-resolution, reference images and mask inpainting"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+OpenAI's GPT-Image generation models, **across three generations**:
+
+- **GPT-Image-2** — flagship new release, expanded to 13 ratios × 1K/2K/4K resolution tiers with independent billing, up to 16 reference images, with transparent background and mask inpainting support
+- **GPT-Image-1.5 Official** — upgraded GPT-Image-1 with significantly improved visual quality and instruction following
+- **GPT-Image-1 Official** — multimodal generation model integrating text and image understanding, suited for high-quality generation and editing
+
+Per-image billing. Supports text-to-image / image-to-image / editing / mask inpainting / multi-image reference.
+
+## Pricing
+
+| Model | Price (per image) |
+|---|---|
+| `gpt-image-2` | `$0.006375` |
+| `gpt-image-1.5-official` | `$0.09044` |
+| `gpt-image-1-official` | `$0.11356` |
+
+## Mode Quick Reference
+
+| Mode | Trigger Fields | Supported Versions |
+|---|---|---|
+| **Text-to-image** | `prompt` only, `action: "generate"` (default) | All |
+| **Image-to-image** | `+ image_urls` + `action: "image2image"` | All |
+| **Image editing** | `+ image_urls` + `action: "edit"` | All |
+| **Multi-image reference** | `+ image_urls` (multiple) + `action: "reference"` | All (up to 16) |
+| **Inpainting (mask)** | `+ image_urls` + `mask_url` + `action: "inpaint"` | All |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-image (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "未来主义城市夜景,霓虹灯映在湿润街面,电影感构图",
+    "aspect_ratio": "16:9",
+    "resolution": "2k"
+  }'
+```
+
+```bash Image editing
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "action": "edit",
+    "prompt": "把背景换成黄昏天空,人物保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }'
+```
+
+```bash Inpainting (mask)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "action": "inpaint",
+    "prompt": "把遮罩区域替换为蓝色花朵",
+    "image_urls": ["https://cdn.example.com/scene.jpg"],
+    "mask_url": "https://cdn.example.com/mask.png",
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }'
+```
+
+```bash Transparent background
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "悬浮的水晶球,产品级摄影,无背景",
+    "background": "transparent",
+    "output_format": "png",
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submitted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "gpt-image-2",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submitting, poll task status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `gpt-image-2` | Flagship new release, 13 ratios × 1K/2K/4K, up to 16 reference images |
+| `gpt-image-1.5-official` | Upgraded GPT-Image-1 with significantly improved visual quality and instruction following |
+| `gpt-image-1-official` | Multimodal text + image understanding, suited for high-quality generation and editing |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Pick one from the [Available Models](#available-models) list
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type, allowed values:
+  - `generate` — text-to-image (default)
+  - `image2image` — image-to-image (requires `image_urls`)
+  - `edit` — image editing
+  - `reference` — multi-image reference fusion
+  - `inpaint` — inpainting (requires `mask_url`)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description text; supports both Chinese and English
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate (multiple per call)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed; `-1` means random. A fixed value reproduces similar results.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio. **Values depend on the model**:
+  - GPT-Image-2: `auto` / `1:1` / `3:2` / `2:3` / `4:3` / `3:4` / `5:4` / `4:5` / `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21` (14 total)
+  - GPT-Image-1.5 / 1 official: `1:1` / `3:2` / `2:3` (3 only)
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  Output resolution. **GPT-Image-2 only accepts an explicit value**:
+  - `1k` — 1K tier
+  - `2k` — 2K tier
+  - `4k` — 4K tier (only 6 ratios available: `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21`)
+
+  GPT-Image-1.5 / 1 official does not accept this field and uses the model default.
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array, **up to 16**; base64 inline upload also supported
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook).
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Callback event filter, e.g. `["completed", "failed"]`
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="GPT-Image-2">
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `inpaint`
+
+    **aspect_ratio** (14): `auto` / `1:1` / `3:2` / `2:3` / `4:3` / `3:4` / `5:4` / `4:5` / `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21`
+
+    **resolution**: `1k` / `2k` / `4k` (4K limited to `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21`)
+
+    **Highlights**: 13 ratios × three resolution tiers with independent billing, up to 16 reference images (URL / base64), OpenAI per-image pixel ceiling of 8.29M.
+
+    <ParamField body="quality" type="string" default="auto">
+      Generation quality, allowed values:
+      - `auto` — automatic (default)
+      - `low` — low quality
+      - `medium` — medium quality
+      - `high` — high quality
+    </ParamField>
+
+    <ParamField body="background" type="string" default="auto">
+      Background handling, allowed values:
+      - `auto` — automatic (default)
+      - `opaque` — opaque
+      - `transparent` — transparent background (not supported on the official channel)
+    </ParamField>
+
+    <ParamField body="mask_url" type="string">
+      Mask image URL for inpainting (used with `action: "inpaint"`)
+    </ParamField>
+
+    <ParamField body="moderation" type="string" default="auto">
+      Content moderation level, allowed values:
+      - `auto` — automatic (default)
+      - `low` — low restriction
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="png">
+      Output format, allowed values:
+      - `png` — default
+      - `jpeg`
+      - `webp`
+    </ParamField>
+
+    <ParamField body="output_compression" type="integer">
+      Output compression rate, range 0-100. **Effective only for `jpeg` / `webp`**.
+    </ParamField>
+
+    <ParamField body="style" type="string">
+      Style preset
+    </ParamField>
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      Switch to the `gpt-image-2-official` channel
+    </ParamField>
+  </Tab>
+
+  <Tab title="GPT-Image-1.5 Official">
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `inpaint`
+
+    **aspect_ratio** (3): `1:1` / `3:2` / `2:3`
+
+    **resolution**: not accepted (uses default)
+
+    **Highlights**: Upgraded GPT-Image-1 with significantly improved visual quality and instruction following. Already on the official channel; no fallback toggle.
+
+    <ParamField body="quality" type="string" default="auto">
+      Generation quality, allowed values: `auto` / `low` / `medium` / `high`
+    </ParamField>
+
+    <ParamField body="background" type="string" default="auto">
+      Background handling, allowed values: `auto` / `opaque` / `transparent` (the official channel does not support `transparent`)
+    </ParamField>
+
+    <ParamField body="mask_url" type="string">
+      Mask image URL for inpainting (used with `action: "inpaint"`)
+    </ParamField>
+
+    <ParamField body="moderation" type="string" default="auto">
+      Content moderation level, allowed values: `auto` / `low`
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="png">
+      Output format, allowed values:
+      - `png` — default
+      - `jpeg`
+    </ParamField>
+
+    <ParamField body="output_compression" type="integer">
+      Output compression rate, range 0-100. **Effective only for `jpeg`**.
+    </ParamField>
+
+    <ParamField body="style" type="string">
+      Style preset
+    </ParamField>
+  </Tab>
+
+  <Tab title="GPT-Image-1 Official">
+    **Supported actions**: `generate` / `image2image` / `edit` / `reference` / `inpaint`
+
+    **aspect_ratio** (3): `1:1` / `3:2` / `2:3`
+
+    **resolution**: not accepted (uses default)
+
+    **Highlights**: Multimodal generation model integrating text and image understanding, suited for high-quality generation and editing.
+
+    <ParamField body="quality" type="string" default="auto">
+      Generation quality, allowed values: `auto` / `low` / `medium` / `high`
+    </ParamField>
+
+    <ParamField body="background" type="string" default="auto">
+      Background handling, allowed values: `auto` / `opaque` / `transparent` (the official channel does not support `transparent`)
+    </ParamField>
+
+    <ParamField body="mask_url" type="string">
+      Mask image URL for inpainting (used with `action: "inpaint"`)
+    </ParamField>
+
+    <ParamField body="moderation" type="string" default="auto">
+      Content moderation level, allowed values: `auto` / `low`
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="png">
+      Output format, allowed values:
+      - `png` — default
+      - `jpeg`
+    </ParamField>
+
+    <ParamField body="output_compression" type="integer">
+      Output compression rate, range 0-100. **Effective only for `jpeg`**.
+    </ParamField>
+
+    <ParamField body="style" type="string">
+      Style preset
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference image count | Up to 16 (URL or base64) |
+| Per-image pixel ceiling | 8.29M pixels (OpenAI's official limit) |
+| Per-image size | ≤ 30MB; supports JPG/PNG/WEBP |
+| Output resolution | GPT-Image-2 up to 4K (select ratios); others use default |
+| Output file | PNG (default) / JPEG / WEBP (GPT-Image-2 only); URLs valid for 24 hours |
+| Transparent background | `background: transparent` only supported on non-official channels |
+
+## Related
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key application and usage

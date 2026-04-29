@@ -1,0 +1,197 @@
+---
+title: "Qwen Image Series"
+description: "Alibaba Tongyi Qianwen image — generation / editing / multi-image reference unified, 2K high-fidelity output"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Alibaba Tongyi Qianwen image series, with **two tiers**:
+
+- **2.0 Pro** — Flagship highest-fidelity tier. Native 2K, strong detail, accurate composition, professional-grade text rendering. Suited for infographics, posters, and marketing assets
+- **2.0** — Standard version. Combined generation and editing, supports very long prompts, 2K high-quality output. Suited for use cases needing clear text and professional design aesthetics
+
+Per-image pricing, unified interface supporting text-to-image / image-to-image / multi-image reference.
+
+## Pricing
+
+| Model | Price (per image) |
+|---|---|
+| `qwen-image-2.0-pro` | `$0.053125` |
+| `qwen-image-2.0` | `$0.02125` |
+
+## Mode Quick Reference
+
+| Mode | Trigger Field | Supported Versions |
+|---|---|---|
+| **Text-to-image** | `prompt` only | All |
+| **Image-to-image** | `+ image_urls` (single) + `action: "image2image"` | All |
+| **Multi-image reference fusion** | `+ image_urls` (multiple) + `action: "reference"` | All |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-image (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen-image-2.0-pro",
+    "prompt": "Chinese-style poster: ink-wash landscape background, vertical title \"千问\" centered, gold-foil accents, professional typography",
+    "resolution": "2K",
+    "aspect_ratio": "3:4"
+  }'
+```
+
+```bash Image-to-image
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen-image-2.0",
+    "action": "image2image",
+    "prompt": "Convert this photo to cyberpunk style, preserve facial features",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "resolution": "2K",
+    "aspect_ratio": "9:16"
+  }'
+```
+
+```bash Multi-image reference fusion
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen-image-2.0-pro",
+    "action": "reference",
+    "prompt": "Dress the character from the first image in the outfit from the second, place them in the scene from the third",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/outfit.jpg",
+      "https://cdn.example.com/scene.jpg"
+    ],
+    "resolution": "2K",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission successful
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "qwen-image-2.0-pro",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `qwen-image-2.0-pro` | Flagship, native 2K, strong detail, accurate composition, professional-grade text rendering |
+| `qwen-image-2.0` | Standard, combined generation + editing, very long prompts, 2K high-quality output |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Choose one from the [Available Models](#available-models) list
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. Options:
+  - `generate` — Text-to-image (default)
+  - `image2image` — Image-to-image (use with `image_urls`)
+  - `reference` — Multi-image reference fusion (use with multiple `image_urls`)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description. Supports Chinese and English. Qwen Image is friendly to very long prompts and Chinese text rendering
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate (returned in a single call)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed. `-1` for random; a fixed value reproduces similar results
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio. Options:
+  - `1:1` — Square
+  - `4:3` / `3:4` — Standard landscape / portrait
+  - `16:9` / `9:16` — Widescreen landscape / portrait
+  - `3:2` / `2:3` — Camera ratio landscape / portrait
+</ParamField>
+
+<ParamField body="resolution" type="string" default="2K">
+  Output resolution. Options:
+  - `1K` — Standard resolution
+  - `2K` — High resolution (default)
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Array of reference / input image URLs. **Only publicly accessible URLs are supported; base64 is not accepted**
+  - `image2image` mode: 1 image
+  - `reference` mode: multiple images
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Subscribed callback event types. Defaults to terminal states (`succeeded` / `failed`)
+</ParamField>
+
+## Model-Specific Parameters
+
+<Tabs>
+  <Tab title="Qwen Image 2.0 Pro">
+    **Supported actions**: `generate` / `image2image` / `reference`
+
+    **resolution**: `1K` / `2K`
+
+    **aspect_ratio**: `1:1` / `4:3` / `3:4` / `16:9` / `9:16` / `3:2` / `2:3`
+
+    **Key features**: Flagship highest-fidelity tier. Native 2K, strong detail, accurate composition, professional-grade text rendering. Suited for infographics, posters, and marketing assets
+
+    No model-specific parameters; all tunable fields are listed under [Common Parameters](#common-parameters).
+  </Tab>
+
+  <Tab title="Qwen Image 2.0">
+    **Supported actions**: `generate` / `image2image` / `reference`
+
+    **resolution**: `1K` / `2K`
+
+    **aspect_ratio**: `1:1` / `4:3` / `3:4` / `16:9` / `9:16` / `3:2` / `2:3`
+
+    **Key features**: Standard version. Combined generation and editing, supports very long prompts, 2K high-quality output. Suited for use cases needing clear text and professional design aesthetics
+
+    No model-specific parameters; all tunable fields are listed under [Common Parameters](#common-parameters).
+  </Tab>
+</Tabs>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| `prompt` length | ≤ 800 characters |
+| `negative_prompt` length | ≤ 500 characters |
+| Reference image source | **Must be a publicly accessible URL; base64 upload not supported** |
+| Single reference image size | ≤ 30MB, supports JPG / PNG / WEBP |
+| Output resolution | `1K` / `2K` |
+| Output file | URL valid for 24 hours |
+
+## Related Docs
+
+- [Task System](/en/docs/task-system) — Task state machine / polling cadence / async push
+- [Request & Response](/en/docs/request-response) — Common error codes / Headers / rate limits
+- [Authentication](/en/docs/authentication) — API Key application and usage

@@ -1,0 +1,237 @@
+---
+title: "Hailuo Series"
+description: "MiniMax Hailuo video — Hailuo 2.3 / 2.3 Fast, with 15 bracketed camera-movement tags"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+MiniMax Hailuo video generation series.
+
+**Two tiers** — `minimax-hailuo-2.3` (the 2.3 main release, adds 15 camera-movement tags) and `minimax-hailuo-2.3-fast` (the 2.3 accelerated tier, faster and cheaper, ideal for previews / batch).
+
+Supports text-to-video (T2V) and image-to-video (I2V).
+
+## Pricing
+
+Billed by **resolution × duration**, in `$ / second`.
+
+| Model | 768P | 1080P |
+|---|---|---|
+| `minimax-hailuo-2.3` | `$0.05185` | `$0.0765` |
+| `minimax-hailuo-2.3-fast` | `$0.02635` | `$0.04505` |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-video (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "minimax-hailuo-2.3",
+    "prompt": "A Shiba Inu in a spacesuit walking on the moon, cinematic lighting",
+    "duration": 6,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image-to-video (I2V first frame)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "minimax-hailuo-2.3",
+    "action": "image2video",
+    "prompt": "The character walks slowly toward the camera",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```bash 2.3 with camera-movement tags
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "minimax-hailuo-2.3",
+    "prompt": "[推进] An ancient temple shrouded in mountain mist, [变焦推近] the bronze bell under the eaves swaying gently in the wind",
+    "camera_movement_tags": ["推进", "变焦推近"],
+    "duration": 6,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "prompt_optimizer": true
+  }'
+```
+
+```bash Accelerated tier (2.3-fast)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "minimax-hailuo-2.3-fast",
+    "prompt": "City night scene, neon lights flickering along the street",
+    "duration": 6,
+    "resolution": "768p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission accepted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "minimax-hailuo-2.3",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status); see [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Resolution | Duration (sec) | Actions | Notes |
+|---|---|---|---|---|
+| `minimax-hailuo-2.3` | 768p / 1080p | 6 / 10 | generate / image2video | 1080p only at 6 sec; 15 camera-movement tags; prompt ≤ 2000 chars |
+| `minimax-hailuo-2.3-fast` | 768p / 1080p | 6 / 10 | generate / image2video | Accelerated tier, lower unit price |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID. Allowed values:
+  - `minimax-hailuo-2.3`
+  - `minimax-hailuo-2.3-fast`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type, usually no need to set explicitly (the backend auto-routes by media fields). Allowed values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video (I2V); pair with `image_urls`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text, up to **2000 characters**. Embed `[tag]` brackets in the text to trigger the corresponding camera movement (see [Camera-movement tags](#camera-movement-tags-2-3-2-3-fast) below)
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio. Allowed values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait
+  - `1:1` — square
+</ParamField>
+
+<ParamField body="resolution" type="string" default="768p">
+  Output resolution; see [Available Models](#available-models) for per-model support. Allowed values:
+  - `768p`
+  - `1080p`
+</ParamField>
+
+<ParamField body="duration" type="integer">
+  Video duration in seconds. Allowed: `6` / `10` (1080p only at 6)
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array; triggers **I2V** mode. Public URL or Base64
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Subscribed callback event types; defaults to all terminal events
+</ParamField>
+
+## Model-specific Parameters
+
+<Tabs>
+
+<Tab title="minimax-hailuo-2.3">
+
+<ParamField body="watermark" type="boolean" default="false">
+  Whether to overlay a MiniMax watermark on the output video
+</ParamField>
+
+<ParamField body="prompt_optimizer" type="boolean" default="true">
+  Auto-optimize the prompt; when disabled, generation runs against the original `prompt`
+</ParamField>
+
+<ParamField body="fast_pretreatment" type="boolean" default="false">
+  Shortens prompt-optimization latency
+</ParamField>
+
+<ParamField body="camera_movement_tags" type="string[]">
+  Camera-movement tag list (15 total). Recommended to also embed `[tag]` brackets directly in the `prompt`; see [Camera-movement tags](#camera-movement-tags-2-3-2-3-fast) below
+</ParamField>
+
+</Tab>
+
+<Tab title="minimax-hailuo-2.3-fast">
+
+<ParamField body="watermark" type="boolean" default="false">
+  Whether to overlay a MiniMax watermark on the output video
+</ParamField>
+
+<ParamField body="prompt_optimizer" type="boolean" default="true">
+  Auto-optimize the prompt
+</ParamField>
+
+<ParamField body="fast_pretreatment" type="boolean" default="false">
+  Shortens prompt-optimization latency
+</ParamField>
+
+<ParamField body="camera_movement_tags" type="string[]">
+  Camera-movement tag list (15 total), identical to 2.3
+</ParamField>
+
+</Tab>
+
+</Tabs>
+
+## Camera-movement Tags (2.3 / 2.3-fast)
+
+The signature feature of the Hailuo 2.3 series — **embed `[tag]` brackets in the `prompt`** to trigger the corresponding camera movement; multiple tags can stack in a single sentence and the backend parses them in order. You can also pass them explicitly via the `camera_movement_tags` field for higher recognition reliability.
+
+| Category | Tag | Effect |
+|---|---|---|
+| **Translation** | `[左移]` (pan-left) | Camera pans horizontally to the left |
+|  | `[右移]` (pan-right) | Camera pans horizontally to the right |
+|  | `[上升]` (boom-up) | Camera moves vertically upward |
+|  | `[下降]` (boom-down) | Camera moves vertically downward |
+| **Dolly** | `[推进]` (dolly-in) | Camera physically moves forward |
+|  | `[拉远]` (dolly-out) | Camera physically moves backward |
+| **Pan/Tilt** | `[左摇]` (pan left) | Body fixed, head pans left |
+|  | `[右摇]` (pan right) | Body fixed, head pans right |
+|  | `[上摇]` (tilt up) | Body fixed, head tilts up |
+|  | `[下摇]` (tilt down) | Body fixed, head tilts down |
+| **Zoom** | `[变焦推近]` (zoom-in) | Focal-length zoom-in (body still) |
+|  | `[变焦拉远]` (zoom-out) | Focal-length zoom-out (body still) |
+| **Special** | `[晃动]` (shake) | Handheld shake |
+|  | `[跟随]` (follow) | Follow the subject's motion |
+|  | `[固定]` (static) | Completely static camera |
+
+<Tip>
+**Example** — `"[推进] cobblestone street of an old town, [变焦推近] raindrops falling from the eaves"` — camera pushes forward first, then focuses on the eaves detail.
+</Tip>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference image (`image_urls`) | URL or Base64, JPG/PNG/WEBP |
+| Prompt length | ≤ 2000 characters |
+| Duration | 6 / 10 sec; 1080p only at 6 sec |
+| Output | MP4, link valid for 24 hours |
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key signup and usage

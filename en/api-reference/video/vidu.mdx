@@ -1,0 +1,236 @@
+---
+title: "Vidu Q3 Series"
+description: "ShengShu Vidu Q3 — reference-to-video / text-to-video / image-to-video / first-last frame / multi-image remix, smart shot transitions"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+ShengShu Vidu Q3 video generation series. **Reference-to-video (R2V)** is the flagship capability — accepts 1-7 public images as subject / style references, with the prompt focused on motion and camera while the appearance comes from the reference images. Best fit for **character consistency / style continuity / multi-shot transitions**.
+
+Four tiers:
+
+- **`viduq3-pro`** — flagship tier, **auto-routes T2V / I2V / first-last frame by `image_urls` count**, audio output enabled by default (dialog + SFX)
+- **`viduq3-mix`** — overall quality king, supports **multi-clip video / image remix** for coherent video output, joint audio generation, 720P / 1080P, ideal for short-drama re-cutting and ad creative remix
+- **`viduq3`** — standard tier, the default daily choice, smarter shot transitions, 540p / 720p / 1080p, 3-16 sec
+- **`viduq3-turbo`** — lightweight fast tier, fastest generation and lowest unit price, slightly lower quality than standard, ideal for previews / batch / A/B testing
+
+Billed by **resolution × duration**, **per-second pricing**, any integer 1-16 sec.
+
+## Pricing
+
+| Model | 540P | 720P | 1080P |
+|---|---|---|---|
+| `viduq3-pro` | `$0.0595` / sec | `$0.1275` / sec | `$0.136` / sec |
+| `viduq3-mix` | — | `$0.10625` / sec | `$0.1275` / sec |
+| `viduq3` | `$0.0425` / sec | `$0.085` / sec | `$0.10625` / sec |
+| `viduq3-turbo` | `$0.034` / sec | `$0.051` / sec | `$0.0595` / sec |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-video (Pro)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3-pro",
+    "prompt": "Sunset on the beach, a girl runs toward the setting sun with hair flowing, cinematic lighting",
+    "duration": 5,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash Image-to-video (Pro single image)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3-pro",
+    "prompt": "The character slowly turns around, camera zooms in",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```bash First/last frame (Pro two images)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3-pro",
+    "action": "first_last_frame",
+    "prompt": "Smooth transition from day to night with natural lighting changes",
+    "first_frame_image": "https://cdn.example.com/day.jpg",
+    "last_frame_image": "https://cdn.example.com/night.jpg",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```bash Multi-image reference (standard R2V)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "viduq3",
+    "action": "reference",
+    "prompt": "Keep the character look, run through the forest, camera follows",
+    "image_urls": [
+      "https://cdn.example.com/char-1.jpg",
+      "https://cdn.example.com/char-2.jpg",
+      "https://cdn.example.com/style-ref.jpg"
+    ],
+    "duration": 6,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission accepted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "viduq3-pro",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status); see [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Resolution | Duration | Supported actions | Notes |
+|---|---|---|---|---|
+| `viduq3-pro` | 540p / 720p / 1080p | 1-16 sec | generate / image2video / first_last_frame | Flagship tier, audio output |
+| `viduq3-mix` | 720P / 1080P | 1-16 sec | reference / image2video | Overall quality king, multi-asset remix |
+| `viduq3` | 540p / 720p / 1080p | 1-16 sec | reference / image2video | Standard tier, default daily choice |
+| `viduq3-turbo` | 540p / 720p / 1080p | 1-16 sec | reference / image2video | Lightweight fast tier, fastest generation, lowest price |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID; see the [Available Models](#available-models) table
+</ParamField>
+
+<ParamField body="action" type="string">
+  Operation type. Pro tier **may be omitted** (auto-routed by `image_urls` count); other tiers should specify it explicitly. Allowed values:
+  - `generate` — text-to-video (Pro only)
+  - `image2video` — image-to-video
+  - `reference` — reference-to-video (default for standard / Mix / Turbo)
+  - `first_last_frame` — first/last frame (Pro only)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Video description text. Focus on **motion / camera / atmosphere** — character appearance is determined by `image_urls`
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame aspect ratio. Allowed values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait
+  - `4:3` — landscape
+  - `3:4` — portrait
+  - `1:1` — square
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution; see [Available Models](#available-models) for per-model support
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Video duration in seconds, any integer **1-16**. Mix tier supports 1-second short videos
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URL array, **1-7 images**:
+  - Standard / Mix / Turbo: subject / style references (R2V)
+  - Pro tier: 0 = T2V / 1 = I2V / 2 = first-last frame; see [Auto-routing](#auto-routing)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  First-frame image URL, **required for Pro `first_last_frame` mode**
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  Last-frame image URL, **required for Pro `first_last_frame` mode**
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Subscribed callback events; defaults to terminal events (`succeeded` / `failed` / `cancelled`)
+</ParamField>
+
+## Model-specific Parameters
+
+<Tabs>
+  <Tab title="viduq3-pro">
+    <ParamField body="audio" type="boolean" default="true">
+      Whether to generate audio (default `true`). Pro tier enables **audio output** by default (dialog + SFX); set `false` for silent output
+    </ParamField>
+
+    Pro tier auto-routes the generation mode by `image_urls` count; see [Auto-routing](#auto-routing).
+  </Tab>
+
+  <Tab title="viduq3-mix">
+    Mix tier has no specific parameters. Note that `resolution` only supports `720P` / `1080P`, **540P is not supported**.
+
+    Mix tier enables **multi-asset joint generation** by default — pass multiple references via `image_urls` (1-7) and the system applies smart transitions, ideal for short-drama re-cutting and ad creative remix.
+  </Tab>
+
+  <Tab title="viduq3">
+    Standard tier has no specific parameters; all options live in [Common Parameters](#common-parameters).
+
+    The default daily choice, with smarter shot transitions; accepts 1-7 images as subject / style references.
+  </Tab>
+
+  <Tab title="viduq3-turbo">
+    Turbo tier has no specific parameters.
+
+    <Note>
+    This model may be unavailable in some scenarios; please contact sales if needed.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Auto-routing
+
+`viduq3-pro` auto-selects the generation mode by `image_urls` array length, so **you usually don't need to pass `action` explicitly**:
+
+| `image_urls` count | Routed mode | Equivalent `action` | Notes |
+|---|---|---|---|
+| `0` (or omitted) | **Text-to-video** | `generate` | Pure prompt-driven |
+| `1` | **Image-to-video** | `image2video` | The image serves as the starting frame |
+| `2` | **First-last frame** | `first_last_frame` | First image = first frame, second image = last frame |
+
+<Note>
+When `first_frame_image` + `last_frame_image` are passed explicitly, they take precedence and override the first-last-frame routing from `image_urls`.
+</Note>
+
+Other tiers (`viduq3` / `viduq3-mix` / `viduq3-turbo`) default to **R2V reference-to-video** mode, with `image_urls` providing 1-7 subject / style references.
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Reference images | Up to 7, each ≤ 30MB, JPG / PNG / WEBP |
+| First/last-frame images | JPG / PNG / WEBP, public download URL required |
+| Prompt length | ≤ 2000 characters recommended |
+| Video duration | Any integer 1-16 sec (Mix supports 1-second short videos) |
+| Output | MP4, link valid for 24 hours |
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key signup and usage

@@ -1,0 +1,133 @@
+---
+title: "Imagen 4.0"
+description: "Google DeepMind flagship text-to-image — native 2K output, photorealistic, accurate Chinese and English text rendering"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+**Imagen 4.0** from Google DeepMind — native 2K output, photorealistic lighting and materials, with high accuracy for Chinese and English text rendering. Suited for poster key visuals, marketing hero images, and artistic illustrations where image quality and text rendering matter.
+
+Per-image pricing, unified 2K output.
+
+## Pricing
+
+| Model | Price (per image) |
+|---|---|
+| `imagen-4.0` | `$0.0425` |
+
+## Examples
+
+<CodeGroup>
+
+```bash Text-to-image (minimal)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "imagen-4.0",
+    "prompt": "Sunrise on a mountaintop, sea of clouds rolling, distant snow peaks glowing gold, photorealistic photography style"
+  }'
+```
+
+```bash Poster scene (strong text rendering)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "imagen-4.0",
+    "prompt": "Movie poster, large title \"STARFALL\", subtitle \"Coming 2026\", starry sky background, minimal whitespace",
+    "aspect_ratio": "9:16",
+    "n": 2
+  }'
+```
+
+```bash Aspect ratio comparison (landscape)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "imagen-4.0",
+    "prompt": "Modern minimalist office, morning light through floor-to-ceiling windows, green plant accents, magazine photography style",
+    "aspect_ratio": "16:9",
+    "seed": 42
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission successful
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "imagen-4.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status). See [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `imagen-4.0` | Google DeepMind flagship text-to-image, native 2K, photorealistic, accurate Chinese and English text |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Choose one from the [Available Models](#available-models) list
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type. Imagen 4.0 supports only:
+  - `generate` — Text-to-image (default)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description. Supports Chinese and English. Imagen 4.0 excels at scene detail, lighting, and text rendering
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate (returned in a single call)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  Random seed. `-1` for random; a fixed value reproduces similar results
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio. Options:
+  - `1:1` — Square
+  - `4:3` / `3:4` — Standard landscape / portrait
+  - `16:9` / `9:16` — Widescreen landscape / portrait
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  Output resolution. Imagen 4.0 defaults to native 2K with **no resolution tiers** — leave empty
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Event types to receive callbacks for. Defaults to all terminal events
+</ParamField>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Supported action | `generate` only (text-to-image) |
+| Output resolution | Native 2K (fixed, no tier selection) |
+| Aspect ratio | `1:1` / `4:3` / `3:4` / `16:9` / `9:16` (5 options) |
+| Output file | JPG, URL valid for 24 hours |
+
+## Related Docs
+
+- [Task System](/en/docs/task-system) — Task state machine / polling cadence / async push
+- [Request & Response](/en/docs/request-response) — Common error codes / Headers / rate limits
+- [Authentication](/en/docs/authentication) — API Key application and usage

@@ -1,0 +1,38 @@
+---
+title: "Authentication & Keys"
+description: "API key management and authentication"
+---
+
+## Authentication
+
+All QWave API requests use Bearer Token authentication:
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Get an API Key
+
+<Steps>
+  <Step title="Sign up">
+    Register at the [Dashboard](https://qingbo.dev/dashboard/keys)
+  </Step>
+  <Step title="Create a key">
+    On the API keys page, click "Create new key"
+  </Step>
+  <Step title="Save your key">
+    Copy the key and store it safely — it's only shown once
+  </Step>
+</Steps>
+
+## Base URL
+
+```
+https://www.qingbo.dev/v1
+```
+
+Every endpoint lives under this base URL. If you're already using the OpenAI SDK, just replace `base_url` to switch over.
+
+<Warning>
+Never expose your API key in frontend code or public repositories.
+</Warning>

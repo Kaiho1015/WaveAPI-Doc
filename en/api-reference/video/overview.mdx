@@ -1,0 +1,150 @@
+---
+title: "Video Generation Overview"
+description: "Call all video generation models through the unified /v1/tasks endpoint, async submit, async retrieve"
+---
+
+QWave API supports many video generation models, **all called through the unified async task endpoint** `/v1/tasks`. Video generation typically takes from 10 seconds up to several minutes; after submission you receive a `task_id`, and you fetch the result via polling or a webhook callback.
+
+## Request Endpoint
+
+```
+POST https://www.qingbo.dev/v1/tasks
+```
+
+For the full async flow see [Task System](/en/docs/task-system) — Submit → Status → Result + optional webhook.
+
+## Supported Models
+
+<CardGroup cols={2}>
+  <Card title="Veo Series" href="/en/api-reference/video/veo">
+    Google Veo 3.1 — official direct (Fast / Quality) + reverse-engineered (Lite / Quality)
+  </Card>
+  <Card title="Seedance Series" href="/en/api-reference/video/seedance">
+    ByteDance Seedance — 1.0 Pro / 1.5 Pro / 2.0 (with Face / Fast variants)
+  </Card>
+  <Card title="Kling Series" href="/en/api-reference/video/kling">
+    Kuaishou Kling — v2.6 / v3 / v3-Omni / Video O1
+  </Card>
+  <Card title="Hailuo Series" href="/en/api-reference/video/hailuo">
+    MiniMax Hailuo — 2.3 / 2.3 Fast, 15 camera-movement directives
+  </Card>
+  <Card title="Vidu Series" href="/en/api-reference/video/vidu">
+    Shengshu Vidu Q3 — Pro / Mix / Q3 / Turbo
+  </Card>
+  <Card title="Wan Series" href="/en/api-reference/video/wan">
+    Alibaba Tongyi Wanxiang — 2.7 VideoEdit (video editing / style transfer)
+  </Card>
+  <Card title="Skyreels" href="/en/api-reference/video/skyreels">
+    Kunlun Wanwei SkyReels V4 — Fast / Standard, multimodal reference
+  </Card>
+  <Card title="HappyHorse" href="/en/api-reference/video/happyhorse">
+    Alibaba Cloud Bailian HappyHorse — single model auto-routes T2V/I2V/R2V/EDIT
+  </Card>
+  <Card title="Grok Imagine Video" href="/en/api-reference/video/grok-imagine-video">
+    xAI Grok Imagine 1.0 Video — 6-30 seconds, 5 aspect ratios
+  </Card>
+</CardGroup>
+
+## Common Parameters (shared across the series)
+
+> Each model's actual supported range differs — **see the individual vendor docs**.
+
+<ParamField body="model" type="string" required>
+  Model ID (group_name); pick from the vendor docs above
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  Operation type; valid values depend on the model. Common values:
+  - `generate` — text-to-video (T2V)
+  - `image2video` — image-to-video (I2V)
+  - `first_last_frame` — first/last frame
+  - `reference` / `reference_video` — reference-to-video (R2V)
+  - `edit` / `video_edit` / `style_transfer` — video editing
+  - `video_continuation` / `extend` — video continuation
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  Video description text. Required for T2V; optional as guidance for other modes
+</ParamField>
+
+<ParamField body="duration" type="integer">
+  Video duration in seconds; range depends on the model
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string">
+  Frame aspect ratio, e.g. `16:9` / `9:16` / `1:1`
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  Output resolution, e.g. `720p` / `1080p` / `4K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Array of reference image URLs (used for I2V / R2V)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  First-frame image URL (used for first/last-frame mode)
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  Last-frame image URL; must be paired with `first_frame_image`
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  Array of reference video URLs — **a single element is sufficient** (used for video continuation / R2V video reference / video editing)
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  Array of reference audio URLs — **a single element is sufficient** (used for driving audio / custom voiceover)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Task System](/en/docs/task-system#webhook)
+</ParamField>
+
+## Submit Response Example
+
+```json
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "veo3.1-quality-official",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+
+After receiving `task_id`, poll [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status) until `status = completed`, then read the video URL.
+
+## Mode Quick Reference
+
+| Mode | Trigger Fields | Typical Vendors |
+|---|---|---|
+| **Text-to-video (T2V)** | `prompt` only | All vendors that support the generate action |
+| **Image-to-video (I2V)** | `+ first_frame_image` or `image_urls` (single image) | Seedance / Kling / Hailuo / Vidu Pro / Wan / Veo / Sky / Grok |
+| **First/last frame** | `first_frame_image + last_frame_image` | Seedance Pro Quality / 1.5 / 2.0 / Kling / Veo / Vidu Pro / Sky |
+| **Reference-to-video (R2V)** | `image_urls` (multiple, 1-9 images) | Seedance / Kling Omni / Vidu / Sky / HappyHorse |
+| **Video reference (R2V video)** | `+ video_urls` (reference video) | Seedance 2.0 / Kling Omni / Sky / Wan |
+| **Video continuation** | `video_urls` (single clip) | Wan (other tiers not yet available) / Sky |
+| **Video editing (EDIT)** | `video_urls + prompt` (optionally `image_urls` as style reference) | Wan VideoEdit / HappyHorse / Sky |
+| **Audio reference** | `+ audio_urls` | HappyHorse / Wan / Sky / Seedance 2.0 |
+
+<Note>
+Not every model supports every mode — check each vendor's doc for the actual supported `action` list and field range. The backend validates whether request fields fall within the vendor's declared capabilities and returns an error if they do not.
+</Note>
+
+## Field Naming Conventions
+
+- **Media references are always plural** — always `image_urls` / `video_urls` / `audio_urls`; even a single video uses a one-element array `["one.mp4"]`
+- **Frame ratio is unified as** `aspect_ratio` — vendor-internal `size` / `ratio` etc. are implementation details and not exposed
+- **Resolution is unified as** `resolution` — vendor-internal `mode` / `quality` etc. are implementation details
+- **First/last-frame fields carry the `_image` suffix** — `first_frame_image` / `last_frame_image` (emphasizing the image resource)
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / webhook
+- [Request and Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key application and usage
+- [Model List](/en/docs/models) — full model list query endpoint

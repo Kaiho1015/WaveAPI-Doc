@@ -1,0 +1,192 @@
+---
+title: "Wan Series"
+description: "Alibaba Tongyi Wanxiang 2.7 video-edit edition — style transfer / content replacement / video rewriting"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Alibaba Tongyi Wanxiang 2.7 video-edit edition.
+
+**Purpose-built for video-rewriting workflows** — feed in a source video plus a text instruction (and up to 4 optional style reference images), get back a new video with style transfer / content replacement / full rewrite. Unlike T2V/I2V, VideoEdit requires `video_urls` and operates on "reworking an existing video".
+
+Billed by **resolution**, with linear scaling by source-video duration.
+
+<Note>
+Other tiers in the Wan 2.7 family (T2V / I2V / R2V) are not yet available; please contact sales if you need them.
+</Note>
+
+## Pricing
+
+| Resolution | Unit price |
+|---|---|
+| 720P | `$0.07055` / sec |
+| 1080P | `$0.11645` / sec |
+
+VideoEdit is billed by output-video duration; when `duration=0` follows the source video, billing is based on the source-video duration.
+
+## Examples
+
+<CodeGroup>
+
+```bash Basic video edit
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-videoedit",
+    "action": "edit",
+    "prompt": "Change the scene to a snowy day, keep the character motion",
+    "video_urls": ["https://cdn.example.com/source.mp4"],
+    "duration": 0,
+    "resolution": "1080p"
+  }'
+```
+
+```bash With style reference images
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-videoedit",
+    "action": "style_transfer",
+    "prompt": "Transfer the entire video to ink-wash painting style",
+    "video_urls": ["https://cdn.example.com/source.mp4"],
+    "image_urls": [
+      "https://cdn.example.com/style-1.jpg",
+      "https://cdn.example.com/style-2.jpg"
+    ],
+    "duration": 0,
+    "resolution": "1080p",
+    "aspect_ratio": "adaptive"
+  }'
+```
+
+```bash Audio strategy control
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-videoedit",
+    "action": "video_edit",
+    "prompt": "Replace the background with a neon-lit city street",
+    "video_urls": ["https://cdn.example.com/source.mp4"],
+    "metadata": {"audio_setting": "origin"},
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json Submission accepted
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "wan2.7-videoedit",
+  "action": "edit",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+After submission, poll status with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status); see [Task System](/en/docs/task-system) for details.
+
+## Available Models
+
+| Model ID | Description |
+|---|---|
+| `wan2.7-videoedit` | Video editing — style transfer / content replacement / full rewrite, 720P/1080P, 0-10 sec, ≤ 4 reference images |
+
+## Common Parameters
+
+<ParamField body="model" type="string" required>
+  Fixed to `wan2.7-videoedit`
+</ParamField>
+
+<ParamField body="action" type="string" default="edit">
+  Operation type. Allowed values:
+  - `edit` — video edit (default)
+  - `video_edit` — equivalent to `edit`
+  - `style_transfer` — style transfer
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Edit instruction text describing the target effect (replacement / transfer / rewrite), up to 5000 characters
+</ParamField>
+
+<ParamField body="video_urls" type="string[]" required>
+  Source video URL array (single element), **required**:
+  - Base64 not currently supported
+  - Public download URL required
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Style / content reference image URL array, **up to 4**
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="adaptive">
+  Frame aspect ratio. Allowed values:
+  - `16:9` — landscape widescreen
+  - `9:16` — portrait
+  - `1:1` — square
+  - `4:3` — landscape
+  - `3:4` — portrait
+  - `adaptive` — follow source-video ratio (recommended)
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution. Allowed values:
+  - `720p`
+  - `1080p`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="0">
+  Video duration in seconds, range `0-10`:
+  - `0` — follow source-video duration (recommended)
+  - `1-10` — specify output duration
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook callback URL, invoked when the task reaches a terminal state. See [Callback Mechanism](/en/docs/sync-async#async-task-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  Subscribed callback event types; defaults to terminal events
+</ParamField>
+
+## Model-specific Parameters
+
+<ParamField body="watermark" type="boolean" default="false">
+  Add an AI-generated watermark to the bottom-right corner
+</ParamField>
+
+<ParamField body="prompt_extend" type="boolean" default="true">
+  Smart prompt rewriting — the backend auto-expands the edit instruction toward the target style
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional parameter object. Commonly used `audio_setting` controls the output audio-track strategy:
+  - `auto` — auto-generate audio matching the edited video (default)
+  - `origin` — keep the source video's original audio track
+
+  Example:
+  ```json
+  {"metadata": {"audio_setting": "origin"}}
+  ```
+</ParamField>
+
+## Resource Limits
+
+| Item | Limit |
+|---|---|
+| Source video | MP4/MOV, ≤ 100MB, 2-30 sec, public download required |
+| Style reference image | Up to 4, each ≤ 30MB, JPG/PNG/WEBP |
+| Prompt | ≤ 5000 characters |
+| Output | MP4, link valid for 24 hours, please download promptly |
+
+## Related Docs
+
+- [Task System Reference](/en/docs/task-system) — task state machine / polling cadence / async push
+- [Request & Response Format](/en/docs/request-response) — common error codes / headers / rate limits
+- [Authentication](/en/docs/authentication) — API key signup and usage
