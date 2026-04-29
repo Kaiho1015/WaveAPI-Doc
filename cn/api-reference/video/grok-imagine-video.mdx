@@ -4,7 +4,7 @@ description: "xAI Grok Imagine 1.0 视频档 — 文生 / 图生,5 种比例,480
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-xAI Grok Imagine 1.0 视频生成模型,Grok 多模态家族中的视频档。本仓库通过 **APIMart 二手代理**接入。
+xAI Grok Imagine 1.0 视频生成模型,Grok 多模态家族中的视频档。
 
 字段简洁、参数门槛低,适合社交媒体短视频、快速概念演示、低成本内容生产线。
 
@@ -153,22 +153,11 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   回调事件订阅列表,默认仅终态推送
 </ParamField>
 
-## 模型特定参数
-
-<ParamField body="quality" type="string" default="480p">
-  视频质量,可选值:
-  - `480p`
-  - `720p`
-
-  与 `resolution` 含义重合,二者任传其一即可;同时传以 `quality` 为准
-</ParamField>
-
 ## 注意事项
 
 - **图生模式比例自动匹配** — 传入 `image_urls` 后,`aspect_ratio` 字段会被忽略,输出比例跟随首张参考图。
 - **duration 范围特殊** — `6-30` 秒,跟仓内多数 video model(`5/10/15` 三档)不同,业务侧表单做枚举校验时记得放开整段区间。
-- **`quality` 与 `resolution` 重合** — 两个字段映射到同一个底层档位,保留 `quality` 是为了对齐 APIMart 上游字段;新接入建议只用 `resolution` 一个,避免歧义。
-- **二手代理链路** — 走 APIMart 中转,可用性受上游 xAI / Grok 配额波动影响,建议生产环境配 `callback_url` 异步推送、不要纯轮询。
+- **可用性受上游影响** — 上游 xAI / Grok 配额可能波动,建议生产环境配 `callback_url` 异步推送、不要纯轮询。
 
 ## 资源限制
 

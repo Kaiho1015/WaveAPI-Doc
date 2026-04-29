@@ -8,18 +8,18 @@ api: "POST https://www.qingbo.dev/v1/tasks"
 
 **四代模型分工**:
 
-- **kling-v2.6** — 经典稳定版,标准模式 720P 无声 / 专业模式 1080P 可有声,语义和动态稳定性进一步打磨
-- **kling-v3** — 新一代基础模型,新增 **4K 模式**,文生时长可拓展到 **15 秒**,原生支持有声视频
+- **kling-v2.6** — 经典稳定版,720P 无声 / 1080P 可有声,语义和动态稳定性进一步打磨
+- **kling-v3** — 新一代基础模型,新增 **4K 分辨率**,文生时长可拓展到 **15 秒**,原生支持有声视频
 - **kling-v3-omni** — v3 系列**统一多模态接口**,文生 / 图生 / 视频参考全走同一 endpoint,prompt 支持 `<<<image_N>>>` 引用语法
 - **kling-video-o1** — 首款**推理增强**视频模型,生成前对提示词与参考素材深度规划,物理一致性、复杂运动、长动作语义跟随上表现最优
 
-按 **分辨率 / 模式** 计费,单位 `$/秒`。
+按 **分辨率** 计费,单位 `$/秒`,通过 `resolution` 选择 720p / 1080p / 4K。
 
 ## 定价
 
 | 模型 | 720P | 1080P | 4K | 备注 |
 |---|---|---|---|---|
-| `kling-v2.6` | `$0.0391` | `$0.06641` | — | pro 有声叠加至 `$0.159375` |
+| `kling-v2.6` | `$0.0391` | `$0.06641` | — | 1080P 有声叠加至 `$0.159375` |
 | `kling-v3` | `$0.0714` | `$0.0952` | `$0.455345` | 有声:720P `$0.1071` / 1080P `$0.1428` / 4K 同价 |
 | `kling-v3-omni` | `$0.0714` | `$0.0952` | `$0.455345` | 有声:720P `$0.0952` / 1080P `$0.119`;视频参考:720P `$0.1071` / 1080P `$0.1428` |
 | `kling-video-o1` | `$0.0714` | `$0.0952` | — | 视频参考:720P `$0.1071` / 1080P `$0.1428` |
@@ -42,7 +42,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     "duration": 5,
     "resolution": "1080p",
     "aspect_ratio": "16:9",
-    "mode": "pro",
     "audio": true
   }'
 ```
@@ -57,8 +56,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     "prompt": "人物缓缓走向镜头,微风吹动头发",
     "first_frame_image": "https://cdn.example.com/portrait.jpg",
     "duration": 5,
-    "resolution": "1080p",
-    "mode": "pro"
+    "resolution": "1080p"
   }'
 ```
 
@@ -122,10 +120,10 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 | 模型 ID | 分辨率 | 时长 | 支持 action | 特色 |
 |---|---|---|---|---|
-| `kling-v2.6` | 720P / 1080P | 5 / 10 秒 | `generate` · `image2video` · `first_last_frame` | pro 模式可有声,稳定性优 |
-| `kling-v3` | 720P / 1080P / 4K | 3-15 秒 | `generate` · `image2video` · `first_last_frame` | 4K + 原生有声 |
-| `kling-v3-omni` | 720P / 1080P / 4K | 3-15 秒 | `generate` · `image2video` · `reference` · `reference_video` | 统一多模态 endpoint |
 | `kling-video-o1` | 720P / 1080P | 5 / 10 秒 | `generate` · `image2video` · `first_last_frame` · `reference` · `reference_video` | 推理增强,物理一致性最优 |
+| `kling-v3-omni` | 720P / 1080P / 4K | 3-15 秒 | `generate` · `image2video` · `reference` · `reference_video` | 统一多模态 endpoint |
+| `kling-v3` | 720P / 1080P / 4K | 3-15 秒 | `generate` · `image2video` · `first_last_frame` | 4K + 原生有声 |
+| `kling-v2.6` | 720P / 1080P | 5 / 10 秒 | `generate` · `image2video` · `first_last_frame` | 1080P 可有声,稳定性优 |
 
 ## 通用参数
 
@@ -162,7 +160,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="resolution" type="string" default="720p">
-  输出分辨率,**与 `mode` 联动**。各模型支持范围见 [可用模型](#可用模型):
+  输出分辨率。各模型支持范围见 [可用模型](#可用模型):
   - `720p`
   - `1080p`
   - `4K`(仅 v3 / omni)
@@ -200,51 +198,20 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 <Tabs>
 
-<Tab title="kling-v2.6">
+<Tab title="kling-video-o1">
 
-<ParamField body="mode" type="string" default="std">
-  生成模式:
-  - `std` — 720P 无声(基础档)
-  - `pro` — 1080P 可有声(配合 `audio: true`)
-</ParamField>
+<ParamField body="video_list" type="object[]">
+  参考视频列表,**最多 1 段**。结构与 Omni 相同:
+  - `video_url` — 视频 URL
+  - `refer_type` — `base` / `feature`
+  - `keep_original_sound` — `yes` / `no`
 
-<ParamField body="audio" type="boolean" default="false">
-  是否自动生成音频。**仅 `mode=pro` 生效**;**与尾帧互斥**(`first_last_frame` 时不可开)
-</ParamField>
-
-<ParamField body="watermark" type="boolean" default="false">
-  是否添加水印
-</ParamField>
-
-</Tab>
-
-<Tab title="kling-v3">
-
-<ParamField body="mode" type="string" default="std">
-  生成模式:
-  - `std` — 720P
-  - `pro` — 1080P
-  - `4k` — 4K 超清
-</ParamField>
-
-<ParamField body="audio" type="boolean" default="false">
-  是否生成有声视频。各档分辨率均支持原生有声
-</ParamField>
-
-<ParamField body="watermark" type="boolean" default="false">
-  是否添加水印
+  O1 不支持 `audio` 字段;有声需求请用 v3 / omni。
 </ParamField>
 
 </Tab>
 
 <Tab title="kling-v3-omni">
-
-<ParamField body="mode" type="string" default="std">
-  生成模式:
-  - `std` — 720P
-  - `pro` — 1080P
-  - `4k` — 4K 超清
-</ParamField>
 
 <ParamField body="audio" type="boolean" default="false">
   是否生成有声视频。**与 `video_list` 互斥** — 挂视频参考时不可开
@@ -265,21 +232,26 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 </Tab>
 
-<Tab title="kling-video-o1">
+<Tab title="kling-v3">
 
-<ParamField body="mode" type="string" default="std">
-  生成模式:
-  - `std` — 720P
-  - `pro` — 1080P
+<ParamField body="audio" type="boolean" default="false">
+  是否生成有声视频。各档分辨率均支持原生有声
 </ParamField>
 
-<ParamField body="video_list" type="object[]">
-  参考视频列表,**最多 1 段**。结构与 Omni 相同:
-  - `video_url` — 视频 URL
-  - `refer_type` — `base` / `feature`
-  - `keep_original_sound` — `yes` / `no`
+<ParamField body="watermark" type="boolean" default="false">
+  是否添加水印
+</ParamField>
 
-  O1 不支持 `audio` 字段;有声需求请用 v3 / omni。
+</Tab>
+
+<Tab title="kling-v2.6">
+
+<ParamField body="audio" type="boolean" default="false">
+  是否自动生成音频。**仅 `resolution=1080p` 生效**;**与尾帧互斥**(`first_last_frame` 时不可开)
+</ParamField>
+
+<ParamField body="watermark" type="boolean" default="false">
+  是否添加水印
 </ParamField>
 
 </Tab>

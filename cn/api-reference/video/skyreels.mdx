@@ -215,7 +215,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  通用参考图片 URL 数组(简化模式),与 `ref_images` 二选一。复杂场景请用 `ref_images` 显式指定 tag / type
+  参考图片 URL 数组(简化模式),与 `ref_images` 二选一。复杂场景(需要指定 tag / type=image|grid / 绑定 audio_url)请用 `ref_images`
 </ParamField>
 
 <ParamField body="first_frame_image" type="string">
@@ -227,11 +227,11 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="video_urls" type="string[]">
-  通用视频 URL 数组(简化模式),与 `ref_videos` 二选一
+  参考视频 URL 数组(简化模式),与 `ref_videos` 二选一。复杂场景(需要指定 tag / type=reference|extend)请用 `ref_videos`
 </ParamField>
 
 <ParamField body="audio_urls" type="string[]">
-  参考音频 URL 数组,触发 **声纹同步**(`reference_audio` 模式)
+  参考音频 URL 数组(简化模式),触发 **声纹同步**(`reference_audio` 模式),与 `ref_images` 内的 `audio_url` 字段二选一。复杂场景(需要把音频绑定到具体素材项,与图片 / 风格组联动)请用 `ref_images[].audio_url`
 </ParamField>
 
 <ParamField body="callback_url" type="string">

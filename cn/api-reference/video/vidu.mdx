@@ -8,9 +8,9 @@ api: "POST https://www.qingbo.dev/v1/tasks"
 
 四档定位:
 
-- **`viduq3`** — 标准档,日常默认首选,镜头切换更聪明,540p / 720p / 1080p,3-16 秒
-- **`viduq3-mix`** — 综合画质王,支持 **多段参考视频 / 图片混剪** 生成连贯视频,带音频联合生成,720P / 1080P 双档,适合短剧分镜重组、广告素材二创
 - **`viduq3-pro`** — 旗舰档,**按 `image_urls` 数量自动路由** 文生 / 图生 / 首尾帧,默认开启音频直出(对白 + 音效)
+- **`viduq3-mix`** — 综合画质王,支持 **多段参考视频 / 图片混剪** 生成连贯视频,带音频联合生成,720P / 1080P 双档,适合短剧分镜重组、广告素材二创
+- **`viduq3`** — 标准档,日常默认首选,镜头切换更聪明,540p / 720p / 1080p,3-16 秒
 - **`viduq3-turbo`** — 轻量快速档,生成最快、单价最低,质量略低于标准档,适合预览 / 批量 / A/B 测试
 
 按 **分辨率 × 时长** 计费,**每秒单价**,1-16 秒任意整数。
@@ -19,14 +19,10 @@ api: "POST https://www.qingbo.dev/v1/tasks"
 
 | 模型 | 540P | 720P | 1080P |
 |---|---|---|---|
-| `viduq3` | `$0.0425` / 秒 | `$0.085` / 秒 | `$0.10625` / 秒 |
-| `viduq3-mix` | — | `$0.10625` / 秒 | `$0.1275` / 秒 |
 | `viduq3-pro` | `$0.0595` / 秒 | `$0.1275` / 秒 | `$0.136` / 秒 |
+| `viduq3-mix` | — | `$0.10625` / 秒 | `$0.1275` / 秒 |
+| `viduq3` | `$0.0425` / 秒 | `$0.085` / 秒 | `$0.10625` / 秒 |
 | `viduq3-turbo` | `$0.034` / 秒 | `$0.051` / 秒 | `$0.0595` / 秒 |
-
-<Note>
-`viduq3-turbo` 在 APIMart 二手聚合渠道未上架,需走 **Vidu 官方直连 channel**。
-</Note>
 
 ## 调用示例
 
@@ -113,10 +109,10 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 | 模型 ID | 分辨率 | 时长 | 支持 action | 备注 |
 |---|---|---|---|---|
-| `viduq3` | 540p / 720p / 1080p | 1-16 秒 | reference / image2video | 标准档,日常首选 |
-| `viduq3-mix` | 720P / 1080P | 1-16 秒 | reference / image2video | 综合画质王,多素材混剪 |
 | `viduq3-pro` | 540p / 720p / 1080p | 1-16 秒 | generate / image2video / first_last_frame | 旗舰档,音频直出 |
-| `viduq3-turbo` | 540p / 720p / 1080p | 1-16 秒 | reference / image2video | 轻量快速档,需直连渠道 |
+| `viduq3-mix` | 720P / 1080P | 1-16 秒 | reference / image2video | 综合画质王,多素材混剪 |
+| `viduq3` | 540p / 720p / 1080p | 1-16 秒 | reference / image2video | 标准档,日常首选 |
+| `viduq3-turbo` | 540p / 720p / 1080p | 1-16 秒 | reference / image2video | 轻量快速档,生成最快、单价最低 |
 
 ## 通用参数
 
@@ -186,18 +182,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ## 模型特定参数
 
 <Tabs>
-  <Tab title="viduq3">
-    标准档无特定参数,所有可选项在 [通用参数](#通用参数) 中。
-
-    日常默认首选,镜头切换更聪明,接受 1-7 张图作主体 / 风格参考。
-  </Tab>
-
-  <Tab title="viduq3-mix">
-    Mix 档无特定参数。注意 `resolution` 仅支持 `720P` / `1080P`,**不支持 540P**。
-
-    Mix 档默认开启 **多素材联合生成**,可通过 `image_urls` 传入多张参考图(1-7 张),系统会智能转场,适合短剧分镜重组、广告素材二创。
-  </Tab>
-
   <Tab title="viduq3-pro">
     <ParamField body="audio" type="boolean" default="true">
       是否生成音频(默认 `true`)。Pro 档默认开启 **音频直出**(对白 + 音效),传 `false` 可关闭静音输出
@@ -206,12 +190,24 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     Pro 档按 `image_urls` 数量自动路由模式,详见 [自动路由说明](#自动路由说明)。
   </Tab>
 
+  <Tab title="viduq3-mix">
+    Mix 档无特定参数。注意 `resolution` 仅支持 `720P` / `1080P`,**不支持 540P**。
+
+    Mix 档默认开启 **多素材联合生成**,可通过 `image_urls` 传入多张参考图(1-7 张),系统会智能转场,适合短剧分镜重组、广告素材二创。
+  </Tab>
+
+  <Tab title="viduq3">
+    标准档无特定参数,所有可选项在 [通用参数](#通用参数) 中。
+
+    日常默认首选,镜头切换更聪明,接受 1-7 张图作主体 / 风格参考。
+  </Tab>
+
   <Tab title="viduq3-turbo">
     Turbo 档无特定参数。
 
-    <Warning>
-    APIMart 二手聚合渠道 **未上架** Turbo,需走 **Vidu 官方直连 channel**。使用前请确认账号已配置直连渠道。
-    </Warning>
+    <Note>
+    该模型当前部分场景下可能不可用,如有需要请联系商务。
+    </Note>
   </Tab>
 </Tabs>
 
