@@ -1,11 +1,9 @@
 ---
 title: "视频生成概述"
-description: "通过 /v1/tasks 统一端点生成视频，支持多种模型"
+description: "通过 /v1/tasks 统一端点调用所有视频生成模型,异步任务异步取结果"
 ---
 
-## 概述
-
-WaveAPI 支持多种视频生成模型，统一通过异步任务接口 `/v1/tasks` 调用。视频生成通常耗时较长，请使用轮询或 Webhook 回调获取结果。
+WaveAPI 支持多家视频生成模型,**统一通过异步任务接口** `/v1/tasks` 调用。视频生成通常耗时 10 秒到几分钟不等,提交后返回 `task_id`,通过轮询或 Webhook 回调获取结果。
 
 ## 请求端点
 
@@ -13,28 +11,104 @@ WaveAPI 支持多种视频生成模型，统一通过异步任务接口 `/v1/tas
 POST https://www.qingbo.dev/v1/tasks
 ```
 
-## 通用请求参数
+异步流程详见 [任务系统](/cn/docs/task-system) — Submit → Status → Result + 可选 webhook。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `model` | string | 是 | 模型名称 |
-| `action` | string | 否 | 默认 `"generate"` |
-| `prompt` | string | 是 | 视频描述文本 |
-| `duration` | integer | 否 | 视频时长（秒） |
-| `aspect_ratio` | string | 否 | 宽高比，如 `"16:9"` |
-| `resolution` | string | 否 | 分辨率，如 `"1080p"` |
-| `first_frame` | string | 否 | 首帧图片 URL |
-| `last_frame` | string | 否 | 尾帧图片 URL |
-| `image_urls` | array | 否 | 参考图片 URL 数组 |
-| `callback_url` | string | 否 | 完成后的回调地址 |
-| `extra` | object | 否 | 模型特定的透传参数 |
+## 支持的模型
 
-## 响应格式
+<CardGroup cols={2}>
+  <Card title="Veo 系列" href="/cn/api-reference/video/veo">
+    Google Veo 3.1 — 官方直连(Fast / Quality)+ 逆向(Lite / Quality)
+  </Card>
+  <Card title="Seedance 系列" href="/cn/api-reference/video/seedance">
+    字节跳动 Seedance — 1.0 Pro / 1.5 Pro / 2.0(含 Face / Fast 子档)
+  </Card>
+  <Card title="Kling 系列" href="/cn/api-reference/video/kling">
+    快手可灵 — v2.6 / v3 / v3-Omni / Video O1
+  </Card>
+  <Card title="Hailuo 系列" href="/cn/api-reference/video/hailuo">
+    MiniMax 海螺 — 2.3 / 2.3 Fast,15 种运镜指令
+  </Card>
+  <Card title="Vidu 系列" href="/cn/api-reference/video/vidu">
+    生数科技 Vidu Q3 — Pro / Mix / Q3 / Turbo
+  </Card>
+  <Card title="Wan 系列" href="/cn/api-reference/video/wan">
+    阿里通义万相 — 2.7 VideoEdit(视频编辑 / 风格迁移)
+  </Card>
+  <Card title="Skyreels" href="/cn/api-reference/video/skyreels">
+    昆仑万维 SkyReels V4 — Fast / Standard,多模态参考
+  </Card>
+  <Card title="HappyHorse" href="/cn/api-reference/video/happyhorse">
+    阿里云百炼欢马 — 单模型自动路由 T2V/I2V/R2V/EDIT
+  </Card>
+  <Card title="Grok Imagine 视频" href="/cn/api-reference/video/grok-imagine-video">
+    xAI Grok Imagine 1.0 Video — 6-30 秒,5 种比例
+  </Card>
+</CardGroup>
+
+## 通用参数(全系列共有)
+
+> 各模型实际支持范围不同,**详见各 vendor 文档**。
+
+<ParamField body="model" type="string" required>
+  模型 ID(group_name),从上面的 vendor 文档选择
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,可选值取决于模型,常见:
+  - `generate` — 文生视频(T2V)
+  - `image2video` — 图生视频(I2V)
+  - `first_last_frame` — 首尾帧
+  - `reference` / `reference_video` — 参考生视频(R2V)
+  - `edit` / `video_edit` / `style_transfer` — 视频编辑
+  - `video_continuation` / `extend` — 视频续写
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  视频描述文本,T2V 必填;其他模式可选作引导
+</ParamField>
+
+<ParamField body="duration" type="integer">
+  视频时长(秒),范围取决于模型
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string">
+  画面宽高比,如 `16:9` / `9:16` / `1:1` 等
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  输出分辨率,如 `720p` / `1080p` / `4K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组(I2V / R2V 用)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  视频首帧图 URL(首尾帧模式用)
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  视频尾帧图 URL,需配合 `first_frame_image`
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  参考视频 URL 数组,**单元素即可**(视频续写 / R2V 视频参考 / 视频编辑用)
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  参考音频 URL 数组,**单元素即可**(驱动音 / 自定义配音用)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [任务系统](/cn/docs/task-system#webhook)
+</ParamField>
+
+## 提交响应示例
 
 ```json
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "veo-3.1-fast",
+  "model": "veo3.1-quality-official",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -42,37 +116,35 @@ POST https://www.qingbo.dev/v1/tasks
 }
 ```
 
-## 支持的模型
+拿到 `task_id` 后调 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询,直到 `status = completed` 取视频 URL。
 
-<CardGroup cols={2}>
-  <Card title="VEO 系列" href="/cn/api-reference/video/veo">
-    Google VEO 3.1 Fast / Lite / Quality
-  </Card>
-  <Card title="Seedance 系列" href="/cn/api-reference/video/seedance">
-    字节跳动 Seedance 2.0 / 1.5
-  </Card>
-  <Card title="Sora 系列" href="/cn/api-reference/video/sora">
-    OpenAI Sora 2 / 2 Pro
-  </Card>
-  <Card title="可灵 Kling" href="/cn/api-reference/video/kling">
-    快手可灵系列
-  </Card>
-  <Card title="海螺 Hailuo" href="/cn/api-reference/video/hailuo">
-    MiniMax 海螺 2.3
-  </Card>
-  <Card title="Vidu 系列" href="/cn/api-reference/video/vidu">
-    Vidu Q3 / Q3 Pro / Q3 Turbo
-  </Card>
-</CardGroup>
+## 生成模式速查
 
-## 生成模式
-
-| 模式 | 参数 | 说明 |
-|------|------|------|
-| 文生视频 | `prompt` | 纯文本描述生成视频 |
-| 图生视频 | `prompt` + `first_frame` 或 `image_urls` | 基于图片生成视频 |
-| 首尾帧 | `first_frame` + `last_frame` | 指定首尾画面生成过渡视频 |
+| 模式 | 触发字段 | 典型 vendor |
+|---|---|---|
+| **文生视频(T2V)** | 仅 `prompt` | 全部支持 generate action 的 vendor |
+| **图生视频(I2V)** | `+ first_frame_image` 或 `image_urls`(单图) | Seedance / Kling / Hailuo / Vidu Pro / Wan / Veo / Sky / Grok |
+| **首尾帧** | `first_frame_image + last_frame_image` | Seedance Pro Quality / 1.5 / 2.0 / Kling / Veo / Vidu Pro / Sky |
+| **参考生视频(R2V)** | `image_urls`(多图,1-9 张) | Seedance / Kling Omni / Vidu / Sky / HappyHorse |
+| **视频参考(R2V 视频)** | `+ video_urls`(参考视频) | Seedance 2.0 / Kling Omni / Sky / Wan |
+| **视频续写** | `video_urls`(单段) | Wan(其他档暂未上架)/ Sky |
+| **视频编辑(EDIT)** | `video_urls + prompt`(可加 `image_urls` 作风格参考) | Wan VideoEdit / HappyHorse / Sky |
+| **音频参考** | `+ audio_urls` | HappyHorse / Wan / Sky / Seedance 2.0 |
 
 <Note>
-并非所有模型都支持全部模式，请查看各模型文档了解具体支持情况。
+并非所有模型都支持全部模式 — 各 vendor 实际支持的 `action` 列表 + 字段范围请查看对应文档。后端会校验请求字段是否在 vendor 声明的能力范围内,不在范围会返回错误。
 </Note>
+
+## 字段命名规范
+
+- **媒体引用统一复数** — 一律 `image_urls` / `video_urls` / `audio_urls`,即使单视频也用单元素数组 `["one.mp4"]`
+- **画面比例统一** `aspect_ratio` — vendor 内部用 `size` / `ratio` 等是实现细节,无需感知
+- **分辨率统一** `resolution` — vendor 内部用 `mode` / `quality` 等是实现细节
+- **首尾帧字段带 `_image` 后缀** — `first_frame_image` / `last_frame_image`(强调是图片资源)
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / Webhook
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用
+- [模型列表](/cn/docs/models) — 全模型查询接口
