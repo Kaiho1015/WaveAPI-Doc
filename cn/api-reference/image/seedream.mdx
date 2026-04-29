@@ -1,138 +1,100 @@
 ---
 title: "Seedream 系列"
-description: "字节跳动 Seedream 图像生成系列模型"
+description: "字节跳动豆包图像生成 — 多版本演进,多图参考 / 图像编辑 / 组图生成"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-异步处理模式 — 提交请求后返回任务 ID，通过 [查询任务状态](/cn/api-reference/task/status) 接口获取生成结果。图片链接有效期 24 小时，请及时保存。
+字节跳动 Seed 团队的图像生成模型系列,**三代演进**:
 
-<RequestExample>
-```bash cURL
+- **5.0 Lite** — 视觉推理(CoT)+ 实时联网搜索,14 张参考图,2K/3K,强身份保留,性价比线
+- **4.5** — 专业生产级,原生 4K,14 张参考,94% 排版准确率,跨角度同人物一致性 90%
+- **4.0** — 多模态创作,2-10 张参考图融合,文生 / 编辑 / 组图统一接口
+
+按张计费,生成 1K-4K 图片(各版本支持范围不同)。
+
+## 定价
+
+| 模型 | 单价(每张) |
+|---|---|
+| `doubao-seedream-5.0-lite` | `$0.02975` |
+| `doubao-seedream-4.5` | `$0.02975` |
+| `doubao-seedream-4.0` | `$0.0238` |
+
+## 模式速查
+
+| 模式 | 触发字段 | 支持版本 |
+|---|---|---|
+| **文生图** | 仅 `prompt` | 全部 |
+| **图编辑(局部重绘 / 光影修改)** | `+ image_urls`(单张)+ `action: "edit"` | 4.0 / 4.5 |
+| **多图参考融合** | `+ image_urls`(多张) | 全部(4.0=2-10 / 4.5=14 / 5.0-lite=14) |
+| **组图生成(主题相关一组)** | `sequential_image_generation: "auto"` | 全部 |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(最简)
 curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedream-5.0",
-    "action": "generate",
-    "prompt": "一只柴犬穿宇航服站在月球上",
-    "size": "16:9",
+    "model": "doubao-seedream-5.0-lite",
+    "prompt": "未来主义城市夜景,霓虹灯映在湿润街面,电影感构图",
     "resolution": "2K",
-    "watermark": false
+    "aspect_ratio": "16:9"
   }'
 ```
 
-```python Python
-import requests
-
-response = requests.post(
-    "https://www.qingbo.dev/v1/tasks",
-    headers={"Authorization": "Bearer YOUR_API_KEY"},
-    json={
-        "model": "doubao-seedream-5.0",
-        "action": "generate",
-        "prompt": "一只柴犬穿宇航服站在月球上",
-        "size": "16:9",
-        "resolution": "2K",
-        "watermark": False
-    }
-)
-
-task_id = response.json()["task_id"]
-print(f"任务已提交: {task_id}")
+```bash 多图参考融合(4.5)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-4.5",
+    "prompt": "把第一张图的角色放在第二张图的场景里",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/scene.jpg"
+    ],
+    "resolution": "4K",
+    "aspect_ratio": "16:9"
+  }'
 ```
 
-```javascript JavaScript
-const response = await fetch('https://www.qingbo.dev/v1/tasks', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    model: 'doubao-seedream-5.0',
-    action: 'generate',
-    prompt: '一只柴犬穿宇航服站在月球上',
-    size: '16:9',
-    resolution: '2K',
-    watermark: false
-  })
-});
-
-const { task_id } = await response.json();
-console.log(`任务已提交: ${task_id}`);
+```bash 图像编辑(4.0)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-4.0",
+    "action": "edit",
+    "prompt": "把背景换成黄昏天空,人物保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "resolution": "2K"
+  }'
 ```
 
-```go Go
-package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-)
-
-func main() {
-    payload := map[string]interface{}{
-        "model":      "doubao-seedream-5.0",
-        "action":     "generate",
-        "prompt":     "一只柴犬穿宇航服站在月球上",
-        "size":       "16:9",
-        "resolution": "2K",
-        "watermark":  false,
-    }
-
-    body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://www.qingbo.dev/v1/tasks", bytes.NewBuffer(body))
-    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
-    req.Header.Set("Content-Type", "application/json")
-
-    resp, _ := http.DefaultClient.Do(req)
-    defer resp.Body.Close()
-    result, _ := io.ReadAll(resp.Body)
-    fmt.Println(string(result))
-}
+```bash 组图生成(主题相关 1 组)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-4.5",
+    "prompt": "电商主图四张:正面 / 侧面 / 细节 / 场景应用",
+    "sequential_image_generation": "auto",
+    "sequential_image_generation_options": {"max_images": 4},
+    "resolution": "4K",
+    "aspect_ratio": "1:1"
+  }'
 ```
 
-```java Java
-import java.net.http.*;
-import java.net.URI;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        String payload = """
-        {
-          "model": "doubao-seedream-5.0",
-          "action": "generate",
-          "prompt": "一只柴犬穿宇航服站在月球上",
-          "size": "16:9",
-          "resolution": "2K",
-          "watermark": false
-        }
-        """;
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://www.qingbo.dev/v1/tasks"))
-            .header("Authorization", "Bearer YOUR_API_KEY")
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(payload))
-            .build();
-
-        HttpResponse<String> response = client.send(request,
-            HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-    }
-}
-```
-</RequestExample>
+</CodeGroup>
 
 <ResponseExample>
-```json 200
+```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "doubao-seedream-5.0",
+  "model": "doubao-seedream-4.5",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -141,180 +103,170 @@ public class Main {
 ```
 </ResponseExample>
 
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
 ## 可用模型
 
 | 模型 ID | 说明 |
-|---------|------|
-| `doubao-seedream-5.0` | Seedream 5.0，支持组图、联网搜索、流式输出 |
-| `doubao-seedream-4.5` | Seedream 4.5，支持组图、4K 分辨率 |
-| `doubao-seedream-4.0` | Seedream 4.0，支持组图、1K~4K 分辨率 |
+|---|---|
+| `doubao-seedream-5.0-lite` | 视觉推理 + 联网搜索,14 张参考,2K/3K,身份保留强 |
+| `doubao-seedream-4.5` | 专业生产级,4K,14 张参考,排版/角色一致性最佳 |
+| `doubao-seedream-4.0` | 多模态创作,2-10 张参考,文生/编辑/组图统一接口 |
 
-## 统一参数
+## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型组名称：`doubao-seedream-5.0`、`doubao-seedream-4.5`、`doubao-seedream-4.0`
+  从 [可用模型](#可用模型) 列表中选一个
 </ParamField>
 
 <ParamField body="action" type="string" default="generate">
-  操作类型
+  操作类型,可选值:
+  - `generate` — 文生图(默认)
+  - `image2image` — 图生图(需配合 `image_urls`)
+  - `edit` — 图像编辑(局部重绘 / 光影修改,**仅 4.0 / 4.5**)
+  - `reference` — 多图参考融合(**仅 4.0 / 4.5**)
+  - `group` — 组图生成(全部支持)
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
-  文本提示词，支持中英文，建议不超过 300 个汉字
-</ParamField>
-
-<ParamField body="image_urls" type="string[]">
-  参考图片 URL 数组，最多 14 张，每张不超过 10MB
-</ParamField>
-
-<ParamField body="size" type="string" default="1:1">
-  宽高比：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`9:16`、`16:9`、`21:9`
-</ParamField>
-
-<ParamField body="resolution" type="string" default="2K">
-  分辨率，可选值取决于模型，见各模型 Tab
+  图像描述文本,支持中英文。Seedream 系列对复杂排版与小字渲染准确率 ~94%
 </ParamField>
 
 <ParamField body="n" type="integer" default="1">
-  生成数量，大于 1 时启用组图模式
+  生成数量(单次返回多张)
 </ParamField>
 
-<ParamField body="watermark" type="boolean" default="true">
-  是否添加水印
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,可选值:
+  - `1:1` — 正方形
+  - `4:3` / `3:4` — 横/竖版标准
+  - `16:9` / `9:16` — 横/竖版宽屏
+  - `3:2` / `2:3` — 横/竖版相机比
+  - `21:9` — 超宽屏(全部支持)
+  - `9:21` — 超长竖图(仅 4.0 / 4.5)
+  - `auto` — 智能选择(跟随参考图比例)
+</ParamField>
+
+<ParamField body="resolution" type="string" default="2K">
+  输出分辨率,**取决于模型**:
+  - 4.0:`1K` / `2K` / `4K`
+  - 4.5:`2K` / `4K`
+  - 5.0-lite:`2K` / `3K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组,**张数取决于模型**:
+  - 4.0:2-10 张(加最终输出合计 ≤15)
+  - 4.5:最多 14 张
+  - 5.0-lite:最多 14 张
 </ParamField>
 
 <ParamField body="callback_url" type="string">
-  任务完成时的 Webhook 回调地址
-</ParamField>
-
-<ParamField body="extra" type="object">
-  透传给上游的额外参数，详见各模型 Tab
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
 </ParamField>
 
 ## 模型特定参数
 
 <Tabs>
-  <Tab title="Seedream 5.0">
-    **resolution 可选值：** `2K`、`3K`
+  <Tab title="Seedream 5.0 Lite">
+    **支持 action**:`generate` / `image2image` / `group`(注:**不支持 `edit` 和 `reference`**)
 
-    **size 额外支持：** `4:5`、`5:4`
+    **resolution**:`2K` / `3K`
 
-    <ParamField body="extra.output_format" type="string" default="jpeg">
-      输出图片格式：`png`、`jpeg`
+    **核心特性**:视觉推理(CoT)+ 实时联网搜索,可基于最新世界知识推理出图;强身份保留(眼/下颌/比例/肤色跨风格不变)
+
+    <ParamField body="watermark" type="boolean" default="false">
+      AI 生成水印
     </ParamField>
 
-    <ParamField body="extra.response_format" type="string" default="url">
-      返回格式：`url`（下载链接）或 `b64_json`（Base64）
+    <ParamField body="output_format" type="string" default="jpeg">
+      **5.0-lite 独有** — 输出格式,可选:
+      - `jpeg`
+      - `png`
     </ParamField>
 
-    <ParamField body="extra.stream" type="boolean" default="false">
-      流式输出，即时返回每张图片结果
+    <ParamField body="sequential_image_generation" type="string" default="disabled">
+      组图生成模式,可选值:
+      - `disabled` — 单图(默认)
+      - `auto` — 自动组图(主题相关多张)
     </ParamField>
 
-    <ParamField body="extra.optimize_prompt_options" type="object">
-      提示词优化配置
-
-      <Expandable title="属性">
-        <ParamField body="mode" type="string" default="standard">
-          - `standard` — 质量更高，耗时较长
-          - `fast` — 耗时更短，质量一般（5.0 暂不支持）
-        </ParamField>
-      </Expandable>
-    </ParamField>
-
-    <ParamField body="extra.tools" type="array">
-      模型工具，支持联网搜索提升时效性
-
-      ```json
-      "extra": { "tools": [{"type": "web_search"}] }
-      ```
+    <ParamField body="sequential_image_generation_options" type="object">
+      组图选项,如 `{"max_images": 4}`(范围 1-15)
     </ParamField>
   </Tab>
 
   <Tab title="Seedream 4.5">
-    **resolution 可选值：** `2K`、`4K`
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `group`
 
-    <ParamField body="extra.response_format" type="string" default="url">
-      返回格式：`url` 或 `b64_json`
+    **resolution**:`2K` / `4K`
+
+    **核心特性**:原生 4K,14 张参考图,跨角度同人物一致性 ~90%,排版与密集文字渲染准确率 ~94%
+
+    <ParamField body="watermark" type="boolean" default="false">
+      AI 生成水印
     </ParamField>
 
-    <ParamField body="extra.stream" type="boolean" default="false">
-      流式输出
+    <ParamField body="optimize_prompt_options" type="object">
+      提示词优化(嵌套 object),含 `mode` 字段。例:`{"mode": "standard"}`
     </ParamField>
 
-    <ParamField body="extra.optimize_prompt_options" type="object">
-      提示词优化
+    <ParamField body="sequential_image_generation" type="string" default="disabled">
+      组图模式,可选值:
+      - `disabled` — 单图
+      - `auto` — 自动组图
+    </ParamField>
 
-      <Expandable title="属性">
-        <ParamField body="mode" type="string" default="standard">
-          `standard` 或 `fast`
-        </ParamField>
-      </Expandable>
+    <ParamField body="sequential_image_generation_options" type="object">
+      组图选项,如 `{"max_images": 4}`(范围 1-15)
     </ParamField>
   </Tab>
 
   <Tab title="Seedream 4.0">
-    **resolution 可选值：** `1K`、`2K`、`4K`
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `group`
 
-    <ParamField body="extra.guidance_scale" type="float" default="2.5">
-      文本权重，值越大与提示词相关性越强，范围 [1, 10]
+    **resolution**:`1K` / `2K` / `4K`
+
+    **核心特性**:多模态创作开端,文生/编辑/组图统一接口;参考图 2-10 张,加最终输出合计 ≤15 张
+
+    <ParamField body="watermark" type="boolean" default="false">
+      AI 生成水印
     </ParamField>
 
-    <ParamField body="extra.response_format" type="string" default="url">
-      返回格式：`url` 或 `b64_json`
+    <ParamField body="optimize_prompt_options" type="string" default="standard">
+      提示词优化(字符串,跟 4.5 嵌套 object 不同),可选值:
+      - `standard` — 标准优化(默认)
+      - `fast` — 快速模式
     </ParamField>
 
-    <ParamField body="extra.stream" type="boolean" default="false">
-      流式输出
+    <ParamField body="sequential_image_generation" type="string" default="disabled">
+      组图模式,可选值:
+      - `disabled` — 单图
+      - `auto` — 自动组图
     </ParamField>
 
-    <ParamField body="extra.optimize_prompt_options" type="object">
-      提示词优化
-
-      <Expandable title="属性">
-        <ParamField body="mode" type="string" default="standard">
-          `standard` 或 `fast`
-        </ParamField>
-      </Expandable>
+    <ParamField body="sequential_image_generation_options" type="object">
+      组图选项,如 `{"max_images": 4}`(范围 1-15)
     </ParamField>
   </Tab>
 </Tabs>
 
-## 生成模式
+## 资源限制
 
-| 模式 | 参数 | 说明 |
-|------|------|------|
-| 文生图 | `prompt` | 纯文本生成 |
-| 单图生图 | `prompt` + `image_urls`(1张) | 参考图 + 文本 |
-| 多图生图 | `prompt` + `image_urls`(2-14张) | 多张参考图融合 |
-| 组图 | `n > 1` | 生成一组关联图片 |
+| 项目 | 限制 |
+|---|---|
+| 参考图片(4.0) | 2-10 张,加最终输出合计 ≤15 张 |
+| 参考图片(4.5 / 5.0-lite) | 最多 14 张 |
+| 单张图片大小 | ≤ 30MB,支持 JPG/PNG/WEBP |
+| 输出分辨率 | 详见各 Tab(最高 4K) |
+| 输出文件 | JPG(默认)/ PNG(5.0-lite 可选),链接 24 小时有效 |
 
-<Note>
-组图模式下，输入参考图数量 + 生成图片数量 ≤ 15。
-</Note>
+## 相关文档
 
-## 响应
-
-<ResponseField name="task_id" type="string">
-  任务 ID
-</ResponseField>
-
-<ResponseField name="model" type="string">
-  使用的模型 ID
-</ResponseField>
-
-<ResponseField name="action" type="string">
-  操作类型
-</ResponseField>
-
-<ResponseField name="status" type="string">
-  任务状态：`queued`
-</ResponseField>
-
-<ResponseField name="created_at" type="integer">
-  创建时间（Unix 毫秒时间戳）
-</ResponseField>
-
-<ResponseField name="progress" type="integer">
-  进度，初始为 `0`
-</ResponseField>
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用
