@@ -1,51 +1,202 @@
 ---
-title: "查询状态"
-description: "GET /v1/tasks/{task_id} — 查询任务状态和结果"
+title: "查询任务状态"
+description: "GET /v1/tasks/{task_id} — 查询异步任务的状态、进度和最终结果"
+api: "GET https://www.qingbo.dev/v1/tasks/{task_id}"
 ---
 
-## 端点
+异步任务的核心查询端点。提交任务后(`POST /v1/tasks`)返回 `task_id`,通过此端点轮询状态,直到 `status: completed` 取最终结果。
 
+## 调用示例
+
+<CodeGroup>
+
+```bash 查询任务
+curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
+  -H "Authorization: Bearer $WAVE_API_KEY"
 ```
-GET https://www.qingbo.dev/v1/tasks/{task_id}
-```
 
-## 响应
+</CodeGroup>
 
-```json
+## 响应示例(各阶段)
+
+<CodeGroup>
+
+```json 排队中(queued)
 {
-  "task_id": "task_xxx",
-  "model": "veo3",
+  "task_id": "task-wave1775285160b950328499",
+  "status": "queued",
   "action": "generate",
-  "status": "completed",
+  "model": "wan2.7",
+  "progress": 0,
   "created_at": 1720000000,
-  "start_time": 1720000002,
-  "completed_at": 1720000030,
-  "progress": 100,
-  "result": {
-    "images": [],
-    "videos": [
-      { "url": "https://...", "expires_at": 1720086400 }
-    ]
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
   }
 }
 ```
 
-## 状态值
+```json 处理中(processing)
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "processing",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 45,
+  "created_at": 1720000000,
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
 
-| 状态 | 说明 |
-|------|------|
-| `queued` | 等待处理 |
-| `processing` | 生成中，`progress` 字段显示进度 |
-| `completed` | 完成，`result` 包含生成结果 |
-| `failed` | 失败，`error` 包含错误信息 |
-| `cancelled` | 已取消 |
+```json 完成(completed,视频)
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "completed",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 100,
+  "created_at": 1720000000,
+  "completed_at": 1720000030,
+  "result": {
+    "videos": [
+      {
+        "expires_at": 1720259200,
+        "url": ["https://cdn.qingbo.dev/output/xxx.mp4"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+```json 完成(completed,图片)
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "completed",
+  "action": "generate",
+  "model": "doubao-seedream-4.5",
+  "progress": 100,
+  "created_at": 1720000000,
+  "completed_at": 1720000030,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1720259200,
+        "url": ["https://cdn.qingbo.dev/output/xxx.png"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+```json 失败(failed)
+{
+  "task_id": "task-wave1775285160b950328499",
+  "status": "failed",
+  "action": "generate",
+  "model": "wan2.7",
+  "progress": 0,
+  "created_at": 1720000000,
+  "completed_at": 1720000005,
+  "error": {
+    "message": "Upstream returned: invalid prompt",
+    "code": "task_failed"
+  },
+  "urls": {
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499/cancel"
+  }
+}
+```
+
+</CodeGroup>
+
+## 响应字段
+
+<ResponseField name="task_id" type="string">
+  任务唯一 ID(提交时返回)
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  任务状态:
+  - `queued` — 已提交,等待处理
+  - `processing` — 处理中,`progress` 字段表示进度(0-100)
+  - `completed` — 完成,`result` 含生成结果
+  - `failed` — 失败,`error` 含错误信息
+  - `cancelled` — 已取消(只能取消 queued 状态)
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  操作类型,跟提交时一致(generate / edit / image2video 等)
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  使用的模型 ID(group_name)
+</ResponseField>
+
+<ResponseField name="progress" type="integer">
+  进度,0-100 整数。queued / failed / cancelled 状态下为 `0`,completed 为 `100`
+</ResponseField>
+
+<ResponseField name="created_at" type="integer">
+  创建时间(Unix 毫秒时间戳)
+</ResponseField>
+
+<ResponseField name="completed_at" type="integer">
+  完成时间(Unix 毫秒时间戳),**仅 completed / failed / cancelled 态有此字段**
+</ResponseField>
+
+<ResponseField name="error" type="object">
+  错误信息,**仅 failed 态有此字段**:
+  - `message` — 错误描述
+  - `code` — 错误码(常用 `task_failed`)
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  生成结果,**仅 completed 态有此字段**。根据任务媒体类型,key 为 `images` / `videos` / `audios`(数组),每项含:
+  - `url` — `string[]` 数组(单元素也用数组形式)
+  - `expires_at` — Unix 时间戳,链接有效期(默认 3 天)
+</ResponseField>
+
+<ResponseField name="urls" type="object">
+  快捷操作链接,方便客户端不必拼接 URL:
+  - `get` — 当前查询地址
+  - `cancel` — 取消任务地址
+</ResponseField>
 
 ## 轮询建议
 
-- 轮询间隔：2-5 秒
-- 设置最大等待时间（建议 5 分钟）
-- 检查 `progress` 字段了解生成进度
+- **轮询间隔**:2-5 秒一次
+- **最大等待时间**:建议 5 分钟超时(视频可能更久)
+- **检查 progress** 显示给用户实时进度
+- **优先用 Webhook**:提交时设 `callback_url`,完成时主动推送,免轮询
+
+详见 [任务系统](/cn/docs/task-system) 完整流程说明。
 
 <Warning>
-生成结果中的 URL 有有效期（`expires_at`），请及时下载保存。
+**生成结果链接 24 小时-3 天有效期**(`expires_at` 字段),请及时下载保存到自己的存储。过期后链接失效,需要重新提交任务。
 </Warning>
+
+## 错误码
+
+| 状态码 | 错误 | 说明 |
+|---|---|---|
+| 404 | `task_not_found` | task_id 不存在或不属于当前 user |
+| 401 | 认证失败 | API Key 无效 |
+
+## 相关文档
+
+- [提交任务](/cn/api-reference/task/submit) — `POST /v1/tasks`
+- [取消任务](/cn/api-reference/task/cancel) — `POST /v1/tasks/{task_id}/cancel`
+- [同步等待](/cn/api-reference/task/sync) — `POST /v1/tasks/sync`
+- [任务系统详解](/cn/docs/task-system)

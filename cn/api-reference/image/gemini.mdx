@@ -1,13 +1,13 @@
 ---
 title: "Gemini Image 系列"
-description: "Google Gemini 图像生成 — 三代 Nano Banana 演进,生成 / 编辑 / 多图参考 / 搜索增强"
+description: "Google Gemini 图像生成 — Nano Banana 系列(原版 / Pro / 2),生成 / 编辑 / 多图参考 / 搜索增强"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-Google Gemini 原生多模态图像系列,**三代演进 + 双档接入**:
+Google Gemini 原生多模态图像系列,**三代 Nano Banana 演进 + 双档接入**:
 
-- **Nano Banana 3(Gemini 3.1 Flash Image Preview)** — 轻量快速档,延迟低、成本省,**独家支持 Google 文字 / 图片搜索增强**,适合预览、批量、迭代
-- **Nano Banana 2(Gemini 3 Pro Image Preview)** — 旗舰档,4K 原生输出,专业级保真度,多步规划,内置质量分析
+- **Nano Banana 2(Gemini 3.1 Flash Image Preview)** — 轻量快速档,延迟低、成本省,**独家支持 Google 文字 / 图片搜索增强**,适合预览、批量、迭代
+- **Nano Banana Pro(Gemini 3 Pro Image Preview)** — 旗舰档,4K 原生输出,专业级保真度,多步规划,内置质量分析
 - **Nano Banana(Gemini 2.5 Flash Image Preview)** — 老一代主力,低延迟、高性价比,多图融合,角色一致性
 
 每代提供两档接入:**标准档**(经济、性价比线)与 **官方直连档**(高 SLA、稳定性更高,价格更高)。两档同模型同能力,区别只在通道与计费。**推荐直接选用对应的 `-official` model id 切换通道**(语义清晰),也可在标准档上设 `official_fallback: true` 在运行时切换。
@@ -39,7 +39,7 @@ Google Gemini 原生多模态图像系列,**三代演进 + 双档接入**:
 
 <CodeGroup>
 
-```bash 文生图(最简,Nano Banana 2)
+```bash 文生图(最简,Nano Banana Pro)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -51,7 +51,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   }'
 ```
 
-```bash 多图融合(Nano Banana 2)
+```bash 多图融合(Nano Banana Pro)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -129,10 +129,10 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 | 模型 ID | 系列 | 说明 |
 |---|---|---|
-| `gemini-3-pro-image-preview-official` | Nano Banana 2 · 官方直连 | 旗舰档,同模型直连,稳定性更高 |
-| `gemini-3-pro-image-preview` | Nano Banana 2 · 标准档 | 旗舰档,4K 原生,专业保真,多步规划 |
-| `gemini-3.1-flash-image-preview-official` | Nano Banana 3 · 官方直连 | 快速档直连,搜索增强 |
-| `gemini-3.1-flash-image-preview` | Nano Banana 3 · 标准档 | 快速档,Google 文字+图片搜索增强 |
+| `gemini-3-pro-image-preview-official` | Nano Banana Pro · 官方直连 | 旗舰档,同模型直连,稳定性更高 |
+| `gemini-3-pro-image-preview` | Nano Banana Pro · 标准档 | 旗舰档,4K 原生,专业保真,多步规划 |
+| `gemini-3.1-flash-image-preview-official` | Nano Banana 2 · 官方直连 | 快速档直连,搜索增强 |
+| `gemini-3.1-flash-image-preview` | Nano Banana 2 · 标准档 | 快速档,Google 文字+图片搜索增强 |
 | `gemini-2.5-flash-image-preview-official` | Nano Banana · 官方直连 | 老一代直连,高性价比 |
 | `gemini-2.5-flash-image-preview` | Nano Banana · 标准档 | 老一代主力,低延迟、多图融合 |
 
@@ -204,7 +204,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   <Tab title="3 Pro Official">
     **model id**:`gemini-3-pro-image-preview-official`
 
-    **系列**:Nano Banana 2 · 官方直连档
+    **系列**:Nano Banana Pro · 官方直连档
 
     **支持 action**:`generate` / `image2image` / `edit` / `reference`
 
@@ -222,7 +222,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   <Tab title="3 Pro">
     **model id**:`gemini-3-pro-image-preview`
 
-    **系列**:Nano Banana 2 · 标准档
+    **系列**:Nano Banana Pro · 标准档
 
     **支持 action**:`generate` / `image2image` / `edit` / `reference`
 
@@ -240,7 +240,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   <Tab title="3.1 Flash Official">
     **model id**:`gemini-3.1-flash-image-preview-official`
 
-    **系列**:Nano Banana 3 · 官方直连档
+    **系列**:Nano Banana 2 · 官方直连档
 
     **支持 action**:`generate` / `image2image` / `edit` / `reference` / `search_grounded`
 
@@ -266,7 +266,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   <Tab title="3.1 Flash">
     **model id**:`gemini-3.1-flash-image-preview`
 
-    **系列**:Nano Banana 3 · 标准档
+    **系列**:Nano Banana 2 · 标准档
 
     **支持 action**:`generate` / `image2image` / `edit` / `reference` / `search_grounded`
 
