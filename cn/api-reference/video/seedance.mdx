@@ -1,159 +1,133 @@
 ---
 title: "Seedance 系列"
-description: "字节跳动 Seedance 视频生成系列模型"
+description: "豆包 Seedance — 1.0 Lite / Pro / 1.5 / 2.0 多模态视频生成全家桶"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-异步处理模式 — 提交请求后返回任务 ID，通过 [查询任务状态](/cn/api-reference/task/status) 接口获取生成结果。视频链接有效期 24 小时，请及时下载。
+豆包 Seedance 视频生成系列,覆盖 **轻量 (Lite) → 旗舰加速 (Pro Fast) → 旗舰高质量 (Pro Quality) → 有声 1.5 → 多模态 2.0** 全档位。
 
-<RequestExample>
-```bash cURL
+| 系列分代 | 定位 |
+|---|---|
+| **1.0 Lite** | 轻量版,T2V / I2V 双子型,生成快、价低 |
+| **1.0 Pro Fast** | 旗舰加速档,质量速度均衡,出片速度约 Pro Quality 3 倍 |
+| **1.0 Pro Quality** | 旗舰高质量档,1080P 多镜头叙事,适合最终交付 |
+| **1.5 Pro** | 新一代有声视频,音视频联合生成,多语言对白 + 口型同步 |
+| **2.0** | 多模态旗舰,文+图(≤9)+视频(≤3)+音频(≤3)统一架构,`@image1`/`@video2`/`@audio3` 引用语法 |
+| **2.0 Face** | 2.0 强化人脸/身份参考,数字人短剧、口播 |
+| **2.0 Fast / Fast Face** | 2.0 加速档,无 1080P,换更快出片 + 更低成本 |
+
+## 定价
+
+按 **分辨率 × 时长** 计费,单位 `$/秒`。
+
+| 模型 | 480P | 720P | 1080P |
+|---|---|---|---|
+| `doubao-seedance-1.0-lite-t2v` | TBD | TBD | TBD |
+| `doubao-seedance-1.0-lite-i2v` | TBD | TBD | — |
+| `doubao-seedance-1.0-pro-fast` | `$0.00935` | `$0.02125` | `$0.0442` |
+| `doubao-seedance-1.0-pro-quality` | `$0.021675` | `$0.04675` | `$0.1105` |
+| `doubao-seedance-1.5-pro` | `$0.021675` | `$0.04675` | `$0.11475` |
+| `doubao-seedance-2.0` | `$0.077095` | `$0.16592` | `$0.374` |
+| `doubao-seedance-2.0-face` | `$0.1054` | `$0.22695` | `$0.53125` |
+| `doubao-seedance-2.0-fast` | `$0.06205` | `$0.13345` | — |
+| `doubao-seedance-2.0-fast-face` | `$0.085` | `$0.18275` | — |
+
+**2.0 系列 video_ref 加价**(传入 `video_urls` 作参考时按下表追加,单位 `$/秒`):
+
+| 模型 | 480P | 720P | 1080P |
+|---|---|---|---|
+| `doubao-seedance-2.0` | `+$0.04675` | `+$0.1003` | `+$0.22695` |
+| `doubao-seedance-2.0-face` | `+$0.06375` | `+$0.13685` | `+$0.31875` |
+| `doubao-seedance-2.0-fast` | `+$0.036975` | `+$0.0799` | — |
+| `doubao-seedance-2.0-fast-face` | `+$0.051` | `+$0.10965` | — |
+
+## 模式路由
+
+整个系列共用字段路由约定 — 后端按传入媒体字段自动决定 action,通常无需显式传 `action`。
+
+| 传入字段 | 路由模式 | 说明 |
+|---|---|---|
+| 仅 `prompt` | **generate**(T2V) | 文生视频,画面比例由 `aspect_ratio` 控制 |
+| `+ first_frame_image` | **image2video**(I2V) | 首帧驱动,跟随首帧比例 |
+| `+ first_frame_image + last_frame_image` | **first_last_frame** | 首帧 + 尾帧约束插值 |
+| `+ image_urls` | **reference** | 多图角色 / 风格一致性 |
+| `+ video_urls`(2.0) | **reference_video** | 视频片段参考(2.0 独有) |
+| `+ audio_urls`(2.0) | **reference_audio** | 音频驱动(2.0 独有) |
+
+<Warning>
+**2.0 多素材引用语法** — `prompt` 中可用 `@image1` / `@video2` / `@audio3` 等占位符引用 `image_urls[0]` / `video_urls[1]` / `audio_urls[2]`,索引从 1 开始。
+</Warning>
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频(Lite T2V)
 curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-2.0",
-    "action": "generate",
-    "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
-    "aspect_ratio": "16:9",
+    "model": "doubao-seedance-1.0-lite-t2v",
+    "prompt": "一只柴犬穿宇航服在月球上行走,电影感光影",
     "duration": 5,
-    "resolution": "1080p",
-    "watermark": false,
-    "extra": {
-      "generate_audio": true
-    }
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
   }'
 ```
 
-```python Python
-import requests
-
-response = requests.post(
-    "https://www.qingbo.dev/v1/tasks",
-    headers={"Authorization": "Bearer YOUR_API_KEY"},
-    json={
-        "model": "doubao-seedance-2.0",
-        "action": "generate",
-        "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
-        "aspect_ratio": "16:9",
-        "duration": 5,
-        "resolution": "1080p",
-        "watermark": False,
-        "extra": {
-            "generate_audio": True
-        }
-    }
-)
-
-task_id = response.json()["task_id"]
-print(f"任务已提交: {task_id}")
+```bash 图生视频(Pro Quality)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1.0-pro-quality",
+    "prompt": "人物缓缓走向镜头,镜头微微推进",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
 ```
 
-```javascript JavaScript
-const response = await fetch('https://www.qingbo.dev/v1/tasks', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    model: 'doubao-seedance-2.0',
-    action: 'generate',
-    prompt: '一只柴犬穿宇航服在月球上行走，电影感光影',
-    aspect_ratio: '16:9',
-    duration: 5,
-    resolution: '1080p',
-    watermark: false,
-    extra: {
-      generate_audio: true
-    }
-  })
-});
-
-const { task_id } = await response.json();
-console.log(`任务已提交: ${task_id}`);
+```bash 首尾帧(1.5 Pro 有声)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1.5-pro",
+    "prompt": "她回头微笑,说:你来了。",
+    "first_frame_image": "https://cdn.example.com/start.jpg",
+    "last_frame_image": "https://cdn.example.com/end.jpg",
+    "duration": 6,
+    "resolution": "1080p",
+    "audio": true
+  }'
 ```
 
-```go Go
-package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-)
-
-func main() {
-    payload := map[string]interface{}{
-        "model":      "doubao-seedance-2.0",
-        "action":     "generate",
-        "prompt":     "一只柴犬穿宇航服在月球上行走，电影感光影",
-        "aspect_ratio": "16:9",
-        "duration":   5,
-        "resolution": "1080p",
-        "watermark":  false,
-        "extra": map[string]interface{}{
-            "generate_audio": true,
-        },
-    }
-
-    body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://www.qingbo.dev/v1/tasks", bytes.NewBuffer(body))
-    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
-    req.Header.Set("Content-Type", "application/json")
-
-    resp, _ := http.DefaultClient.Do(req)
-    defer resp.Body.Close()
-    result, _ := io.ReadAll(resp.Body)
-    fmt.Println(string(result))
-}
+```bash 多模态参考(2.0)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2.0",
+    "prompt": "保持 @image1 中角色形象,延续 @video1 的运镜节奏,搭配 @audio1 作背景配音",
+    "image_urls": ["https://cdn.example.com/char.jpg"],
+    "video_urls": ["https://cdn.example.com/ref-cam.mp4"],
+    "audio_urls": ["https://cdn.example.com/bgm.mp3"],
+    "duration": 8,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "generate_audio": true
+  }'
 ```
 
-```java Java
-import java.net.http.*;
-import java.net.URI;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        String payload = """
-        {
-          "model": "doubao-seedance-2.0",
-          "action": "generate",
-          "prompt": "一只柴犬穿宇航服在月球上行走，电影感光影",
-          "aspect_ratio": "16:9",
-          "duration": 5,
-          "resolution": "1080p",
-          "watermark": false,
-          "extra": {
-            "generate_audio": true
-          }
-        }
-        """;
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://www.qingbo.dev/v1/tasks"))
-            .header("Authorization", "Bearer YOUR_API_KEY")
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(payload))
-            .build();
-
-        HttpResponse<String> response = client.send(request,
-            HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-    }
-}
-```
-</RequestExample>
+</CodeGroup>
 
 <ResponseExample>
-```json 200
+```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
   "model": "doubao-seedance-2.0",
-  "action": "generate",
+  "action": "reference",
   "status": "queued",
   "created_at": 1775285160040,
   "progress": 0
@@ -161,171 +135,224 @@ public class Main {
 ```
 </ResponseExample>
 
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
 ## 可用模型
 
-| 模型 ID | 说明 |
-|---------|------|
-| `doubao-seedance-2.0` | Seedance 2.0，支持原生音频、首尾帧、多模态参考、最高 2K |
-| `doubao-seedance-2.0-fast` | Seedance 2.0 快速版 |
-| `doubao-seedance-1.5-pro` | Seedance 1.5 专业版 |
+| 模型 ID | 系列 | 支持 action | 分辨率 | 时长(秒) |
+|---|---|---|---|---|
+| `doubao-seedance-1.0-lite-t2v` | 1.0 Lite | generate | 480p / 720p / 1080p | 2-12 |
+| `doubao-seedance-1.0-lite-i2v` | 1.0 Lite | image2video / first_last_frame / reference | 480p / 720p | 2-12 |
+| `doubao-seedance-1.0-pro-fast` | 1.0 Pro | generate / image2video / reference | 480p / 720p / 1080p | 2-12 |
+| `doubao-seedance-1.0-pro-quality` | 1.0 Pro | generate / image2video / first_last_frame / reference | 480p / 720p / 1080p | 2-12 |
+| `doubao-seedance-1.5-pro` | 1.5 | generate / image2video / first_last_frame | 480p / 720p / 1080p | 4-12 |
+| `doubao-seedance-2.0` | 2.0 | generate / image2video / first_last_frame / reference / reference_video / reference_audio | 480p / 720p / 1080p | 5-15 |
+| `doubao-seedance-2.0-face` | 2.0 | 同 2.0 | 480p / 720p / 1080p | 5-15 |
+| `doubao-seedance-2.0-fast` | 2.0 | 同 2.0 | 480p / 720p | 5-15 |
+| `doubao-seedance-2.0-fast-face` | 2.0 | 同 2.0 | 480p / 720p | 5-15 |
 
-## 统一参数
+## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型 ID
+  模型 ID,见上方"可用模型"表
 </ParamField>
 
 <ParamField body="action" type="string" default="generate">
-  操作类型
+  操作类型,**通常无需显式传**,后端按媒体字段自动路由。可选值:
+  - `generate` — 文生视频(T2V)
+  - `image2video` — 图生视频(I2V),需配合 `first_frame_image`
+  - `first_last_frame` — 首尾帧约束,需配合 `first_frame_image` + `last_frame_image`
+  - `reference` — 参考图驱动,需配合 `image_urls`
+  - `reference_video` — 视频片段参考(仅 2.0 系列),需配合 `video_urls`
+  - `reference_audio` — 音频驱动(仅 2.0 系列),需配合 `audio_urls`
 </ParamField>
 
-<ParamField body="prompt" type="string" required>
-  视频描述文本，支持中英文。2.0 支持在 prompt 中用 `@image1`、`@video1`、`@audio1` 引用参考素材
+<ParamField body="prompt" type="string">
+  视频描述文本。**T2V 必填**;其他模式可选作引导。2.0 系列支持 `@image1` / `@video2` / `@audio3` 引用语法
 </ParamField>
 
-<ParamField body="aspect_ratio" type="string" default="16:9">
-  宽高比：`16:9`、`9:16`、`4:3`、`3:4`、`21:9`、`1:1`
-</ParamField>
-
-<ParamField body="duration" type="integer" default="5">
-  视频时长（秒），可选范围取决于模型，见各模型 Tab
-</ParamField>
-
-<ParamField body="resolution" type="string">
-  输出分辨率，可选值取决于模型，见各模型 Tab
-</ParamField>
-
-<ParamField body="image_urls" type="string[]">
-  参考图片 URL 数组，数量限制取决于模型版本
-</ParamField>
-
-<ParamField body="first_frame" type="string">
-  首帧图片 URL
-</ParamField>
-
-<ParamField body="last_frame" type="string">
-  尾帧图片 URL（需配合 `first_frame`）
+<ParamField body="n" type="integer" default="1">
+  单次任务并行生成的视频数量
 </ParamField>
 
 <ParamField body="seed" type="integer" default="-1">
-  随机种子，范围 [-1, 2^32-1]。`-1` 为随机。相同种子 + 相同请求可获得相似结果
+  随机种子,`-1` 为随机;固定值可复现相似结果
 </ParamField>
 
-<ParamField body="watermark" type="boolean" default="false">
-  是否添加水印
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比。可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `1:1` — 正方形
+  - `4:3` — 横版
+  - `3:4` — 竖版
+  - `21:9` — 超宽屏
+  - `adaptive` — 自适应(**仅 2.0 系列**,跟随参考素材)
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率,可选值因模型而异:
+  - `480p`
+  - `720p`
+  - `1080p`(Lite-i2v / 2.0-fast / 2.0-fast-face 不支持)
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  视频时长(秒)。范围因系列而异:
+  - 1.0 系列:2-12
+  - 1.5 Pro:4-12
+  - 2.0 系列:5-15
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图 URL 数组,触发 **reference** 模式。1.0 / 1.5 支持 1-9 张,2.0 支持 ≤9 张
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  视频首帧图 URL,触发 **image2video** 或 **first_last_frame** 模式
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  视频尾帧图 URL,与 `first_frame_image` 同传触发 **first_last_frame** 模式
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  参考视频 URL 数组(**仅 2.0 系列**),≤3 段,触发 **reference_video** 模式。会按上方"video_ref 加价"表追加费用
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  参考音频 URL 数组(**仅 2.0 系列**),≤3 条,触发 **reference_audio** 模式
 </ParamField>
 
 <ParamField body="callback_url" type="string">
-  Webhook 回调地址
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
 </ParamField>
 
-<ParamField body="extra" type="object">
-  透传给上游的额外参数，详见各模型 Tab
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件类型,默认仅终态(`completed` / `failed`)
 </ParamField>
 
 ## 模型特定参数
 
 <Tabs>
-  <Tab title="Seedance 2.0">
-    **duration 范围：** 4-15 秒
 
-    **resolution 可选值：** `480p`、`720p`、`1080p`、`2K`
+<Tab title="1.0 Lite (t2v / i2v)">
 
-    **size 额外支持：** `adaptive`（自适应，匹配输入素材宽高比）
+<ParamField body="camerafixed" type="boolean" default="false">
+  是否固定摄像头,`true` 时画面无运镜
+</ParamField>
 
-    **输入限制：** 图片最多 9 张（≤ 30MB）、视频最多 3 个（≤ 50MB，总时长 ≤ 15s）、音频最多 3 个（MP3/WAV，≤ 15MB，总时长 ≤ 15s）
+**限制**:
+- T2V:480P / 720P / 1080P 均支持
+- I2V:仅 480P / 720P(参考图场景下 1080P 不可用)
+- 时长 2-12 秒,24fps
 
-    <ParamField body="extra.generate_audio" type="boolean" default="false">
-      原生音视频联合生成，支持对白口型同步（8+ 语言）
-    </ParamField>
+</Tab>
 
-    <ParamField body="extra.return_last_frame" type="boolean" default="false">
-      返回末帧图片 URL，便于视频片段衔接续拍
-    </ParamField>
+<Tab title="1.0 Pro Fast">
 
-    <ParamField body="extra.tools" type="array">
-      模型工具，支持联网搜索
+无模型特定参数,仅使用通用参数。
 
-      ```json
-      "extra": { "tools": [{"type": "web_search"}] }
-      ```
-    </ParamField>
+**特性**:
+- 旗舰加速档,出片速度约 Pro Quality 3 倍
+- 480P / 720P / 1080P 全分辨率
+- 时长 2-12 秒
+- 不支持 `first_last_frame`
 
-    <ParamField body="extra.service_tier" type="string">
-      服务等级，控制延迟与成本的平衡
-    </ParamField>
+</Tab>
 
-    <Note>
-    2.0 使用首尾帧模式（`first_frame` + `last_frame`）时，不能同时传 `video_urls` 和 `audio_urls`。
-    </Note>
-  </Tab>
+<Tab title="1.0 Pro Quality">
 
-  <Tab title="Seedance 2.0 Fast">
-    **duration 范围：** 4-15 秒
+无模型特定参数,仅使用通用参数。
 
-    **resolution 可选值：** `480p`、`720p`、`1080p`、`2K`
+**特性**:
+- 旗舰高质量档,极致画面与运动表现
+- 1080P 多镜头叙事,适合最终交付
+- 全 action 支持(generate / image2video / first_last_frame / reference)
+- 时长 2-12 秒
 
-    参数与 Seedance 2.0 相同，处理速度更快。
+</Tab>
 
-    <ParamField body="extra.generate_audio" type="boolean" default="false">
-      原生音视频联合生成
-    </ParamField>
+<Tab title="1.5 Pro">
 
-    <ParamField body="extra.return_last_frame" type="boolean" default="false">
-      返回末帧图片
-    </ParamField>
-  </Tab>
+<ParamField body="audio" type="boolean" default="false">
+  是否生成音频(有声视频)。1.5 系列字段名为 `audio`,**与 2.0 的 `generate_audio` 不同**
+</ParamField>
 
-  <Tab title="Seedance 1.5 Pro">
-    **duration 范围：** 4-12 秒
+<ParamField body="camerafixed" type="boolean" default="false">
+  是否固定摄像头
+</ParamField>
 
-    **resolution 可选值：** `480p`、`720p`、`1080p`
+**特性**:
+- 音视频联合生成,口型同步
+- 多语言对白:中 / 英 / 日 / 韩 / 西
+- 方言:四川话 / 粤语
+- 时长 4-12 秒
 
-    **输入限制：** 图片最多 2 张（1 张首帧 + 1 张尾帧）
+</Tab>
 
-    <ParamField body="extra.audio" type="boolean" default="false">
-      是否生成伴随音频
-    </ParamField>
+<Tab title="2.0 / 2.0 Face">
 
-    <ParamField body="extra.camerafixed" type="boolean" default="false">
-      固定机位模式，开启后摄像机位置不变
-    </ParamField>
-  </Tab>
+<ParamField body="generate_audio" type="boolean" default="false">
+  是否生成音频(有声视频)。2.0 系列字段名为 `generate_audio`
+</ParamField>
 
+<ParamField body="tools" type="array">
+  工具列表,例:`[{"type": "web_search"}]` 启用网络检索增强
+</ParamField>
+
+<ParamField body="image_with_roles" type="array">
+  带角色标记的参考图,优先级高于 `image_urls` + `first_frame_image` / `last_frame_image`。元素结构:
+  - `url` — 图片 URL
+  - `role` — `first_frame` / `last_frame`
+</ParamField>
+
+<ParamField body="return_last_frame" type="boolean" default="false">
+  是否额外返回视频尾帧图,用于连续生成续集
+</ParamField>
+
+**特性(2.0)**:
+- 多模态统一架构:文 + 图(≤9)+ 视频(≤3)+ 音频(≤3)任意组合
+- `@image1` / `@video2` / `@audio3` prompt 引用语法
+- `aspect_ratio` 支持 `adaptive`
+- 时长 5-15 秒
+
+**2.0 Face 额外**:
+- 强化人脸 / 身份一致性,五官 + 肤色多镜头稳定
+- 适合数字人短剧 / 口播
+
+</Tab>
+
+<Tab title="2.0 Fast / 2.0 Fast Face">
+
+参数与 2.0 / 2.0 Face 相同(`generate_audio` / `tools` / `image_with_roles` / `return_last_frame`)。
+
+**差异**:
+- 仅 480P / 720P,**无 1080P**
+- 加速档,质量略降换更快出片 + 更低成本
+- Fast Face 子型保留人脸一致性能力
+
+**典型用途**:
+- 数字人短视频批量生产
+- 社媒口播运营
+- 素材快速迭代
+
+</Tab>
 
 </Tabs>
 
-## 生成模式
+## 资源限制
 
-| 模式 | 参数 | 支持版本 |
-|------|------|---------|
-| 文生视频 | `prompt` | 全部 |
-| 图生视频 | `prompt` + `image_urls`(1张) 或 `first_frame` | 全部 |
-| 首尾帧 | `first_frame` + `last_frame` | 1.5 / 2.0 |
-| 多模态参考 | `image_urls` + `video_urls` + `audio_urls` | 仅 2.0 |
+| 项目 | 限制 |
+|---|---|
+| 参考图(`image_urls`) | 最多 9 张,单张 ≤ 30MB,JPG / PNG / WEBP |
+| 首尾帧(`first_frame_image` / `last_frame_image`) | 单张 ≤ 30MB,JPG / PNG / WEBP |
+| 参考视频(`video_urls`,仅 2.0) | 最多 3 段,MP4 / MOV,≤ 100MB / 段 |
+| 参考音频(`audio_urls`,仅 2.0) | 最多 3 条,WAV / MP3,≤ 15MB / 条 |
+| 输出 | MP4,链接 24 小时有效 |
 
-## 响应
+## 相关文档
 
-<ResponseField name="task_id" type="string">
-  任务 ID
-</ResponseField>
-
-<ResponseField name="model" type="string">
-  使用的模型 ID
-</ResponseField>
-
-<ResponseField name="action" type="string">
-  操作类型
-</ResponseField>
-
-<ResponseField name="status" type="string">
-  任务状态：`queued`
-</ResponseField>
-
-<ResponseField name="created_at" type="integer">
-  创建时间（Unix 毫秒时间戳）
-</ResponseField>
-
-<ResponseField name="progress" type="integer">
-  进度，初始为 `0`
-</ResponseField>
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

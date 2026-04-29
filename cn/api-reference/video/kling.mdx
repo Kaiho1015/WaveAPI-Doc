@@ -1,148 +1,113 @@
 ---
-title: "可灵 Kling 系列"
-description: "快手可灵视频生成系列模型"
+title: "Kling 系列"
+description: "快手可灵视频生成 — v2.6 / v3 / v3-omni / video-o1 四代模型,覆盖文生、图生、首尾帧、多模态参考与推理增强"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-异步处理模式 — 提交请求后返回任务 ID，通过 [查询任务状态](/cn/api-reference/task/status) 接口获取生成结果。视频链接有效期 24 小时。
+快手可灵 Kling 视频生成系列。
 
-<RequestExample>
-```bash cURL
+**四代模型分工**:
+
+- **kling-v2.6** — 经典稳定版,标准模式 720P 无声 / 专业模式 1080P 可有声,语义和动态稳定性进一步打磨
+- **kling-v3** — 新一代基础模型,新增 **4K 模式**,文生时长可拓展到 **15 秒**,原生支持有声视频
+- **kling-v3-omni** — v3 系列**统一多模态接口**,文生 / 图生 / 视频参考全走同一 endpoint,prompt 支持 `<<<image_N>>>` 引用语法
+- **kling-video-o1** — 首款**推理增强**视频模型,生成前对提示词与参考素材深度规划,物理一致性、复杂运动、长动作语义跟随上表现最优
+
+按 **分辨率 / 模式** 计费,单位 `$/秒`。
+
+## 定价
+
+| 模型 | 720P | 1080P | 4K | 备注 |
+|---|---|---|---|---|
+| `kling-v2.6` | `$0.0391` | `$0.06641` | — | pro 有声叠加至 `$0.159375` |
+| `kling-v3` | `$0.0714` | `$0.0952` | `$0.455345` | 有声:720P `$0.1071` / 1080P `$0.1428` / 4K 同价 |
+| `kling-v3-omni` | `$0.0714` | `$0.0952` | `$0.455345` | 有声:720P `$0.0952` / 1080P `$0.119`;视频参考:720P `$0.1071` / 1080P `$0.1428` |
+| `kling-video-o1` | `$0.0714` | `$0.0952` | — | 视频参考:720P `$0.1071` / 1080P `$0.1428` |
+
+<Note>
+单价为**每秒**;实际计费 = 单价 × `duration`。开启 `audio` 或挂 `video_list` 视频参考会切换到对应高档单价。
+</Note>
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频(最简)
 curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "kling-v2-master",
-    "action": "generate",
-    "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
-    "aspect_ratio": "16:9",
+    "model": "kling-v3",
+    "prompt": "一只柴犬穿宇航服在月球上行走,电影感光影",
     "duration": 5,
-    "extra": {
-      "mode": "pro"
-    }
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "mode": "pro",
+    "audio": true
   }'
 ```
 
-```python Python
-import requests
-
-response = requests.post(
-    "https://www.qingbo.dev/v1/tasks",
-    headers={"Authorization": "Bearer YOUR_API_KEY"},
-    json={
-        "model": "kling-v2-master",
-        "action": "generate",
-        "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
-        "aspect_ratio": "16:9",
-        "duration": 5,
-        "extra": {
-            "mode": "pro"
-        }
-    }
-)
-
-task_id = response.json()["task_id"]
-print(f"任务已提交: {task_id}")
+```bash 图生视频(首帧)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v2.6",
+    "action": "image2video",
+    "prompt": "人物缓缓走向镜头,微风吹动头发",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 5,
+    "resolution": "1080p",
+    "mode": "pro"
+  }'
 ```
 
-```javascript JavaScript
-const response = await fetch('https://www.qingbo.dev/v1/tasks', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    model: 'kling-v2-master',
-    action: 'generate',
-    prompt: '一条锦鲤在清澈的池塘中游动，水面波光粼粼',
-    aspect_ratio: '16:9',
-    duration: 5,
-    extra: {
-      mode: 'pro'
-    }
-  })
-});
-
-const { task_id } = await response.json();
-console.log(`任务已提交: ${task_id}`);
+```bash Omni 多模态参考
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-v3-omni",
+    "action": "reference",
+    "prompt": "把 <<<image_1>>> 中的角色放到 <<<image_2>>> 的森林场景里奔跑",
+    "image_urls": [
+      "https://cdn.example.com/char.jpg",
+      "https://cdn.example.com/forest.jpg"
+    ],
+    "duration": 6,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
 ```
 
-```go Go
-package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-)
-
-func main() {
-    payload := map[string]interface{}{
-        "model":        "kling-v2-master",
-        "action":       "generate",
-        "prompt":       "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
-        "aspect_ratio": "16:9",
-        "duration":     5,
-        "extra": map[string]interface{}{
-            "mode": "pro",
-        },
-    }
-
-    body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://www.qingbo.dev/v1/tasks", bytes.NewBuffer(body))
-    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
-    req.Header.Set("Content-Type", "application/json")
-
-    resp, _ := http.DefaultClient.Do(req)
-    defer resp.Body.Close()
-    result, _ := io.ReadAll(resp.Body)
-    fmt.Println(string(result))
-}
+```bash O1 推理增强(视频参考)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling-video-o1",
+    "action": "reference_video",
+    "prompt": "保持 <<<image_1>>> 角色形象,沿用参考视频的镜头运动",
+    "image_urls": ["https://cdn.example.com/char.jpg"],
+    "video_list": [
+      {
+        "video_url": "https://cdn.example.com/ref.mp4",
+        "refer_type": "feature",
+        "keep_original_sound": "no"
+      }
+    ],
+    "duration": 10,
+    "resolution": "1080p"
+  }'
 ```
 
-```java Java
-import java.net.http.*;
-import java.net.URI;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        String payload = """
-        {
-          "model": "kling-v2-master",
-          "action": "generate",
-          "prompt": "一条锦鲤在清澈的池塘中游动，水面波光粼粼",
-          "aspect_ratio": "16:9",
-          "duration": 5,
-          "extra": {
-            "mode": "pro"
-          }
-        }
-        """;
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://www.qingbo.dev/v1/tasks"))
-            .header("Authorization", "Bearer YOUR_API_KEY")
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(payload))
-            .build();
-
-        HttpResponse<String> response = client.send(request,
-            HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-    }
-}
-```
-</RequestExample>
+</CodeGroup>
 
 <ResponseExample>
-```json 200
+```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "kling-v2-master",
+  "model": "kling-v3",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -151,191 +116,215 @@ public class Main {
 ```
 </ResponseExample>
 
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
 ## 可用模型
 
-| 模型 ID | 说明 |
-|---------|------|
-| `kling-video-o1` | 可灵 Video O1，最新旗舰 |
-| `kling-v3` | 可灵 V3，支持 3-15 秒、多镜头、原生音频 |
-| `kling-v2-master` | 可灵 V2 Master |
-| `kling-v1-6` | 可灵 V1.6，支持镜头控制 |
-| `kling-v1` | 可灵 V1 |
+| 模型 ID | 分辨率 | 时长 | 支持 action | 特色 |
+|---|---|---|---|---|
+| `kling-v2.6` | 720P / 1080P | 5 / 10 秒 | `generate` · `image2video` · `first_last_frame` | pro 模式可有声,稳定性优 |
+| `kling-v3` | 720P / 1080P / 4K | 3-15 秒 | `generate` · `image2video` · `first_last_frame` | 4K + 原生有声 |
+| `kling-v3-omni` | 720P / 1080P / 4K | 3-15 秒 | `generate` · `image2video` · `reference` · `reference_video` | 统一多模态 endpoint |
+| `kling-video-o1` | 720P / 1080P | 5 / 10 秒 | `generate` · `image2video` · `first_last_frame` · `reference` · `reference_video` | 推理增强,物理一致性最优 |
 
-## 统一参数
+## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型 ID
+  模型 ID,见 [可用模型](#可用模型) 表
 </ParamField>
 
 <ParamField body="action" type="string" default="generate">
-  操作类型
+  操作类型,可选值:
+  - `generate` — 文生视频(T2V)
+  - `image2video` — 图生视频,需配合 `first_frame_image` 或 `image_urls`
+  - `first_last_frame` — 首尾帧补全,需 `first_frame_image` + `last_frame_image`(v2.6 / v3 / o1)
+  - `reference` — 多模态参考生视频,需配合 `image_urls`(omni / o1)
+  - `reference_video` — 视频参考生视频,需配合 `video_list`(omni / o1)
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
-  视频描述文本，最多 2500 字符
+  视频描述文本。Omni / O1 中可用 `<<<image_N>>>` 语法引用 `image_urls` 第 N 张图(N 从 1 开始)
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  一次生成几条候选,通常为 `1`
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="16:9">
-  宽高比：`16:9`、`9:16`、`1:1`
+  画面宽高比,**仅 T2V 生效**;图 / 视频参考模式跟随源素材比例。可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `1:1` — 正方形
+</ParamField>
 
-  图生视频时忽略此参数，宽高比由输入图片决定
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率,**与 `mode` 联动**。各模型支持范围见 [可用模型](#可用模型):
+  - `720p`
+  - `1080p`
+  - `4K`(仅 v3 / omni)
 </ParamField>
 
 <ParamField body="duration" type="integer" default="5">
-  视频时长（秒）：`5`、`10`
-</ParamField>
-
-<ParamField body="negative_prompt" type="string">
-  不希望出现的内容，最多 2500 字符。仅 V1 / V1.6 支持
+  视频时长(秒)。v2.6 / o1 仅 `5` 或 `10`;v3 / omni 支持 3-15 任意整数
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  参考图片 URL（首帧），用于图生视频。JPEG/PNG/WebP，≤ 10MB
+  参考图片 URL 数组。**单元素数组**触发 I2V;多张用于 Omni / O1 的多模态参考(可被 `<<<image_N>>>` 引用)
 </ParamField>
 
-<ParamField body="last_frame" type="string">
-  尾帧图片 URL，需配合 `image_urls` 使用
+<ParamField body="first_frame_image" type="string">
+  视频首帧图 URL。配合 `image2video` 或 `first_last_frame` action 使用(v2.6 / v3 / o1)
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  视频尾帧图 URL,配合 `first_last_frame` action 使用
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  参考视频 URL 数组(单元素)。Omni / O1 简化形态,等价于挂一段 `refer_type=feature` 的 `video_list`
 </ParamField>
 
 <ParamField body="callback_url" type="string">
-  Webhook 回调地址
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
 </ParamField>
 
-<ParamField body="extra" type="object">
-  透传给可灵的额外参数，详见各模型 Tab
+<ParamField body="callback_events" type="string[]">
+  需要推送的事件类型,默认终态全推
 </ParamField>
 
 ## 模型特定参数
 
 <Tabs>
-  <Tab title="Kling V3">
-    **duration 范围：** 3-15 秒
 
-    <ParamField body="extra.mode" type="string" default="std">
-      生成模式：`std`（720P）或 `pro`（1080P）
-    </ParamField>
+<Tab title="kling-v2.6">
 
-    <ParamField body="extra.enable_audio" type="boolean" default="true">
-      原生音频生成，默认开启
-    </ParamField>
+<ParamField body="mode" type="string" default="std">
+  生成模式:
+  - `std` — 720P 无声(基础档)
+  - `pro` — 1080P 可有声(配合 `audio: true`)
+</ParamField>
 
-    **多镜头模式：**
+<ParamField body="audio" type="boolean" default="false">
+  是否自动生成音频。**仅 `mode=pro` 生效**;**与尾帧互斥**(`first_last_frame` 时不可开)
+</ParamField>
 
-    支持 2-6 个镜头分段生成，使用 `shot_N_prompt` + `shot_N_duration` 替代 `prompt` + `duration`：
+<ParamField body="watermark" type="boolean" default="false">
+  是否添加水印
+</ParamField>
 
-    ```json
-    "extra": {
-      "shot_1_prompt": "特写：一杯咖啡在桌上冒着热气",
-      "shot_1_duration": 5,
-      "shot_2_prompt": "镜头拉远，展示整个咖啡馆的场景",
-      "shot_2_duration": 5
-    }
-    ```
+</Tab>
 
-    各镜头 duration 总和须在 3-15 秒范围内。
-  </Tab>
+<Tab title="kling-v3">
 
-  <Tab title="Kling V2 Master">
-    <ParamField body="extra.mode" type="string" default="std">
-      生成模式：`std`（720P，更快）或 `pro`（1080P，更高质量）
-    </ParamField>
+<ParamField body="mode" type="string" default="std">
+  生成模式:
+  - `std` — 720P
+  - `pro` — 1080P
+  - `4k` — 4K 超清
+</ParamField>
 
-    <Note>
-    V2 不支持 `negative_prompt`、`cfg_scale` 和 `camera_control`。
-    </Note>
-  </Tab>
+<ParamField body="audio" type="boolean" default="false">
+  是否生成有声视频。各档分辨率均支持原生有声
+</ParamField>
 
-  <Tab title="Kling V1.6">
-    <ParamField body="extra.mode" type="string" default="std">
-      生成模式：`std` 或 `pro`
-    </ParamField>
+<ParamField body="watermark" type="boolean" default="false">
+  是否添加水印
+</ParamField>
 
-    <ParamField body="extra.cfg_scale" type="number" default="0.5">
-      创意度控制，范围 0-1。值越高越贴近提示词
-    </ParamField>
+</Tab>
 
-    <ParamField body="extra.camera_control" type="object">
-      镜头运动控制
+<Tab title="kling-v3-omni">
 
-      <Expandable title="预设模式">
-        `type` 可选值：`down_back`（下降后退）、`forward_up`（前进上升）、`right_turn_forward`（右转前进）、`left_turn_forward`（左转前进）
-      </Expandable>
+<ParamField body="mode" type="string" default="std">
+  生成模式:
+  - `std` — 720P
+  - `pro` — 1080P
+  - `4k` — 4K 超清
+</ParamField>
 
-      <Expandable title="自定义模式">
-        设置 `type: "simple"`，通过 `config` 精确控制六轴运动（范围 -10 ~ 10）：
+<ParamField body="audio" type="boolean" default="false">
+  是否生成有声视频。**与 `video_list` 互斥** — 挂视频参考时不可开
+</ParamField>
 
-        - `horizontal` — X 平移，负值左移，正值右移
-        - `vertical` — Y 平移，负值下移，正值上移
-        - `pan` — X 旋转，负值下转，正值上转
-        - `tilt` — Y 旋转，负值左转，正值右转
-        - `roll` — Z 旋转，负值逆时针，正值顺时针
-        - `zoom` — 焦距，负值拉近，正值拉远
-      </Expandable>
-    </ParamField>
+<ParamField body="watermark" type="boolean" default="false">
+  是否添加水印
+</ParamField>
 
-    <ParamField body="extra.static_mask" type="string">
-      静态遮罩图片 URL（PNG），定义不运动的区域。仅图生视频可用
-    </ParamField>
+<ParamField body="video_list" type="object[]">
+  参考视频列表,**最多 1 段**。每个元素结构:
+  - `video_url` — 视频 URL,公网可下载
+  - `refer_type` — 参考类型,`base`(整体复刻) / `feature`(运动 / 风格特征)
+  - `keep_original_sound` — 是否保留原音轨,`yes` / `no`
 
-    <ParamField body="extra.dynamic_masks" type="array">
-      动态遮罩数组（最多 6 个），定义按轨迹运动的区域。仅图生视频可用
+  挂上 `video_list` 后即按"视频参考"档计费,且 `audio` 不可同时开启。
+</ParamField>
 
-      <Expandable title="属性">
-        <ParamField body="mask_url" type="string">
-          遮罩图片 URL（PNG with alpha）
-        </ParamField>
-        <ParamField body="trajectories" type="array">
-          轨迹坐标点数组，每个点包含 x 和 y 坐标，2-77 个点
-        </ParamField>
-      </Expandable>
-    </ParamField>
-  </Tab>
+</Tab>
 
-  <Tab title="Kling V1">
-    <ParamField body="extra.mode" type="string" default="std">
-      生成模式：`std` 或 `pro`
-    </ParamField>
+<Tab title="kling-video-o1">
 
-    <ParamField body="extra.cfg_scale" type="number" default="0.5">
-      创意度控制，范围 0-1
-    </ParamField>
-  </Tab>
+<ParamField body="mode" type="string" default="std">
+  生成模式:
+  - `std` — 720P
+  - `pro` — 1080P
+</ParamField>
+
+<ParamField body="video_list" type="object[]">
+  参考视频列表,**最多 1 段**。结构与 Omni 相同:
+  - `video_url` — 视频 URL
+  - `refer_type` — `base` / `feature`
+  - `keep_original_sound` — `yes` / `no`
+
+  O1 不支持 `audio` 字段;有声需求请用 v3 / omni。
+</ParamField>
+
+</Tab>
+
 </Tabs>
 
-## 生成模式
+## 特殊语法说明
 
-| 模式 | 参数 | 说明 |
-|------|------|------|
-| 文生视频 | `prompt` | 纯文本生成 |
-| 图生视频 | `prompt` + `image_urls`(1张) | 首帧图 + 文本描述 |
-| 首尾帧 | `image_urls`(1张) + `last_frame` | 起止画面过渡 |
+**`<<<image_N>>>` 提示词图片引用**(Omni / O1 适用)
+
+在 `prompt` 中用 `<<<image_N>>>` 占位符显式引用 `image_urls` 数组中的第 N 张图(N 从 **1** 开始)。模型会把占位符替换为对应图像内容,用于:
+
+- 角色一致性 — `<<<image_1>>>` 锁定主体形象
+- 场景拼合 — `<<<image_1>>>` 中的角色出现在 `<<<image_2>>>` 的环境
+- 多素材引导 — 任意位置嵌入 N 张参考图
+
+```text 示例
+"把 <<<image_1>>> 中穿红衣的女孩,放到 <<<image_2>>> 的雪山场景里,镜头缓慢推进"
+```
+
+对应 `image_urls`:
+
+```json
+"image_urls": [
+  "https://cdn.example.com/girl-red.jpg",
+  "https://cdn.example.com/snow-mountain.jpg"
+]
+```
 
 <Note>
-图生视频时 `aspect_ratio` 由输入图片决定，无需指定。
+非 Omni / O1 的 v2.6 / v3 不解析 `<<<image_N>>>` 占位符,会作为字面文本送入模型。
 </Note>
 
-## 响应
+## 资源限制
 
-<ResponseField name="task_id" type="string">
-  任务 ID
-</ResponseField>
+| 项目 | 限制 |
+|---|---|
+| 参考图片(单张) | ≤ 30MB,JPG / PNG / WEBP |
+| 参考图片(数量) | I2V:1 张;Omni / O1 多模态:建议 ≤ 4 张 |
+| 参考视频(`video_list`) | MP4 / MOV,≤ 100MB,2-30 秒,**最多 1 段** |
+| 提示词 | ≤ 2500 字符 |
+| 输出 | MP4,链接 24 小时有效 |
 
-<ResponseField name="model" type="string">
-  使用的模型 ID
-</ResponseField>
+## 相关文档
 
-<ResponseField name="action" type="string">
-  操作类型
-</ResponseField>
-
-<ResponseField name="status" type="string">
-  任务状态：`queued`
-</ResponseField>
-
-<ResponseField name="created_at" type="integer">
-  创建时间（Unix 毫秒时间戳）
-</ResponseField>
-
-<ResponseField name="progress" type="integer">
-  进度，初始为 `0`
-</ResponseField>
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

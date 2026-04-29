@@ -1,0 +1,187 @@
+---
+title: "Grok Imagine Video 系列"
+description: "xAI Grok Imagine 1.0 视频档 — 文生 / 图生,5 种比例,480p / 720p,6-30 秒"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+xAI Grok Imagine 1.0 视频生成模型,Grok 多模态家族中的视频档。本仓库通过 **APIMart 二手代理**接入。
+
+字段简洁、参数门槛低,适合社交媒体短视频、快速概念演示、低成本内容生产线。
+
+<Note>
+Grok Imagine 系列分**图像档**与**视频档**两条线。图像生成请见 [Grok Imagine 图像](/cn/api-reference/image/grok-imagine);本页只覆盖视频档。
+</Note>
+
+## 定价
+
+按**视频时长**计费,**全分辨率统一单价**:`$0.0074375` / 秒。
+
+| 时长 | 单次费用 |
+|---|---|
+| 5 秒 | `$0.037` |
+| 10 秒 | `$0.074` |
+| 30 秒(上限) | `$0.223` |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频(最简)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-video",
+    "prompt": "霓虹灯下的雨夜街道,赛博朋克氛围,镜头缓慢推进",
+    "duration": 6,
+    "aspect_ratio": "16:9",
+    "resolution": "480p"
+  }'
+```
+
+```bash 图生视频(单图)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-video",
+    "action": "image2video",
+    "prompt": "人物缓缓转头看向镜头",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 10,
+    "resolution": "720p"
+  }'
+```
+
+```bash 多图参考(7 张上限)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-video",
+    "action": "image2video",
+    "prompt": "保持角色一致,在森林中奔跑",
+    "image_urls": [
+      "https://cdn.example.com/ref-1.jpg",
+      "https://cdn.example.com/ref-2.jpg",
+      "https://cdn.example.com/ref-3.jpg",
+      "https://cdn.example.com/ref-4.jpg",
+      "https://cdn.example.com/ref-5.jpg",
+      "https://cdn.example.com/ref-6.jpg",
+      "https://cdn.example.com/ref-7.jpg"
+    ],
+    "duration": 8,
+    "resolution": "720p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "grok-imagine-1.0-video",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `grok-imagine-1.0-video` | xAI Grok Imagine 1.0 视频档,T2V / I2V,5 种比例,480p / 720p,6-30 秒 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  固定为 `grok-imagine-1.0-video`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,可选值:
+  - `generate` — 文生视频(T2V)
+  - `image2video` — 图生视频(I2V),需配合 `image_urls`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  视频描述文本。**T2V 模式必填**;I2V 模式可作为运动 / 风格引导
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比,**仅 T2V 生效**;I2V 模式自动跟随参考图比例。可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `1:1` — 正方形
+  - `3:2` — 横版
+  - `2:3` — 竖版
+</ParamField>
+
+<ParamField body="resolution" type="string" default="480p">
+  输出分辨率,可选值:
+  - `480p`
+  - `720p`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="6">
+  视频时长(秒),**范围 6-30** 任意整数。注意:30 秒为上限,跟其他常见 video model(多为 5/10/15)不同
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组,**最多 7 张**。传入即触发 **I2V** 模式,系统会自动匹配参考图的宽高比
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  回调事件订阅列表,默认仅终态推送
+</ParamField>
+
+## 模型特定参数
+
+<ParamField body="quality" type="string" default="480p">
+  视频质量,可选值:
+  - `480p`
+  - `720p`
+
+  与 `resolution` 含义重合,二者任传其一即可;同时传以 `quality` 为准
+</ParamField>
+
+## 注意事项
+
+- **图生模式比例自动匹配** — 传入 `image_urls` 后,`aspect_ratio` 字段会被忽略,输出比例跟随首张参考图。
+- **duration 范围特殊** — `6-30` 秒,跟仓内多数 video model(`5/10/15` 三档)不同,业务侧表单做枚举校验时记得放开整段区间。
+- **`quality` 与 `resolution` 重合** — 两个字段映射到同一个底层档位,保留 `quality` 是为了对齐 APIMart 上游字段;新接入建议只用 `resolution` 一个,避免歧义。
+- **二手代理链路** — 走 APIMart 中转,可用性受上游 xAI / Grok 配额波动影响,建议生产环境配 `callback_url` 异步推送、不要纯轮询。
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片 | **最多 7 张**,JPG/PNG/WEBP |
+| 时长 | 6-30 秒 |
+| 分辨率 | 480p / 720p |
+| 输出 | MP4,链接 24 小时有效 |
+
+## 相关文档
+
+- [Grok Imagine 图像档](/cn/api-reference/image/grok-imagine) — 同系列图像生成
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

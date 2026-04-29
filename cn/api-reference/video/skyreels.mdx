@@ -1,0 +1,406 @@
+---
+title: "SkyReels 系列"
+description: "昆仑万维 SkyReels V4 — T2V/I2V/Omni 多模态视频,支持参考图、视频扩展、声纹同步"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+昆仑万维 **SkyReels V4** 系列视频生成模型。
+
+V4 是 SkyReels 的多模态版本,在 T2V / I2V 之外原生支持 **Omni 多素材参考**(图 / 视频 / 音频)、**视频扩展**、**首尾帧 / 中间关键帧**、**声纹同步**等高级能力,3-15 秒任意整数时长。
+
+按 **分辨率 × 时长** 计费,Fast / Std 两档可选:
+
+| 档位 | 定位 | 速度 | 画质 | 推荐场景 |
+|---|---|---|---|---|
+| `skyreels-v4-fast` | 加速档 | 快 | 标准 | 创意预览、批量草稿、A/B 比对 |
+| `skyreels-v4-std` | 标准档 | 慢(约 1.5-2x) | 更稳定 | 最终交付、客户成片、复杂运动镜头 |
+
+两档共享同一套参数与能力(actions / ref_images / ref_videos / mid_frame_images / 声纹),只是采样深度不同。建议先用 fast 跑通构思,再用 std 出终版。
+
+## 定价
+
+按秒计费(`$ / 秒`),启用视频参考(`ref_videos` 含 `extend` 或 `reference` 类型)时另算单价:
+
+### `skyreels-v4-fast`
+
+| 分辨率 | 标准 | 含视频参考 | 5 秒视频(标准) |
+|---|---|---|---|
+| 480P | `$0.068` / 秒 | `$0.1275` / 秒 | `$0.34` |
+| 720P | `$0.0935` / 秒 | `$0.17` / 秒 | `$0.4675` |
+| 1080P | `$0.23375` / 秒 | `$0.425` / 秒 | `$1.16875` |
+
+### `skyreels-v4-std`
+
+| 分辨率 | 标准 | 含视频参考 | 5 秒视频(标准) |
+|---|---|---|---|
+| 480P | `$0.0935` / 秒 | `$0.153` / 秒 | `$0.4675` |
+| 720P | `$0.119` / 秒 | `$0.2125` / 秒 | `$0.595` |
+| 1080P | `$0.2975` / 秒 | `$0.53125` / 秒 | `$1.4875` |
+
+<Note>
+**视频参考加价** — 当 `ref_videos` 中包含 `reference`(视频参考)或 `extend`(视频扩展)类型素材时,按"含视频参考"列计价;否则按标准列。
+</Note>
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频(T2V)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "skyreels-v4-fast",
+    "prompt": "一只柴犬穿宇航服在月球漫步,镜头缓缓推近,电影感光影",
+    "duration": 5,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 图生视频(I2V 首帧)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "skyreels-v4-std",
+    "action": "image2video",
+    "prompt": "人物缓缓走向镜头,长发飘动",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```bash Omni 多素材参考
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "skyreels-v4-fast",
+    "action": "reference",
+    "prompt": "保持角色形象,在森林中奔跑,与音频节奏一致",
+    "ref_images": [
+      {
+        "tag": "char",
+        "type": "image",
+        "image_urls": ["https://cdn.example.com/char-1.jpg"]
+      },
+      {
+        "tag": "style_grid",
+        "type": "grid",
+        "image_urls": [
+          "https://cdn.example.com/scene-1.jpg",
+          "https://cdn.example.com/scene-2.jpg"
+        ],
+        "audio_url": "https://cdn.example.com/voice.wav"
+      }
+    ],
+    "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```bash 视频扩展(extend)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "skyreels-v4-std",
+    "action": "extend",
+    "prompt": "顺接前段,人物转身走向远方",
+    "ref_videos": [
+      {
+        "tag": "src",
+        "type": "extend",
+        "video_url": "https://cdn.example.com/source.mp4"
+      }
+    ],
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "skyreels-v4-fast",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 模式速查
+
+通过 `action` 字段(或对应媒体字段)切换不同生成模式:
+
+| 模式 | `action` | 关键字段 | 典型用途 |
+|---|---|---|---|
+| 文生视频 | `generate` | `prompt` | 纯文本生成 |
+| 图生视频 | `image2video` | `first_frame_image` | 单帧动起来 |
+| 首尾帧补全 | `first_last_frame` | `first_frame_image` + `last_frame_image` | 精确控制起止画面 |
+| 多图参考(Omni) | `reference` | `ref_images` | 角色 / 风格 / 场景一致性 |
+| 视频参考 | `reference_video` | `ref_videos.type=reference` | 复刻镜头运动 / 风格 |
+| 视频扩展 | `extend` | `ref_videos.type=extend` | 续写已有视频 |
+| 音频驱动 | `reference_audio` | `audio_urls` 或 `ref_images[].audio_url` | 声纹 / 节拍同步,口型对齐 |
+
+<Tip>
+**通常无需显式传 `action`** — 后端会按你传的媒体字段自动路由。显式传可锁定模式,避免歧义(如同时有图片和视频时强制走视频参考)。
+</Tip>
+
+## 可用模型
+
+| 模型 ID | 档位 | 分辨率 | 时长 | 说明 |
+|---|---|---|---|---|
+| `skyreels-v4-fast` | 加速档 | 480P / 720P / 1080P | 3-15 秒 | T2V/I2V/Omni 全能力,响应更快 |
+| `skyreels-v4-std` | 标准档 | 480P / 720P / 1080P | 3-15 秒 | 同 fast 能力,画质更稳定,适合最终交付 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  模型 ID。可选值:
+  - `skyreels-v4-fast` — 加速档
+  - `skyreels-v4-std` — 标准档
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,后端通常按媒体字段自动路由,显式传可锁定模式。可选值:
+  - `generate` — 文生视频(T2V)
+  - `image2video` — 图生视频(I2V),配合 `first_frame_image`
+  - `first_last_frame` — 首尾帧补全,配合 `first_frame_image` + `last_frame_image`
+  - `reference` — 多图参考(Omni 风格 / 角色一致),配合 `ref_images`
+  - `reference_video` — 视频参考,配合 `ref_videos.type=reference`
+  - `reference_audio` — 音频驱动,配合 `audio_urls` 或 `ref_images[].audio_url`
+  - `extend` — 视频扩展,配合 `ref_videos.type=extend`
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  视频描述文本,最多 5000 字符。**T2V 模式必填**;其他模式可选作引导
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  并行生成数量,范围 1-4。每个返回单独 video URL,均按单条计费
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比,**T2V 生效**;含媒体素材的模式跟随源素材比例。可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `4:3` — 横版
+  - `3:4` — 竖版
+  - `1:1` — 正方形
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率,可选值:
+  - `480p`
+  - `720p`
+  - `1080p`
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  视频时长(秒),范围 **3-15** 任意整数
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  通用参考图片 URL 数组(简化模式),与 `ref_images` 二选一。复杂场景请用 `ref_images` 显式指定 tag / type
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  视频首帧图 URL,触发 **I2V** 模式
+</ParamField>
+
+<ParamField body="last_frame_image" type="string">
+  视频尾帧图 URL,与 `first_frame_image` 同时传时触发 **首尾帧补全**
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  通用视频 URL 数组(简化模式),与 `ref_videos` 二选一
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  参考音频 URL 数组,触发 **声纹同步**(`reference_audio` 模式)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  需要订阅的回调事件类型,默认订阅终态(`succeeded` / `failed`)。可选值:
+  - `queued` — 入队
+  - `running` — 开始执行
+  - `succeeded` — 成功(默认)
+  - `failed` — 失败(默认)
+</ParamField>
+
+## 模型特定参数
+
+两档参数完全一致,区别仅在生成速度与画质,按场景选择即可。
+
+<Tabs>
+  <Tab title="skyreels-v4-fast">
+    **定位:** 加速档,响应更快,适合预览 / 草稿 / 高吞吐场景。
+
+    <ParamField body="ref_images" type="array">
+      Omni 多图参考,最多 6 项。每项支持 `image` 单图或 `grid` 多图组合,可附 `audio_url` 作驱动音。详见下方 [复合字段说明](#复合字段说明)
+    </ParamField>
+
+    <ParamField body="ref_videos" type="array">
+      视频参考,**最多 1 项**。`type=reference` 用作风格 / 角色参考,`type=extend` 用作视频续写。详见下方 [复合字段说明](#复合字段说明)
+    </ParamField>
+
+    <ParamField body="mid_frame_images" type="array">
+      中间关键帧,最多 6 项,带时间戳。可与 `first_frame_image` / `last_frame_image` 组合,精确控制运动轨迹。详见下方 [复合字段说明](#复合字段说明)
+    </ParamField>
+
+    <ParamField body="prompt_optimizer" type="boolean" default="true">
+      是否启用提示词智能改写。开启后后端会扩展 prompt 细节,提升生成稳定性;关闭则严格按原 prompt 执行
+    </ParamField>
+  </Tab>
+
+  <Tab title="skyreels-v4-std">
+    **定位:** 标准档,画质更稳定、运动更自然,适合最终交付级别的视频。生成时长比 fast 多约 1.5-2x。
+
+    <ParamField body="ref_images" type="array">
+      Omni 多图参考,最多 6 项。每项支持 `image` 单图或 `grid` 多图组合,可附 `audio_url` 作驱动音。详见下方 [复合字段说明](#复合字段说明)
+    </ParamField>
+
+    <ParamField body="ref_videos" type="array">
+      视频参考,**最多 1 项**。`type=reference` 用作风格 / 角色参考,`type=extend` 用作视频续写。详见下方 [复合字段说明](#复合字段说明)
+    </ParamField>
+
+    <ParamField body="mid_frame_images" type="array">
+      中间关键帧,最多 6 项,带时间戳。可与 `first_frame_image` / `last_frame_image` 组合,精确控制运动轨迹。详见下方 [复合字段说明](#复合字段说明)
+    </ParamField>
+
+    <ParamField body="prompt_optimizer" type="boolean" default="true">
+      是否启用提示词智能改写。开启后后端会扩展 prompt 细节,提升生成稳定性;关闭则严格按原 prompt 执行
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 复合字段说明
+
+SkyReels V4 的多模态能力靠三个数组字段表达,语义比通用 `image_urls` / `video_urls` 更精确,推荐复杂场景使用。
+
+### `ref_images` — Omni 多素材参考
+
+参考素材列表,**最多 6 项**,每项可以是单图、多图组合(grid),并可绑定一段驱动音频。
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `tag` | string | 是 | 素材标签,会注入 prompt 上下文。例如 `char` / `style` / `bg` |
+| `type` | string | 是 | `image` — 单图;`grid` — 多图组合(2-9 张拼成一组语义) |
+| `image_urls` | string[] | 是 | 图片 URL 数组。`type=image` 时长度为 1;`type=grid` 时 2-9 |
+| `audio_url` | string | 否 | 该素材绑定的音频(声纹 / 节拍驱动),WAV / MP3 |
+
+```json
+"ref_images": [
+  {
+    "tag": "char",
+    "type": "image",
+    "image_urls": ["https://cdn.example.com/char.jpg"]
+  },
+  {
+    "tag": "style",
+    "type": "grid",
+    "image_urls": [
+      "https://cdn.example.com/scene-1.jpg",
+      "https://cdn.example.com/scene-2.jpg",
+      "https://cdn.example.com/scene-3.jpg"
+    ],
+    "audio_url": "https://cdn.example.com/bgm.mp3"
+  }
+]
+```
+
+### `ref_videos` — 视频参考 / 视频扩展
+
+视频素材列表,**最多 1 项**。`type` 决定语义:作风格参考还是视频续写。
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `tag` | string | 是 | 素材标签,如 `src` / `style_ref` |
+| `type` | string | 是 | `reference` — 风格 / 角色 / 运动参考;`extend` — 视频续写,新生成的视频接在源视频之后 |
+| `video_url` | string | 是 | 视频 URL,MP4 / MOV |
+
+```json
+"ref_videos": [
+  {
+    "tag": "src",
+    "type": "extend",
+    "video_url": "https://cdn.example.com/source.mp4"
+  }
+]
+```
+
+<Note>
+**计价提醒** — `ref_videos` 中任一项为 `reference` 或 `extend` 时,触发 `+video_ref` 加价档。
+</Note>
+
+### `mid_frame_images` — 中间关键帧
+
+定义视频中段的关键画面,**最多 6 项**,按时间戳插值。常与首尾帧组合用于精确编排镜头节奏。
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `tag` | string | 是 | 关键帧标签,如 `kf_2s` / `peak` |
+| `image_url` | string | 是 | 关键帧图片 URL |
+| `time_stamp` | number | 是 | 该帧出现的时间(秒),需在 `(0, duration)` 区间内,严格递增 |
+
+```json
+"mid_frame_images": [
+  {
+    "tag": "kf_2s",
+    "image_url": "https://cdn.example.com/kf-2.jpg",
+    "time_stamp": 2.0
+  },
+  {
+    "tag": "kf_5s",
+    "image_url": "https://cdn.example.com/kf-5.jpg",
+    "time_stamp": 5.0
+  }
+]
+```
+
+## Prompt 写作建议
+
+SkyReels V4 的 `prompt_optimizer` 默认开启,但显式写好 prompt 仍能显著提升出片质量:
+
+- **镜头语言** — 明确镜头运动(推 / 拉 / 摇 / 跟)与景别(特写 / 全景 / 俯拍),例:`镜头缓缓推近,从全景到面部特写`
+- **节奏控制** — 用时间词分段,例:`前 2 秒静止凝视,后 3 秒转身离开`,配合 `mid_frame_images` 效果更好
+- **风格锚定** — 描述光影 / 色调 / 质感,例:`电影感冷色调,自然光逆光,胶片颗粒`
+- **避免负面词** — V4 不支持 `negative_prompt`,把"不要 X"改写为正面描述
+- **多素材引导** — 用了 `ref_images` 时,prompt 里点名 tag,例:`保持 char 角色形象,在 style 场景中行走`
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| `ref_images` | 最多 6 项,单项 `type=grid` 内 2-9 张;单图 ≤ 30MB,JPG/PNG/WEBP |
+| `ref_videos` | 最多 1 项,MP4/MOV,≤ 100MB,2-30 秒 |
+| `mid_frame_images` | 最多 6 项,时间戳须严格递增且在 `(0, duration)` 区间 |
+| `audio_urls` / `audio_url` | WAV/MP3,≤ 15MB,3-30 秒 |
+| `first_frame_image` / `last_frame_image` | JPG/PNG/WEBP,≤ 30MB |
+| 输出 | MP4,链接 24 小时有效 |
+| 并发 | 单账号同时 ≤ 5 条任务排队 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用
+- [回调机制](/cn/docs/sync-async#异步任务-webhook) — Webhook 签名 / 重试 / 事件订阅

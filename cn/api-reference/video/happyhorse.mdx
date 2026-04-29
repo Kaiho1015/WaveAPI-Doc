@@ -1,0 +1,204 @@
+---
+title: "HappyHorse 系列"
+description: "阿里云百炼欢马视频 — 单模型统一入口,智能路由 T2V/I2V/R2V/EDIT"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+阿里云百炼上的视频生成模型。
+
+**单模型统一入口** — 只用一个 `happyhorse-1.0`,后端按传入字段自动路由 T2V / I2V / R2V / EDIT 四种模式,无需切换 model id。
+
+按 **分辨率 × 时长** 计费,3-15 秒任意整数。
+
+## 定价
+
+| 分辨率 | 单价 | 5 秒视频 |
+|---|---|---|
+| 720P | `$0.138` / 秒 | `$0.69` |
+| 1080P | `$0.244` / 秒 | `$1.22` |
+
+## 模式路由
+
+| 传入字段 | 路由模式 | 说明 |
+|---|---|---|
+| 仅 `prompt` | **T2V**(文生视频) | 画面比例由 `aspect_ratio` 控制 |
+| `+ first_frame_image`(单帧) | **I2V**(图生视频) | `aspect_ratio` 被忽略,跟随首帧比例 |
+| `+ image_urls`(1-9 张) | **R2V**(参考生视频) | 多图风格 / 角色一致性 |
+| `+ video_urls`(单元素数组) | **EDIT**(视频编辑) | 可叠加 `image_urls` ≤5 张作为风格参考 |
+
+<Warning>
+**字段互斥** — `first_frame_image` / `image_urls` / `video_urls` 两两互斥,只有 `video_urls + image_urls` 可同时传(EDIT 模式叠加风格参考)。
+</Warning>
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频(最简)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "prompt": "一只柴犬穿宇航服在月球上行走,电影感光影",
+    "duration": 5,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 图生视频(I2V)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "prompt": "人物缓缓走向镜头",
+    "first_frame_image": "https://cdn.example.com/portrait.jpg",
+    "duration": 8,
+    "resolution": "1080p"
+  }'
+```
+
+```bash 参考生视频(R2V)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "prompt": "保持角色形象,在森林中奔跑",
+    "image_urls": [
+      "https://cdn.example.com/char-1.jpg",
+      "https://cdn.example.com/char-2.jpg"
+    ],
+    "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```bash 视频编辑(EDIT)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse-1.0",
+    "action": "edit",
+    "prompt": "把场景改为雪天",
+    "video_urls": ["https://cdn.example.com/source.mp4"],
+    "audio_setting": "origin",
+    "duration": 0,
+    "resolution": "1080p"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "happyhorse-1.0",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `happyhorse-1.0` | 统一入口,T2V/I2V/R2V/EDIT 自动路由,720P/1080P,3-15 秒 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  固定为 `happyhorse-1.0`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,**通常无需显式传**,后端按媒体字段自动路由。可选值:
+  - `generate` — 文生视频(T2V)
+  - `image2video` — 图生视频(I2V),需配合 `first_frame_image`
+  - `reference` — 参考生视频(R2V),需配合 `image_urls`
+  - `edit` — 视频编辑,需配合 `video_url`
+  - `reference_audio` — 配合 `audio_urls` 作驱动音
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  视频描述文本,最多 5000 字符。**T2V 模式必填**;其他模式可选作引导
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  视频时长(秒),范围 3-15 任意整数;EDIT 模式可传 `0` 表示跟随源视频
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率,可选值:
+  - `720p`
+  - `1080p`
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比,**仅 T2V 生效**;I2V / R2V / EDIT 时跟随源素材比例。可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `4:3` — 横版
+  - `3:4` — 竖版
+  - `1:1` — 正方形
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组,**1-9 张**:
+  - 触发 **R2V** 模式(多图风格 / 角色一致性)
+  - EDIT 模式叠加,作风格参考(≤5 张)
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  视频首帧图 URL,触发 **I2V** 模式
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  源视频 URL 数组(单元素),**触发 EDIT 模式**:
+  - 暂不支持 base64
+  - 需公网可下载链接
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  参考音频 URL 数组(`reference_audio` 模式)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+## 模型特定参数
+
+<ParamField body="audio_setting" type="string" default="auto">
+  音频设置,**仅 EDIT 模式生效**。可选值:
+  - `auto` — 自动生成与编辑后视频匹配的音频
+  - `origin` — 保留源视频原音轨
+</ParamField>
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片 | 最多 9 张,单张 ≤ 30MB,JPG/PNG/WEBP |
+| 源视频(EDIT) | MP4/MOV,≤ 100MB,2-30 秒 |
+| 参考音频 | WAV/MP3,≤ 15MB,3-30 秒 |
+| 输出 | MP4,链接 24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用
