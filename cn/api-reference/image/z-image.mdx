@@ -1,0 +1,137 @@
+---
+title: "Z.ai Image"
+description: "智谱 Z.ai 图像生成 — 轻量快速,中英双语 Prompt,低延迟低成本"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+智谱 Z.ai 推出的轻量快速图像生成模型,中英双语 Prompt 均良好支持,**延迟低、单价低**,适合批量草图、运营素材、快速预览等高频场景。
+
+按张计费,纯文生图(不接受参考图),固定单次返回 1 张。
+
+## 定价
+
+| 模型 | 单价(每张) |
+|---|---|
+| `z-image-turbo` | `$0.010625` |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(最简)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "z-image-turbo",
+    "prompt": "夕阳下的海边咖啡馆,木质露台,暖色调",
+    "aspect_ratio": "16:9",
+    "resolution": "1K"
+  }'
+```
+
+```bash 启用智能改写
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "z-image-turbo",
+    "prompt": "一只柴犬",
+    "prompt_extend": true,
+    "aspect_ratio": "1:1",
+    "resolution": "2K"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "z-image-turbo",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `z-image-turbo` | 轻量快速,中英双语,1K/2K,纯文生(无参考图) |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  从 [可用模型](#可用模型) 列表中选一个
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,`z-image-turbo` 仅支持 `generate`(文生图)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像描述文本,中英文均良好支持。**最长 800 字符**
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量。**该模型固定单次返回 1 张,不支持 `n > 1`**
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,可选值:
+  - `1:1` — 正方形
+  - `4:3` / `3:4` — 横/竖版标准
+  - `16:9` / `9:16` — 横/竖版宽屏
+  - `3:2` / `2:3` — 横/竖版相机比
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1K">
+  输出分辨率,可选 `1K` / `2K`
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  指定要回调的事件,默认仅终态事件。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+## 模型特定参数
+
+<ParamField body="prompt_extend" type="boolean" default="false">
+  智能改写提示词。开启后 AI 自动优化提示词,效果更好但**费用增加**
+</ParamField>
+
+## 注意事项
+
+- **单次只能 1 张** — `n` 字段固定为 1,如需多张请多次提交任务
+- **Prompt 上限 800 字符** — 超长 Prompt 请自行裁剪
+- **`prompt_extend` 开启后费用上升** — AI 改写会消耗额外推理成本,批量场景请按需开启
+- **纯文生图** — 不接受 `image_urls` 参考图,如需图生图请选择其他模型
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 单次生成数量 | 固定 1 张 |
+| Prompt 长度 | ≤ 800 字符 |
+| 输出分辨率 | `1K` / `2K` |
+| 输出文件 | JPG,链接 24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

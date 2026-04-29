@@ -1,204 +1,343 @@
 ---
-title: "Gemini 图像系列"
-description: "Google Gemini 图像生成系列模型"
+title: "Gemini Image 系列"
+description: "Google Gemini 图像生成 — 三代 Nano Banana 演进,生成 / 编辑 / 多图参考 / 搜索增强"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-异步处理模式 — 提交请求后返回任务 ID，通过 [查询任务状态](/cn/api-reference/task/status) 接口获取生成结果。
+Google Gemini 原生多模态图像系列,**三代演进 + 双档接入**:
 
-<RequestExample>
-```bash cURL
+- **Nano Banana 3(Gemini 3.1 Flash Image Preview)** — 轻量快速档,延迟低、成本省,**独家支持 Google 文字 / 图片搜索增强**,适合预览、批量、迭代
+- **Nano Banana 2(Gemini 3 Pro Image Preview)** — 旗舰档,4K 原生输出,专业级保真度,多步规划,内置质量分析
+- **Nano Banana(Gemini 2.5 Flash Image Preview)** — 老一代主力,低延迟、高性价比,多图融合,角色一致性
+
+每代提供两档接入:**标准档**(经济、性价比线)与 **官方直连档**(高 SLA、稳定性更高,价格更高)。两档同模型同能力,区别只在通道与计费。**推荐直接选用对应的 `-official` model id 切换通道**(语义清晰),也可在标准档上设 `official_fallback: true` 在运行时切换。
+
+按张计费,所有版本支持中英文 prompt。
+
+## 定价
+
+| 模型 | 单价(每张) |
+|---|---|
+| `gemini-3-pro-image-preview-official` | `$0.1139` |
+| `gemini-3-pro-image-preview` | `$0.0425` |
+| `gemini-3.1-flash-image-preview-official` | `$0.05695` |
+| `gemini-3.1-flash-image-preview` | `$0.031875` |
+| `gemini-2.5-flash-image-preview-official` | `$0.03315` |
+| `gemini-2.5-flash-image-preview` | `$0.01328125` |
+
+## 模式速查
+
+| 模式 | 触发字段 | 支持版本 |
+|---|---|---|
+| **文生图** | 仅 `prompt` | 全部 |
+| **图生图(image2image)** | `+ image_urls` + `action: "image2image"` | 全部 |
+| **图像编辑(指令式重绘)** | `+ image_urls` + `action: "edit"` | 全部 |
+| **多图参考融合** | `+ image_urls`(多张)+ `action: "reference"` | 全部 |
+| **搜索增强(grounding)** | `action: "search_grounded"` 或 `google_search: true` | **仅 3.1 Flash 系列** |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(最简,Nano Banana 2)
 curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gemini-3.1-flash-image-preview",
-    "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
-    "size": "16:9"
+    "model": "gemini-3-pro-image-preview",
+    "prompt": "极简主义工作室人像,柔和侧光,胶片质感,4K 锐利",
+    "resolution": "4K",
+    "aspect_ratio": "3:2"
   }'
 ```
 
-```python Python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://www.qingbo.dev/v1",
-    api_key="YOUR_API_KEY"
-)
-
-response = client.images.generate(
-    model="gemini-3.1-flash-image-preview",
-    prompt="一只橘猫趴在窗台上晒太阳，水彩画风格",
-    size="16:9"
-)
-
-print(response.data[0])
+```bash 多图融合(Nano Banana 2)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3-pro-image-preview",
+    "action": "reference",
+    "prompt": "把第一张图的角色融入第二张图的场景,保持光影一致",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/scene.jpg"
+    ],
+    "resolution": "4K",
+    "aspect_ratio": "16:9"
+  }'
 ```
 
-```javascript JavaScript
-import OpenAI from 'openai';
-
-const client = new OpenAI({
-  baseURL: 'https://www.qingbo.dev/v1',
-  apiKey: 'YOUR_API_KEY'
-});
-
-const response = await client.images.generate({
-  model: 'gemini-3.1-flash-image-preview',
-  prompt: '一只橘猫趴在窗台上晒太阳，水彩画风格',
-  size: '16:9'
-});
-
-console.log(response.data[0]);
+```bash 图像编辑(Nano Banana,2.5 Flash)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-2.5-flash-image-preview",
+    "action": "edit",
+    "prompt": "把背景换成海边日落,人物保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "aspect_ratio": "1:1"
+  }'
 ```
 
-```go Go
-package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-)
-
-func main() {
-    payload := map[string]interface{}{
-        "model":  "gemini-3.1-flash-image-preview",
-        "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
-        "size":   "16:9",
-    }
-
-    body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://www.qingbo.dev/v1/tasks", bytes.NewBuffer(body))
-    req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
-    req.Header.Set("Content-Type", "application/json")
-
-    resp, _ := http.DefaultClient.Do(req)
-    defer resp.Body.Close()
-    result, _ := io.ReadAll(resp.Body)
-    fmt.Println(string(result))
-}
+```bash 搜索增强(3.1 Flash 独家)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.1-flash-image-preview",
+    "action": "search_grounded",
+    "prompt": "画一张本周登顶 App Store 的热门游戏的关键画面海报",
+    "google_search": true,
+    "google_image_search": true,
+    "resolution": "2K",
+    "aspect_ratio": "16:9"
+  }'
 ```
 
-```java Java
-import java.net.http.*;
-import java.net.URI;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        String payload = """
-        {
-          "model": "gemini-3.1-flash-image-preview",
-          "prompt": "一只橘猫趴在窗台上晒太阳，水彩画风格",
-          "size": "16:9"
-        }
-        """;
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://www.qingbo.dev/v1/tasks"))
-            .header("Authorization", "Bearer YOUR_API_KEY")
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(payload))
-            .build();
-
-        HttpResponse<String> response = client.send(request,
-            HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-    }
-}
+```bash 官方直连档(高 SLA)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3-pro-image-preview-official",
+    "prompt": "复杂排版海报,包含中英双语标语和密集小字,要求清晰可读",
+    "resolution": "4K",
+    "aspect_ratio": "2:3"
+  }'
 ```
-</RequestExample>
+
+</CodeGroup>
 
 <ResponseExample>
-```json 200
+```json 提交成功
 {
-  "code": "success",
-  "data": "task-wave17200000001234567890abcdef"
+  "task_id": "task-wave1775309821b950328499",
+  "model": "gemini-3-pro-image-preview",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775309821040,
+  "progress": 0
 }
 ```
 </ResponseExample>
 
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
 ## 可用模型
 
-| 模型 ID | 说明 |
-|---------|------|
-| `gemini-2.5-flash-image` | Gemini 2.5 Flash 图像预览版 |
-| `gemini-3-pro-image-preview` | Gemini 3 Pro 图像预览版 |
-| `gemini-3.1-flash-image-preview` | Gemini 3.1 Flash 图像预览版，支持高分辨率和搜索增强 |
+| 模型 ID | 系列 | 说明 |
+|---|---|---|
+| `gemini-3-pro-image-preview-official` | Nano Banana 2 · 官方直连 | 旗舰档,同模型直连,稳定性更高 |
+| `gemini-3-pro-image-preview` | Nano Banana 2 · 标准档 | 旗舰档,4K 原生,专业保真,多步规划 |
+| `gemini-3.1-flash-image-preview-official` | Nano Banana 3 · 官方直连 | 快速档直连,搜索增强 |
+| `gemini-3.1-flash-image-preview` | Nano Banana 3 · 标准档 | 快速档,Google 文字+图片搜索增强 |
+| `gemini-2.5-flash-image-preview-official` | Nano Banana · 官方直连 | 老一代直连,高性价比 |
+| `gemini-2.5-flash-image-preview` | Nano Banana · 标准档 | 老一代主力,低延迟、多图融合 |
 
 ## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型 ID，见上方模型列表
+  从 [可用模型](#可用模型) 列表中选一个
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,可选值:
+  - `generate` — 文生图(默认)
+  - `image2image` — 图生图(需配合 `image_urls`)
+  - `edit` — 图像编辑(指令式重绘 / 局部修改)
+  - `reference` — 多图参考融合
+  - `search_grounded` — 搜索增强(**仅 3.1 Flash 系列**)
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
-  图像描述文本，最多 1000 个字符
-</ParamField>
-
-<ParamField body="image_urls" type="array">
-  参考图片 URL 数组，最多 14 张，每张不超过 10MB
+  图像描述文本,支持中英文。Gemini 系列对自然语言指令理解力强,擅长接受多步骤、多约束 prompt
 </ParamField>
 
 <ParamField body="n" type="integer" default="1">
-  生成数量，固定为 1
+  生成数量(单次返回多张)
 </ParamField>
 
-## 各模型差异参数
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,**取值范围取决于模型**:
+
+  标准 10 种(全部模型支持):
+  - `1:1` — 正方形
+  - `2:3` / `3:2` — 竖/横版相机比
+  - `3:4` / `4:3` — 竖/横版标准
+  - `4:5` / `5:4` — 竖/横版社媒
+  - `9:16` / `16:9` — 竖/横版宽屏
+  - `21:9` — 超宽屏
+
+  极端比例(**仅 3.1 Flash 系列**):
+  - `1:4` / `4:1` — 长条 / 横幅
+  - `1:8` / `8:1` — 极致长条 / 极致横幅
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1K">
+  输出分辨率,**取决于模型**:
+  - 3 Pro:`1K` / `2K` / `4K`
+  - 3.1 Flash:`0.5K` / `1K` / `2K` / `4K`
+  - 2.5 Flash:`1K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组。`image2image` / `edit` 通常一张,`reference` 多张
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  回调事件过滤,如 `["completed", "failed"]`
+</ParamField>
+
+## 模型特定参数
 
 <Tabs>
-  <Tab title="Gemini 2.5 Flash">
-    <ParamField body="size" type="string" default="1:1">
-      图像尺寸比例
+  <Tab title="3 Pro Official">
+    **model id**:`gemini-3-pro-image-preview-official`
 
-      支持：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`
-    </ParamField>
+    **系列**:Nano Banana 2 · 官方直连档
 
-    <ParamField body="resolution" type="string" default="1K">
-      输出分辨率：`1K`
-    </ParamField>
-  </Tab>
+    **支持 action**:`generate` / `image2image` / `edit` / `reference`
 
-  <Tab title="Gemini 3 Pro">
-    <ParamField body="size" type="string" default="1:1">
-      图像尺寸比例
+    **resolution**:`1K` / `2K` / `4K`
 
-      支持：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`
-    </ParamField>
+    **aspect_ratio**:标准 10 种
 
-    <ParamField body="resolution" type="string" default="1K">
-      输出分辨率：`1K`
+    **核心特性**:与 3 Pro 标准档**完全同模型**,通道与稳定性更优,适合对 SLA 敏感的生产线。价格约为标准档的 2.7 倍。
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      该模型本身已是官方直连档,通常无需开启。保留字段用于上游统一参数模板兼容
     </ParamField>
   </Tab>
 
-  <Tab title="Gemini 3.1 Flash">
-    <ParamField body="size" type="string" default="1:1">
-      图像尺寸比例
+  <Tab title="3 Pro">
+    **model id**:`gemini-3-pro-image-preview`
 
-      支持：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`、`1:4`、`4:1`、`1:8`、`8:1`
+    **系列**:Nano Banana 2 · 标准档
+
+    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+
+    **resolution**:`1K` / `2K` / `4K`
+
+    **aspect_ratio**:标准 10 种
+
+    **核心特性**:旗舰档,4K 原生输出,专业级保真度,多步规划与内置质量分析,擅长复杂构图与精细排版。
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      运行时切换到官方直连档,稳定性更高但价格更高。建议直接使用 `-official` 模型 id,语义更清晰
+    </ParamField>
+  </Tab>
+
+  <Tab title="3.1 Flash Official">
+    **model id**:`gemini-3.1-flash-image-preview-official`
+
+    **系列**:Nano Banana 3 · 官方直连档
+
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `search_grounded`
+
+    **resolution**:`0.5K` / `1K` / `2K` / `4K`
+
+    **aspect_ratio**:标准 10 种 + 极端 4 种(`1:4` / `4:1` / `1:8` / `8:1`)
+
+    **核心特性**:与 3.1 Flash 标准档同模型,通道与 SLA 更优。
+
+    <ParamField body="google_search" type="boolean" default="false">
+      启用 Google 文字搜索增强 — 模型可基于实时联网信息生成
     </ParamField>
 
-    <ParamField body="resolution" type="string" default="1K">
-      输出分辨率：`1K`、`2K`、`4K`
+    <ParamField body="google_image_search" type="boolean" default="false">
+      启用 Google 图片搜索增强 — 引用网络图片做视觉参考
     </ParamField>
 
-    <ParamField body="google_search_enhancement" type="boolean" default="false">
-      启用 Google 搜索增强，提升图像真实感
+    <ParamField body="official_fallback" type="boolean" default="false">
+      该模型本身已是官方直连档,通常无需开启
+    </ParamField>
+  </Tab>
+
+  <Tab title="3.1 Flash">
+    **model id**:`gemini-3.1-flash-image-preview`
+
+    **系列**:Nano Banana 3 · 标准档
+
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `search_grounded`
+
+    **resolution**:`0.5K` / `1K` / `2K` / `4K`
+
+    **aspect_ratio**:标准 10 种 + 极端 4 种(`1:4` / `4:1` / `1:8` / `8:1`)
+
+    **核心特性**:轻量快速档,延迟低、成本省,适合预览、批量、迭代。**独家支持 Google 文字与图片搜索增强**,可基于实时网络信息出图;支持极端长条 / 横幅比例。
+
+    <ParamField body="google_search" type="boolean" default="false">
+      启用 Google 文字搜索增强 — 模型可基于实时联网信息生成
+    </ParamField>
+
+    <ParamField body="google_image_search" type="boolean" default="false">
+      启用 Google 图片搜索增强 — 引用网络图片做视觉参考
+    </ParamField>
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      运行时切换到官方直连档。建议直接使用 `-official` 模型 id
+    </ParamField>
+  </Tab>
+
+  <Tab title="2.5 Flash Official">
+    **model id**:`gemini-2.5-flash-image-preview-official`
+
+    **系列**:Nano Banana · 官方直连档
+
+    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+
+    **resolution**:`1K`
+
+    **aspect_ratio**:标准 10 种
+
+    **核心特性**:老一代 Nano Banana 官方直连,通道稳定,适合在 2.5 Flash 上构建的存量管线。
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      该模型本身已是官方直连档,通常无需开启
+    </ParamField>
+  </Tab>
+
+  <Tab title="2.5 Flash">
+    **model id**:`gemini-2.5-flash-image-preview`
+
+    **系列**:Nano Banana · 标准档
+
+    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+
+    **resolution**:`1K`
+
+    **aspect_ratio**:标准 10 种
+
+    **核心特性**:老一代图像生成与编辑主力,低延迟、高性价比,多图融合与角色一致性表现稳定。当下最经济的 Gemini 图像档位。
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      运行时切换到官方直连档。建议直接使用 `-official` 模型 id
     </ParamField>
   </Tab>
 </Tabs>
 
-## 响应
+## 资源限制
 
-返回任务 ID，使用 [查询任务状态](/cn/api-reference/task/status) 获取最终图像结果。
+| 项目 | 限制 |
+|---|---|
+| 参考图片 | `reference` 模式建议 ≤ 4 张;`edit` / `image2image` 通常 1 张 |
+| 单张图片大小 | ≤ 30MB,支持 JPG / PNG / WEBP |
+| 输出分辨率 | 详见各 Tab(3 Pro 最高 4K / 3.1 Flash 最高 4K / 2.5 Flash 仅 1K) |
+| 输出文件 | JPG,链接 24 小时有效 |
+| 搜索增强 | 仅 3.1 Flash 系列;开启 `google_search` / `google_image_search` 可能略增延迟 |
 
-<ResponseField name="code" type="string">
-  状态码，成功为 `"success"`
-</ResponseField>
+## 相关文档
 
-<ResponseField name="data" type="string">
-  任务 ID，格式为 `task-wave{timestamp}{userId}{random}`
-</ResponseField>
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

@@ -1,0 +1,324 @@
+---
+title: "GPT-Image 系列"
+description: "OpenAI GPT-Image 图像生成 — 多代演进,多比例多分辨率,参考图与遮罩重绘"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+OpenAI GPT-Image 图像生成模型系列,**三代演进**:
+
+- **GPT-Image-2** — 主推新版,扩展到 13 种比例 × 1K/2K/4K 三档分辨率独立计费,参考图最多 16 张,支持透明背景与遮罩重绘
+- **GPT-Image-1.5 Official** — GPT-Image-1 升级版,画质和指令理解显著提升
+- **GPT-Image-1 Official** — 集成文本和图像理解的多模态生成模型,适合高质量生成与编辑
+
+按张计费,支持文生 / 图生 / 编辑 / 遮罩重绘 / 多图参考。
+
+## 定价
+
+| 模型 | 单价(每张) |
+|---|---|
+| `gpt-image-2` | `$0.006375` |
+| `gpt-image-1.5-official` | `$0.09044` |
+| `gpt-image-1-official` | `$0.11356` |
+
+## 模式速查
+
+| 模式 | 触发字段 | 支持版本 |
+|---|---|---|
+| **文生图** | 仅 `prompt`,`action: "generate"`(默认) | 全部 |
+| **图生图** | `+ image_urls` + `action: "image2image"` | 全部 |
+| **图像编辑** | `+ image_urls` + `action: "edit"` | 全部 |
+| **多图参考** | `+ image_urls`(多张) + `action: "reference"` | 全部(最多 16 张) |
+| **局部重绘(mask)** | `+ image_urls` + `mask_url` + `action: "inpaint"` | 全部 |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(最简)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "未来主义城市夜景,霓虹灯映在湿润街面,电影感构图",
+    "aspect_ratio": "16:9",
+    "resolution": "2k"
+  }'
+```
+
+```bash 图像编辑
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "action": "edit",
+    "prompt": "把背景换成黄昏天空,人物保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }'
+```
+
+```bash 局部重绘(mask)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "action": "inpaint",
+    "prompt": "把遮罩区域替换为蓝色花朵",
+    "image_urls": ["https://cdn.example.com/scene.jpg"],
+    "mask_url": "https://cdn.example.com/mask.png",
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }'
+```
+
+```bash 透明背景输出
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "悬浮的水晶球,产品级摄影,无背景",
+    "background": "transparent",
+    "output_format": "png",
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "gpt-image-2",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `gpt-image-2` | 主推新版,13 种比例 × 1K/2K/4K 三档分辨率,参考图最多 16 张 |
+| `gpt-image-1.5-official` | GPT-Image-1 升级版,画质与指令理解显著提升 |
+| `gpt-image-1-official` | 多模态文本+图像理解,适合高质量生成与编辑 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  从 [可用模型](#可用模型) 列表中选一个
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,可选值:
+  - `generate` — 文生图(默认)
+  - `image2image` — 图生图(需配合 `image_urls`)
+  - `edit` — 图像编辑
+  - `reference` — 多图参考融合
+  - `inpaint` — 局部重绘(需配合 `mask_url`)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像描述文本,支持中英文
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量(单次返回多张)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,**取值取决于模型**:
+  - GPT-Image-2:`auto` / `1:1` / `3:2` / `2:3` / `4:3` / `3:4` / `5:4` / `4:5` / `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21`(共 14 种)
+  - GPT-Image-1.5 / 1 official:`1:1` / `3:2` / `2:3`(仅 3 种)
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  输出分辨率,**仅 GPT-Image-2 支持显式指定**:
+  - `1k` — 1K 档
+  - `2k` — 2K 档
+  - `4k` — 4K 档(仅 6 个比例可用:`16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21`)
+
+  GPT-Image-1.5 / 1 official 不接收该字段,沿用模型默认。
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组,**最多 16 张**;同时支持 base64 直传
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  回调事件过滤,如 `["completed", "failed"]`
+</ParamField>
+
+## 模型特定参数
+
+<Tabs>
+  <Tab title="GPT-Image-2">
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `inpaint`
+
+    **aspect_ratio**(14 种):`auto` / `1:1` / `3:2` / `2:3` / `4:3` / `3:4` / `5:4` / `4:5` / `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21`
+
+    **resolution**:`1k` / `2k` / `4k`(4K 仅 `16:9` / `9:16` / `2:1` / `1:2` / `21:9` / `9:21` 可用)
+
+    **核心特性**:13 种比例 × 三档分辨率独立计费,参考图最多 16 张(URL / base64),OpenAI 单图 8.29M 像素上限
+
+    <ParamField body="quality" type="string" default="auto">
+      生成质量,可选值:
+      - `auto` — 自动(默认)
+      - `low` — 低质量
+      - `medium` — 中等质量
+      - `high` — 高质量
+    </ParamField>
+
+    <ParamField body="background" type="string" default="auto">
+      背景处理,可选值:
+      - `auto` — 自动(默认)
+      - `opaque` — 不透明
+      - `transparent` — 透明背景(official 渠道不支持)
+    </ParamField>
+
+    <ParamField body="mask_url" type="string">
+      遮罩图 URL,局部重绘(配合 `action: "inpaint"`)
+    </ParamField>
+
+    <ParamField body="moderation" type="string" default="auto">
+      内容审核级别,可选值:
+      - `auto` — 自动(默认)
+      - `low` — 低限制
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="png">
+      输出格式,可选值:
+      - `png` — 默认
+      - `jpeg`
+      - `webp`
+    </ParamField>
+
+    <ParamField body="output_compression" type="integer">
+      输出压缩率,范围 0-100,**仅 `jpeg` / `webp` 生效**
+    </ParamField>
+
+    <ParamField body="style" type="string">
+      风格预设
+    </ParamField>
+
+    <ParamField body="official_fallback" type="boolean" default="false">
+      切到 `gpt-image-2-official` 官方渠道
+    </ParamField>
+  </Tab>
+
+  <Tab title="GPT-Image-1.5 Official">
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `inpaint`
+
+    **aspect_ratio**(3 种):`1:1` / `3:2` / `2:3`
+
+    **resolution**:不接收(沿用默认)
+
+    **核心特性**:GPT-Image-1 升级版,画质和指令理解显著提升;本身已在官方渠道,无 fallback 开关
+
+    <ParamField body="quality" type="string" default="auto">
+      生成质量,可选值:`auto` / `low` / `medium` / `high`
+    </ParamField>
+
+    <ParamField body="background" type="string" default="auto">
+      背景处理,可选值:`auto` / `opaque` / `transparent`(official 渠道不支持 transparent)
+    </ParamField>
+
+    <ParamField body="mask_url" type="string">
+      遮罩图 URL,局部重绘(配合 `action: "inpaint"`)
+    </ParamField>
+
+    <ParamField body="moderation" type="string" default="auto">
+      内容审核级别,可选值:`auto` / `low`
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="png">
+      输出格式,可选值:
+      - `png` — 默认
+      - `jpeg`
+    </ParamField>
+
+    <ParamField body="output_compression" type="integer">
+      输出压缩率,范围 0-100,**仅 `jpeg` 生效**
+    </ParamField>
+
+    <ParamField body="style" type="string">
+      风格预设
+    </ParamField>
+  </Tab>
+
+  <Tab title="GPT-Image-1 Official">
+    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `inpaint`
+
+    **aspect_ratio**(3 种):`1:1` / `3:2` / `2:3`
+
+    **resolution**:不接收(沿用默认)
+
+    **核心特性**:集成文本和图像理解的多模态生成模型,适合高质量生成与编辑
+
+    <ParamField body="quality" type="string" default="auto">
+      生成质量,可选值:`auto` / `low` / `medium` / `high`
+    </ParamField>
+
+    <ParamField body="background" type="string" default="auto">
+      背景处理,可选值:`auto` / `opaque` / `transparent`(official 渠道不支持 transparent)
+    </ParamField>
+
+    <ParamField body="mask_url" type="string">
+      遮罩图 URL,局部重绘(配合 `action: "inpaint"`)
+    </ParamField>
+
+    <ParamField body="moderation" type="string" default="auto">
+      内容审核级别,可选值:`auto` / `low`
+    </ParamField>
+
+    <ParamField body="output_format" type="string" default="png">
+      输出格式,可选值:
+      - `png` — 默认
+      - `jpeg`
+    </ParamField>
+
+    <ParamField body="output_compression" type="integer">
+      输出压缩率,范围 0-100,**仅 `jpeg` 生效**
+    </ParamField>
+
+    <ParamField body="style" type="string">
+      风格预设
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片张数 | 最多 16 张(URL 或 base64) |
+| 单图像素上限 | 8.29M 像素(OpenAI 官方限制) |
+| 单张图片大小 | ≤ 30MB,支持 JPG/PNG/WEBP |
+| 输出分辨率 | GPT-Image-2 最高 4K(部分比例),其余沿用默认 |
+| 输出文件 | PNG(默认)/ JPEG / WEBP(仅 GPT-Image-2),链接 24 小时有效 |
+| 透明背景 | 仅非 official 渠道支持 `background: transparent` |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

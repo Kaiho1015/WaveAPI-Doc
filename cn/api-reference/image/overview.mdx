@@ -1,11 +1,9 @@
 ---
 title: "图像生成概述"
-description: "通过 /v1/tasks 统一端点生成图像，支持多种模型"
+description: "通过 /v1/tasks 统一端点调用所有图像生成模型,异步任务异步取结果"
 ---
 
-## 概述
-
-WaveAPI 支持多种图像生成模型，统一通过异步任务接口 `/v1/tasks` 调用。
+WaveAPI 支持多家图像生成模型,**统一通过异步任务接口** `/v1/tasks` 调用。图像生成通常 1-30 秒完成,提交后返回 `task_id`,通过轮询或 Webhook 回调获取结果。
 
 ## 请求端点
 
@@ -13,29 +11,87 @@ WaveAPI 支持多种图像生成模型，统一通过异步任务接口 `/v1/tas
 POST https://www.qingbo.dev/v1/tasks
 ```
 
-## 通用请求参数
+异步流程详见 [任务系统](/cn/docs/task-system) — Submit → Status → Result + 可选 webhook。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `model` | string | 是 | 模型名称 |
-| `action` | string | 否 | 操作类型，默认 `"generate"` |
-| `prompt` | string | 是 | 图像描述文本 |
-| `negative_prompt` | string | 否 | 不希望出现的内容 |
-| `n` | integer | 否 | 生成数量，默认 1 |
-| `size` | string | 否 | 宽高比，如 `"16:9"` |
-| `resolution` | string | 否 | 分辨率，如 `"2K"` |
-| `image_urls` | array | 否 | 参考图片 URL 数组 |
-| `callback_url` | string | 否 | 完成后的回调地址 |
-| `extra` | object | 否 | 模型特定的透传参数 |
+## 支持的模型
 
-## 响应格式
+<CardGroup cols={2}>
+  <Card title="Gemini Image" href="/cn/api-reference/image/gemini">
+    Google Gemini 图像 — Nano Banana 系列(2.5 Flash / 3 Pro / 3.1 Flash)+ official 直连
+  </Card>
+  <Card title="GPT Image" href="/cn/api-reference/image/gpt-image">
+    OpenAI GPT-Image — 1 / 1.5 / 2,多模态生成 + 编辑 + 局部重绘
+  </Card>
+  <Card title="Seedream" href="/cn/api-reference/image/seedream">
+    字节豆包 Seedream — 4.0 / 4.5 / 5.0-lite,14 张参考,组图生成
+  </Card>
+  <Card title="Imagen" href="/cn/api-reference/image/imagen">
+    Google Imagen 4.0 — 旗舰文生图,原生 2K,中英文字渲染
+  </Card>
+  <Card title="Qwen Image" href="/cn/api-reference/image/qwen-image">
+    阿里通义千问 Qwen Image 2.0 / Pro,1K/2K,文字渲染强
+  </Card>
+  <Card title="Wan Image" href="/cn/api-reference/image/wan-image">
+    阿里通义万相 Wan 2.7 — 6 种 action,组图 / bbox 框选 / 颜色主题
+  </Card>
+  <Card title="Z-Image" href="/cn/api-reference/image/z-image">
+    智谱 Z.ai Z-Image-Turbo — 轻量快速,中英双语
+  </Card>
+</CardGroup>
 
-任务提交后返回 `task_id`，通过 `GET /v1/tasks/{task_id}` 查询结果：
+## 通用参数(全系列共有)
+
+> 各模型实际支持范围不同,**详见各 vendor 文档**。
+
+<ParamField body="model" type="string" required>
+  模型 ID(group_name),从上面的 vendor 文档选择
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,可选值取决于模型,常见:
+  - `generate` — 文生图(默认)
+  - `image2image` — 图生图(需配合 `image_urls`)
+  - `edit` — 图像编辑(局部重绘 / 光影修改)
+  - `reference` — 多图参考融合
+  - `inpaint` — 局部重绘(需配合 `mask_url`,GPT-Image 系列)
+  - `group` — 组图生成(主题相关一组)
+  - `interactive_edit` — 交互式编辑(Wan Image 独家,带 bbox 框选)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像描述文本,支持中英文
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量(部分 vendor 限制单次张数)
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string">
+  画面宽高比,如 `16:9` / `9:16` / `1:1`,部分 vendor 支持 `auto`(智能选择)
+</ParamField>
+
+<ParamField body="resolution" type="string">
+  输出分辨率,如 `1K` / `2K` / `4K`,各 vendor 支持范围不同
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组(图生图 / 多图参考用)
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [任务系统](/cn/docs/task-system#webhook)
+</ParamField>
+
+## 提交响应示例
 
 ```json
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "doubao-seedream-5.0",
+  "model": "doubao-seedream-4.5",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -43,23 +99,34 @@ POST https://www.qingbo.dev/v1/tasks
 }
 ```
 
-## 支持的模型
+拿到 `task_id` 后调 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询,直到 `status = completed` 取图片 URL。
 
-<CardGroup cols={2}>
-  <Card title="Seedream 系列" href="/cn/api-reference/image/seedream">
-    字节跳动 Seedream 5.0 / 4.5 / 4.0
-  </Card>
-  <Card title="Gemini 图像系列" href="/cn/api-reference/image/gemini">
-    Gemini 2.5 Flash / 3 Pro / 3.1 Flash
-  </Card>
-  <Card title="GPT-4o Image" href="/cn/api-reference/image/gpt4o-image">
-    OpenAI 图像生成（即将上线）
-  </Card>
-  <Card title="FLUX 系列" href="/cn/api-reference/image/flux">
-    FLUX Kontext / FLUX 2.0（即将上线）
-  </Card>
-</CardGroup>
+## 模式速查
 
-<Tip>
-每个模型支持的参数不同，`extra` 字段用于传递模型特有的参数。请查看各模型的文档页面了解详细的参数支持。
-</Tip>
+| 模式 | 触发字段 | 典型 vendor |
+|---|---|---|
+| **文生图(T2I)** | 仅 `prompt` | 全部 |
+| **图生图 / 多图参考** | `+ image_urls`(单图或多图) | Seedream / Gemini / GPT-Image / Wan / Qwen |
+| **图像编辑(局部重绘 / 光影修改)** | `+ image_urls + action: edit` | Seedream 4.0/4.5 / Gemini / GPT-Image / Wan |
+| **局部重绘(带 mask)** | `+ image_urls + mask_url + action: inpaint` | GPT-Image 系列 |
+| **组图生成(主题相关一组)** | `sequential_image_generation: auto` 或 `enable_sequential: true` | Seedream / Wan |
+| **交互式编辑(bbox 框选)** | `+ image_urls + bbox_list` | Wan Image |
+| **搜索增强出图** | `google_search: true` 或 `google_image_search: true` | Gemini 3.1 Flash |
+
+<Note>
+并非所有模型都支持全部模式 — 各 vendor 实际支持的 `action` 列表 + 字段范围请查看对应文档。后端会校验请求字段是否在 vendor 声明的能力范围内,不在范围会返回错误。
+</Note>
+
+## 字段命名规范
+
+- **媒体引用统一复数** — 一律 `image_urls`,即使单张也用单元素数组 `["one.jpg"]`
+- **画面比例统一** `aspect_ratio` — vendor 内部用 `size` / `ratio` 等是实现细节,无需感知
+- **分辨率统一** `resolution` — vendor 内部用 `quality` 等是实现细节
+- **遮罩字段** `mask_url`(GPT-Image 系列局部重绘用)
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / Webhook
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用
+- [模型列表](/cn/docs/models) — 全模型查询接口

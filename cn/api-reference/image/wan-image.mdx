@@ -1,0 +1,317 @@
+---
+title: "Wan Image 系列"
+description: "阿里通义万相图像生成 — 文生图 / 图生图 / 多图参考 / 组图 / 交互式编辑"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+阿里通义万相 2.7 图像生成与编辑统一接口。涵盖 **wan2.7-image-pro**(专业版,文生图最高 4K)与 **wan2.7-image**(标准版,最高 2K)两档,通过内部档位切换共用同一接口,对外作为一个 model 暴露。
+
+**6 种调用模式**:
+
+- **文生图(generate)** — 仅 `prompt`,可走思考模式
+- **图生图(image2image)** — 单参考图自由发挥
+- **图像编辑(edit)** — 局部重绘 / 风格迁移 / 元素替换
+- **多图参考(reference)** — 最多 9 张参考图融合
+- **组图(group)** — `enable_sequential` 连环画 / 分镜,n 上限 12
+- **交互式编辑(interactive_edit)** — `bbox_list` 框选区域定向编辑(独家)
+
+按张计费,统一 `$0.02295` / 张。
+
+## 定价
+
+| 模型 | 单价(每张) |
+|---|---|
+| `wan2.7-image` | `$0.02295` |
+
+## 模式速查
+
+| 模式 | 触发字段 | action |
+|---|---|---|
+| **文生图** | 仅 `prompt`(可加 `thinking_mode`) | `generate` |
+| **图生图** | `+ image_urls`(单张) | `image2image` |
+| **图像编辑** | `+ image_urls`(单张)+ 编辑指令 prompt | `edit` |
+| **多图参考融合** | `+ image_urls`(2-9 张) | `reference` |
+| **组图(连环画 / 分镜)** | `enable_sequential: true` + `n` ≤ 12 | `group` |
+| **交互式框选编辑** | `+ image_urls` + `bbox_list` | `interactive_edit` |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(最简)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-image",
+    "prompt": "古风山水长卷,水墨意境,远山如黛,近水含烟",
+    "resolution": "4K",
+    "aspect_ratio": "16:9",
+    "thinking_mode": true
+  }'
+```
+
+```bash 多图参考(reference)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-image",
+    "action": "reference",
+    "prompt": "把第一张人物放进第二张场景,衣着借鉴第三张",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/scene.jpg",
+      "https://cdn.example.com/outfit.jpg"
+    ],
+    "resolution": "2K",
+    "aspect_ratio": "3:4"
+  }'
+```
+
+```bash 组图(连环画 sequential)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-image",
+    "action": "group",
+    "prompt": "小狐狸的一天:晨起 / 觅食 / 嬉戏 / 入睡,4 格连环画",
+    "enable_sequential": true,
+    "n": 4,
+    "resolution": "2K",
+    "aspect_ratio": "1:1"
+  }'
+```
+
+```bash 交互式编辑(bbox_list 框选)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-image",
+    "action": "interactive_edit",
+    "prompt": "把框中的猫换成柴犬,保持姿势和光照",
+    "image_urls": ["https://cdn.example.com/cat.jpg"],
+    "bbox_list": [[[120, 80, 540, 460]]],
+    "resolution": "2K"
+  }'
+```
+
+```bash 自定义颜色主题(color_palette)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-image",
+    "prompt": "极简海报,几何构图,留白克制",
+    "color_palette": [
+      {"hex": "#0A2540", "ratio": 50},
+      {"hex": "#F5F5F0", "ratio": 35},
+      {"hex": "#E04B3A", "ratio": 15}
+    ],
+    "resolution": "4K",
+    "aspect_ratio": "2:3"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775290140a830128812",
+  "model": "wan2.7-image",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775290140120,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `wan2.7-image` | 阿里通义万相 2.7,文生 / 图生 / 编辑 / 多图参考 / 组图 / 交互式框选编辑统一接口,最高 4K |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  从 [可用模型](#可用模型) 列表中选一个,目前为 `wan2.7-image`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,可选值:
+  - `generate` — 文生图(默认)
+  - `image2image` — 图生图(需配合 `image_urls` 单张)
+  - `edit` — 图像编辑(局部重绘 / 风格迁移)
+  - `reference` — 多图参考融合(最多 9 张)
+  - `group` — 组图生成(配合 `enable_sequential`)
+  - `interactive_edit` — 交互式框选编辑(配合 `bbox_list`)
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像描述文本,支持中英文。组图模式建议用分镜式描述
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量。普通模式取决于服务侧上限;组图模式(`enable_sequential: true`)上限 **12**
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,共 7 种:
+  - `1:1` — 正方形
+  - `16:9` / `9:16` — 横/竖版宽屏
+  - `4:3` / `3:4` — 横/竖版标准
+  - `3:2` / `2:3` — 横/竖版相机比
+</ParamField>
+
+<ParamField body="resolution" type="string" default="2K">
+  输出分辨率,可选 `1K` / `2K` / `4K`。**注意**:组图模式上限为 `2K`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组:
+  - `image2image` / `edit` / `interactive_edit`:1 张
+  - `reference`:2-9 张
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件类型,详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+## 模型特定参数
+
+<ParamField body="watermark" type="boolean" default="false">
+  AI 生成水印
+</ParamField>
+
+<ParamField body="thinking_mode" type="boolean" default="true">
+  思考模式 — 启用后模型会先做视觉推理再出图,提升复杂 prompt 的解析准确度。
+
+  **生效条件**:仅当**非组图**(`enable_sequential` 不为 `true`)且**无图输入**(未提供 `image_urls`)时生效;其他情况自动忽略
+</ParamField>
+
+<ParamField body="enable_sequential" type="boolean" default="false">
+  组图模式(连环画 / 分镜)。启用后:
+  - `n` 上限提升到 **12**
+  - `resolution` 上限为 **2K**
+  - `thinking_mode` 与 `color_palette` 不生效
+
+  适合分镜脚本、连环画、电商多图主题等"主题相关一组"的需求
+</ParamField>
+
+<ParamField body="color_palette" type="array">
+  自定义颜色主题。3-10 项 `{hex, ratio}`,`ratio` 总和需为 **100%**。
+
+  **生效条件**:仅**非组图模式**生效。详见 [复合字段说明](#复合字段说明)
+</ParamField>
+
+<ParamField body="bbox_list" type="array">
+  交互式编辑框列表,与 `image_urls` 一一对应,每张图最多 **2** 个框。
+
+  仅 `action: "interactive_edit"` 时生效。详见 [复合字段说明](#复合字段说明)
+</ParamField>
+
+## 复合字段说明
+
+### `color_palette` — 自定义颜色主题
+
+为输出指定主色调与配色比例,模型会按比例在画面中分配色彩占比。
+
+**结构**:数组,每项为 `{hex, ratio}`
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `hex` | string | 十六进制颜色,如 `#0A2540`,大小写不敏感 |
+| `ratio` | number | 该颜色在画面中的占比(百分比),所有项之和必须为 **100** |
+
+**约束**:
+
+- 项数:**3-10**
+- `ratio` 总和:严格 **100**(整数百分比)
+- **仅非组图模式**生效(`enable_sequential` 为 `true` 时忽略)
+
+**示例**:
+
+```json
+"color_palette": [
+  {"hex": "#0A2540", "ratio": 50},
+  {"hex": "#F5F5F0", "ratio": 35},
+  {"hex": "#E04B3A", "ratio": 15}
+]
+```
+
+### `bbox_list` — 交互式编辑框
+
+在参考图上画框,告诉模型"只编辑框内区域",外部保持原样。是 Wan 系列在交互式编辑场景下的独家能力。
+
+**结构**:三层嵌套数组 `[[[x1, y1, x2, y2], ...], ...]`
+
+- **最外层**:每项对应 `image_urls` 中的一张图,**一一对应**(数量必须相等)
+- **中间层**:某张图上的多个框,**单图最多 2 个框**
+- **最内层**:单个框的坐标,4 个数字 `[x1, y1, x2, y2]`,代表左上角与右下角(像素坐标)
+
+**约束**:
+
+- 仅 `action: "interactive_edit"` 时生效
+- 每张图最多 **2** 个框
+- 坐标基于参考图原始像素
+
+**示例(单图单框)**:
+
+```json
+"image_urls": ["https://cdn.example.com/cat.jpg"],
+"bbox_list": [[[120, 80, 540, 460]]]
+```
+
+**示例(单图双框)**:
+
+```json
+"image_urls": ["https://cdn.example.com/scene.jpg"],
+"bbox_list": [[[100, 100, 400, 400], [500, 200, 800, 500]]]
+```
+
+**示例(多图,每图各一框)**:
+
+```json
+"image_urls": [
+  "https://cdn.example.com/img-a.jpg",
+  "https://cdn.example.com/img-b.jpg"
+],
+"bbox_list": [
+  [[120, 80, 540, 460]],
+  [[200, 150, 600, 500]]
+]
+```
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片(`reference`) | 2-9 张 |
+| 参考图片(`image2image` / `edit` / `interactive_edit`) | 1 张 |
+| 单张图片大小 | ≤ 30MB,支持 JPG/PNG/WEBP |
+| 输出分辨率 | `1K` / `2K` / `4K`(组图模式上限 `2K`) |
+| 组图数量 `n` | 上限 **12**(需 `enable_sequential: true`) |
+| `bbox_list` 框数 | 单图最多 **2** 个框 |
+| `color_palette` 项数 | 3-10 项,`ratio` 总和 100% |
+| 输出文件 | JPG 链接,24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

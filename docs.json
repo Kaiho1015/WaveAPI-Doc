@@ -115,10 +115,13 @@
                 "group": "图像生成",
                 "pages": [
                   "cn/api-reference/image/overview",
-                  "cn/api-reference/image/gpt4o-image",
                   "cn/api-reference/image/gemini",
-                  "cn/api-reference/image/flux",
-                  "cn/api-reference/image/seedream"
+                  "cn/api-reference/image/gpt-image",
+                  "cn/api-reference/image/seedream",
+                  "cn/api-reference/image/imagen",
+                  "cn/api-reference/image/qwen-image",
+                  "cn/api-reference/image/wan-image",
+                  "cn/api-reference/image/z-image"
                 ]
               },
               {
