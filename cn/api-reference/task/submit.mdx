@@ -44,9 +44,37 @@ POST https://www.qingbo.dev/v1/tasks
   "action": "generate",
   "status": "queued",
   "created_at": 1720000000,
-  "progress": 0
+  "progress": 0,
+  "pre_consumed_cost": 5500
 }
 ```
+
+<ResponseField name="pre_consumed_cost" type="integer">
+  提交时预扣的额度（quota）。任务完成后以查询接口返回的 `cost` 为准结算：
+  成功 = 实际扣费；失败/取消 = 自动全额退款（`cost: 0`）。
+</ResponseField>
+
+## 请求内等待（Prefer: wait）
+
+不想自己轮询时，加 `Prefer: wait=N` 请求头（N ≤ 60 秒）即可在一次调用里等待结果：
+
+- **窗口内完成** → 直接返回终态完整结果（含 `result` 与 `cost`）
+- **超窗未完成** → 返回当前状态 + `pre_consumed_cost`，继续用 `GET /v1/tasks/{task_id}` 轮询
+
+```bash
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Prefer: wait=60" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "gpt-4o-image", "prompt": "A tiny blue circle"}'
+```
+
+适合图像生成等较快完成的任务、原型开发和测试。视频等长耗时任务建议轮询或 Webhook。
+
+## 幂等提交（Idempotency-Key）
+
+带 `Idempotency-Key: <唯一字符串>` 请求头提交时，24 小时内同一 key 的重复请求会
+直接复用首次创建的任务（同一 `task_id`，不重复扣费）。适合网络重试场景。
 
 ## 示例
 

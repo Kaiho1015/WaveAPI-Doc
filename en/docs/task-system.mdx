@@ -63,12 +63,23 @@ def wait_for_task(client, task_id, timeout=300):
     raise TimeoutError("Task timed out")
 ```
 
-## Synchronous Wait Mode
+## In-Request Waiting (Prefer: wait)
 
-If you'd rather not poll manually, use `/v1/tasks/sync`:
+If you'd rather not poll manually, submit with a `Prefer: wait=N` header (N ≤ 60 seconds):
 
-- Task completes within the timeout → result is returned directly
-- Timeout exceeded → returns a `poll_url` so you can continue polling
+- Task completes within the window → the full terminal result is returned directly (including `result` and `cost`)
+- Window exceeded → the current state is returned; continue polling `GET /v1/tasks/{task_id}`
+
+## Billing & Refunds
+
+| Stage | Field | Meaning |
+|-------|-------|---------|
+| Submitted | `pre_consumed_cost` | Quota pre-deducted from your balance |
+| `completed` | `cost` | Final settled charge — use for reconciliation |
+| `failed` / `cancelled` | `cost: 0` | Pre-deducted quota is **automatically refunded in full** |
+
+Models without a configured price are rejected at submission (HTTP 500,
+`code: price_not_configured`) — a task is never accepted and then mis-billed.
 
 ## Webhook Callbacks
 

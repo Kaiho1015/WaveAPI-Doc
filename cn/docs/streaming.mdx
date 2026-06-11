@@ -70,3 +70,17 @@ data: [DONE]
 ```
 
 流结束时会收到 `data: [DONE]`。
+
+## 末帧 usage 与计费（cost）
+
+`[DONE]` 之前的最后一个数据帧携带本次调用的用量与扣费：
+
+```
+data: {"id":"chatcmpl-xxx","choices":[],"usage":{"prompt_tokens":12,"completion_tokens":8,"total_tokens":20,"cost":150}}
+
+data: [DONE]
+```
+
+- `usage.cost` 是本次调用实际扣除的额度（quota，整数），按调用对账以它为准
+- 默认就会下发；显式传 `stream_options: {"include_usage": false}` 时不下发
+- 使用 OpenAI SDK 时，末帧的 `chunk.usage` 即为该数据

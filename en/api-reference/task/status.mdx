@@ -60,6 +60,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   "progress": 100,
   "created_at": 1720000000,
   "completed_at": 1720000030,
+  "cost": 75000,
   "result": {
     "videos": [
       {
@@ -84,6 +85,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   "progress": 100,
   "created_at": 1720000000,
   "completed_at": 1720000030,
+  "cost": 5500,
   "result": {
     "images": [
       {
@@ -108,9 +110,10 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   "progress": 0,
   "created_at": 1720000000,
   "completed_at": 1720000005,
+  "cost": 0,
   "error": {
-    "message": "Upstream returned: invalid prompt",
-    "code": "task_failed"
+    "message": "[upstream_bad_request] Upstream returned: invalid prompt",
+    "code": "upstream_bad_request"
   },
   "urls": {
     "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
@@ -156,10 +159,16 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   Completion time (Unix millisecond timestamp). **Only present in completed / failed / cancelled states**
 </ResponseField>
 
+<ResponseField name="cost" type="integer">
+  Actual quota charged for the task. **Only present in terminal states
+  (completed / failed / cancelled).** Success = settled amount; failed/cancelled
+  with automatic refund = `0`. Use this field for reconciliation.
+</ResponseField>
+
 <ResponseField name="error" type="object">
   Error details. **Only present in the failed state**:
   - `message` — Error description
-  - `code` — Error code (commonly `task_failed`)
+  - `code` — structured error code. Common values: `upstream_unavailable` (retryable), `upstream_bad_request` (rejected by upstream), `upstream_rate_limited`, `task_failed` (other failures)
 </ResponseField>
 
 <ResponseField name="result" type="object">
@@ -198,5 +207,4 @@ See [Task System](/en/docs/task-system) for the full workflow.
 
 - [Submit Task](/en/api-reference/task/submit) — `POST /v1/tasks`
 - [Cancel Task](/en/api-reference/task/cancel) — `POST /v1/tasks/{task_id}/cancel`
-- [Synchronous Wait](/en/api-reference/task/sync) — `POST /v1/tasks/sync`
 - [Task System Guide](/en/docs/task-system)

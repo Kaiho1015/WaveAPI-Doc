@@ -38,13 +38,18 @@ description: "了解 清波 API 的同步端点和异步任务系统"
 | 端点 | 用途 |
 |------|------|
 | `POST /v1/tasks` | 提交异步任务，立即返回 task_id |
-| `POST /v1/tasks/sync` | 提交并等待完成（超时回退为轮询） |
 | `GET /v1/tasks/{task_id}` | 查询任务状态和结果 |
 | `POST /v1/tasks/{task_id}/cancel` | 取消排队中的任务 |
+
+<Note>
+任务族只有异步语义。需要"提交并等待"时，用 `POST /v1/tasks` + `Prefer: wait=N` 请求头
+（N ≤ 60 秒）：窗口内完成直接返回完整结果，超窗返回当前状态转轮询。
+详见 [提交任务](/cn/api-reference/task/submit#请求内等待prefer-wait)。
+</Note>
 
 ## 如何选择
 
 - **文本对话** → 使用同步端点，支持流式输出（SSE）
-- **图像生成** → 简单场景用 `/v1/images/generations`，复杂场景用 `/v1/tasks`
+- **图像生成** → 简单场景用 `/v1/images/generations`，复杂场景用 `/v1/tasks`（不想轮询加 `Prefer: wait`）
 - **视频生成** → 只能用 `/v1/tasks`（耗时较长）
 - **需要回调通知** → 使用 `/v1/tasks` + `callback_url`

@@ -63,12 +63,23 @@ def wait_for_task(client, task_id, timeout=300):
     raise TimeoutError("任务超时")
 ```
 
-## 同步等待模式
+## 请求内等待（Prefer: wait）
 
-如果不想手动轮询，可以使用 `/v1/tasks/sync`：
+不想手动轮询时，提交任务带 `Prefer: wait=N` 请求头（N ≤ 60 秒）：
 
-- 任务在超时时间内完成 → 直接返回结果
-- 超时未完成 → 返回 `poll_url`，继续轮询
+- 窗口内完成 → 直接返回终态完整结果（含 `result` 与 `cost`）
+- 超窗未完成 → 返回当前状态，继续用 `GET /v1/tasks/{task_id}` 轮询
+
+## 计费与退款
+
+| 阶段 | 字段 | 说明 |
+|------|------|------|
+| 提交成功 | `pre_consumed_cost` | 预扣额度（quota），从余额立即扣除 |
+| `completed` | `cost` | 实际结算额度，对账以此为准 |
+| `failed` / `cancelled` | `cost: 0` | 预扣额度**自动全额退款** |
+
+价格未配置的模型会在提交时直接拒绝（HTTP 500，`code: price_not_configured`），
+不会出现"提交成功但乱扣费"的情况。
 
 ## Webhook 回调
 

@@ -44,9 +44,41 @@ For more parameters, see [Image Generation Overview](/en/api-reference/image/ove
   "action": "generate",
   "status": "queued",
   "created_at": 1720000000,
-  "progress": 0
+  "progress": 0,
+  "pre_consumed_cost": 5500
 }
 ```
+
+<ResponseField name="pre_consumed_cost" type="integer">
+  Quota pre-deducted at submission. The final charge is the `cost` field returned
+  by the status endpoint once the task reaches a terminal state: success = actual
+  charge; failure/cancellation = automatic full refund (`cost: 0`).
+</ResponseField>
+
+## In-Request Waiting (Prefer: wait)
+
+If you'd rather not poll, add a `Prefer: wait=N` header (N ≤ 60 seconds) to wait
+for the result within a single call:
+
+- **Completed within the window** → the full terminal result is returned directly (including `result` and `cost`)
+- **Window exceeded** → the current state plus `pre_consumed_cost` is returned; continue polling `GET /v1/tasks/{task_id}`
+
+```bash
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Prefer: wait=60" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "gpt-4o-image", "prompt": "A tiny blue circle"}'
+```
+
+Best suited for fast tasks such as image generation, prototyping, and testing.
+For long-running tasks (video), prefer polling or webhooks.
+
+## Idempotent Submission (Idempotency-Key)
+
+Submit with an `Idempotency-Key: <unique-string>` header and repeated requests
+with the same key within 24 hours reuse the originally created task (same
+`task_id`, no double billing). Useful for network-retry scenarios.
 
 ## Examples
 

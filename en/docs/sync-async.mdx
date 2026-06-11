@@ -38,9 +38,16 @@ Image and video generation use a unified asynchronous task system:
 | Endpoint | Purpose |
 |----------|---------|
 | `POST /v1/tasks` | Submit an asynchronous task and receive a task_id |
-| `POST /v1/tasks/sync` | Submit and wait for completion (falls back to polling on timeout) |
 | `GET /v1/tasks/{task_id}` | Query task status and results |
 | `POST /v1/tasks/{task_id}/cancel` | Cancel a queued task |
+
+<Note>
+The task family is async-only. For "submit and wait" semantics, use
+`POST /v1/tasks` with a `Prefer: wait=N` header (N ≤ 60 seconds): if the task
+finishes within the window the full result is returned directly; otherwise the
+current state is returned and you continue polling.
+See [Submit Task](/en/api-reference/task/submit#in-request-waiting-prefer-wait).
+</Note>
 
 ## Choosing the Right Pattern
 

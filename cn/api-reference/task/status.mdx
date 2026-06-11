@@ -60,6 +60,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   "progress": 100,
   "created_at": 1720000000,
   "completed_at": 1720000030,
+  "cost": 75000,
   "result": {
     "videos": [
       {
@@ -84,6 +85,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   "progress": 100,
   "created_at": 1720000000,
   "completed_at": 1720000030,
+  "cost": 5500,
   "result": {
     "images": [
       {
@@ -108,9 +110,10 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   "progress": 0,
   "created_at": 1720000000,
   "completed_at": 1720000005,
+  "cost": 0,
   "error": {
-    "message": "Upstream returned: invalid prompt",
-    "code": "task_failed"
+    "message": "[upstream_bad_request] Upstream returned: invalid prompt",
+    "code": "upstream_bad_request"
   },
   "urls": {
     "get": "https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499",
@@ -156,10 +159,17 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
   完成时间(Unix 毫秒时间戳),**仅 completed / failed / cancelled 态有此字段**
 </ResponseField>
 
+<ResponseField name="cost" type="integer">
+  任务实际扣费(quota),**仅终态(completed / failed / cancelled)有此字段**。
+  成功 = 实际结算额度;失败 / 取消已自动退款时为 `0`。对账以此字段为准。
+</ResponseField>
+
 <ResponseField name="error" type="object">
   错误信息,**仅 failed 态有此字段**:
   - `message` — 错误描述
-  - `code` — 错误码(常用 `task_failed`)
+  - `code` — 结构化错误码,常见:`upstream_unavailable`(上游不可用,可重试) /
+    `upstream_bad_request`(参数被上游拒绝) / `upstream_rate_limited`(上游限流) /
+    `task_failed`(其他失败)
 </ResponseField>
 
 <ResponseField name="result" type="object">
@@ -198,5 +208,4 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
 
 - [提交任务](/cn/api-reference/task/submit) — `POST /v1/tasks`
 - [取消任务](/cn/api-reference/task/cancel) — `POST /v1/tasks/{task_id}/cancel`
-- [同步等待](/cn/api-reference/task/sync) — `POST /v1/tasks/sync`
 - [任务系统详解](/cn/docs/task-system)

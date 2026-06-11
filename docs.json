@@ -154,7 +154,6 @@
                 "group": "任务管理",
                 "pages": [
                   "cn/api-reference/task/submit",
-                  "cn/api-reference/task/sync",
                   "cn/api-reference/task/status",
                   "cn/api-reference/task/cancel"
                 ]
@@ -250,7 +249,6 @@
                 "group": "Task Management",
                 "pages": [
                   "en/api-reference/task/submit",
-                  "en/api-reference/task/sync",
                   "en/api-reference/task/status",
                   "en/api-reference/task/cancel"
                 ]

@@ -70,3 +70,17 @@ data: [DONE]
 ```
 
 When the stream ends, you'll receive `data: [DONE]`.
+
+## Final Frame Usage & Billing (cost)
+
+The last data frame before `[DONE]` carries the usage and the charge of the call:
+
+```
+data: {"id":"chatcmpl-xxx","choices":[],"usage":{"prompt_tokens":12,"completion_tokens":8,"total_tokens":20,"cost":150}}
+
+data: [DONE]
+```
+
+- `usage.cost` is the actual quota charged for this call (integer); use it for per-call reconciliation
+- It is sent by default; explicitly passing `stream_options: {"include_usage": false}` disables it
+- With the OpenAI SDK, the final chunk's `chunk.usage` contains this data

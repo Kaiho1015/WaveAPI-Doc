@@ -21,6 +21,30 @@ Response shapes vary by endpoint, each following its own API spec:
 - **Gemini** — Google standard response format
 - **Asynchronous Tasks** — QWave API unified task response format
 
+## Billing Field (usage.cost)
+
+Text and embedding endpoints return the actual charge of each call (quota,
+integer) in the `usage` object:
+
+```json
+{
+  "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 8,
+    "total_tokens": 20,
+    "cost": 150
+  }
+}
+```
+
+- **Non-streaming** → `usage.cost` in the response body
+- **Streaming (SSE)** → the last data frame carrying `usage` (see [Streaming](/en/docs/streaming))
+- **Async tasks** → `pre_consumed_cost` on submission (pre-deduction), `cost` in the terminal
+  state (settlement; `0` after refund on failure/cancellation)
+
+For per-call reconciliation, the accumulated value of these fields matches your
+account balance deductions exactly.
+
 ## Error Responses
 
 Error structures differ slightly across endpoints:
@@ -56,5 +80,5 @@ Error structures differ slightly across endpoints:
 | 401 | Authentication failed | Verify your API key |
 | 402 | Insufficient balance | Top up your account |
 | 404 | Task or resource not found | Verify the task_id and that it belongs to your account |
-| 429 | Rate limit exceeded | Reduce request frequency |
+| 429 | Rate limit exceeded / sliding-window quota exhausted (`code: quota_window_exceeded`, response includes `window`/`used`/`cap`/`reset_at`) | Reduce frequency or retry after `reset_at` |
 | 500 | Internal server error | Retry later |

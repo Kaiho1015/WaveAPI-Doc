@@ -12,7 +12,9 @@ POST https://www.qingbo.dev/v1/tasks/{task_id}/cancel
 取消一个处于 `queued` 状态的任务，配额自动退还。
 
 <Note>
-只有 `queued` 状态的任务可以取消。`processing` 状态的任务已经开始处理，无法取消。
+只有 `queued` 状态的任务可以取消。`processing` 状态的任务已经开始处理，无法取消——
+此时返回 HTTP 400（`code: task_not_cancellable`）。队列流转是秒级的，取消窗口很小，
+调用方应兜住 400 的情况。已取消的任务查询时 `cost` 为 `0`（配额已退还）。
 </Note>
 
 ## 响应

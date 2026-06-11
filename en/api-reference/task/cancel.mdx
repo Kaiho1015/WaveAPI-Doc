@@ -12,7 +12,11 @@ POST https://www.qingbo.dev/v1/tasks/{task_id}/cancel
 Cancel a task in the `queued` state. Quota is automatically refunded.
 
 <Note>
-Only tasks in the `queued` state can be cancelled. Tasks in the `processing` state have already started and cannot be cancelled.
+Only tasks in the `queued` state can be cancelled. Tasks in `processing` have
+already started and cannot be cancelled — the endpoint returns HTTP 400
+(`code: task_not_cancellable`). Queue turnaround is measured in seconds, so the
+cancellation window is small; callers should handle the 400 case. A cancelled
+task reports `cost: 0` when queried (quota refunded).
 </Note>
 
 ## Response
