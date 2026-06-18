@@ -1,0 +1,286 @@
+---
+title: "Midjourney"
+description: "Midjourney 全功能接入 — 文生图 / 融图 / 识图 / 编辑 + 放大 / 变体 / 缩放 / 平移 / 局部重绘等链式操作"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Midjourney 通过统一异步任务接口 `/v1/tasks` 调用,用 `action` 字段区分操作,一个 model 暴露全部能力。
+
+**两类操作:**
+
+- **独立生成类** — 不依赖前序任务:`imagine`(文生图)、`blend`(多图融合)、`describe`(图转文)、`edits`(全图重写)
+- **链式操作类** — 基于前一个任务的产物再加工,需传 `ref_task_id` 引用前序任务:`upscale`(放大)、`variation` / `high-variation` / `low-variation`(变体)、`reroll`(重出网格)、`zoom`(外绘缩放)、`pan`(方向平移)、`remix-strong` / `remix-subtle`(v8 重塑)、`inpaint` → `modal`(局部重绘,两步)
+
+<Note>
+`imagine` 等生成类返回 **2×2 四宫格**(一张图含 4 个画面)。要对其中某一张放大 / 变体,用链式操作传 `ref_task_id`(该网格任务的 `task_id`)+ `index`(1-4 选第几张)。详见 [链式操作](#链式操作)。
+</Note>
+
+## 定价
+
+按操作 + 速度档计费(单位 USD)。`speed` 取 `relax`(默认) / `fast` / `turbo`。
+
+| 操作 | relax / 默认 | fast | turbo |
+|---|---|---|---|
+| `imagine` | `$0.05067` | `$0.06192` | `$0.1125` |
+| 其余全部 action | `$0.06192` | `$0.06192` | `$0.1125` |
+
+<Note>
+`inpaint` 与 `modal` 为两次独立调用,**各自计费**(局部重绘 = inpaint + modal 两笔)。任务失败自动全额退款。
+</Note>
+
+## Action 速查
+
+| action | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `imagine` | 生成 | `prompt` | 文生图;可加 `image_urls` 做图像引导。出四宫格 |
+| `blend` | 生成 | `image_urls`(2-4) | 多图融合,无 prompt |
+| `describe` | 生成 | `image_urls`(1) | 图转文,返回 4 条提示词建议 |
+| `edits` | 生成 | `prompt` + `image_urls`(1) | 全图重写(背景替换 / 风格迁移) |
+| `upscale` | 链式 | `ref_task_id` + `index` | 放大网格中第 `index` 张 |
+| `variation` | 链式 | `ref_task_id` + `index` | 基于某张出新的四宫格变体 |
+| `high-variation` | 链式 | `ref_task_id` + `index` | 强变体(变化幅度大) |
+| `low-variation` | 链式 | `ref_task_id` + `index` | 弱变体(保持主体) |
+| `reroll` | 链式 | `ref_task_id` | 用同 prompt 重出一组四宫格 |
+| `zoom` | 链式 | `ref_task_id` + `zoom_ratio` | 外绘缩放(<2 用 1.5x,≥2 用 2x) |
+| `pan` | 链式 | `ref_task_id` + `direction` | 向 `left/right/up/down` 平移外绘 |
+| `remix-strong` | 链式 | `ref_task_id` + `index` | v8/v8.1 大幅重塑,可改 prompt |
+| `remix-subtle` | 链式 | `ref_task_id` + `index` | v8/v8.1 保守重塑 |
+| `inpaint` | 链式 | `ref_task_id` | 开启局部重绘(进入 modal 态,接 `modal`) |
+| `modal` | 链式 | `ref_task_id` | 提交 `mask_url` + `prompt` 完成局部重绘 |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(imagine)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "midjourney",
+    "action": "imagine",
+    "prompt": "a majestic eagle soaring over snowy mountains, cinematic",
+    "aspect_ratio": "16:9",
+    "version": "7",
+    "speed": "fast"
+  }'
+```
+
+```bash 放大网格第 2 张(链式 upscale)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "midjourney",
+    "action": "upscale",
+    "ref_task_id": "task-wave1781770984b950327128",
+    "index": 2
+  }'
+```
+
+```bash 多图融合(blend)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "midjourney",
+    "action": "blend",
+    "image_urls": [
+      "https://cdn.example.com/a.jpg",
+      "https://cdn.example.com/b.jpg"
+    ],
+    "aspect_ratio": "1:1"
+  }'
+```
+
+```bash 图转文(describe)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "midjourney",
+    "action": "describe",
+    "image_urls": ["https://cdn.example.com/photo.jpg"]
+  }'
+```
+
+```bash 外绘平移(链式 pan)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "midjourney",
+    "action": "pan",
+    "ref_task_id": "task-wave...upscale_task",
+    "direction": "right"
+  }'
+```
+
+```bash 局部重绘(inpaint → modal 两步)
+# 第 1 步:对放大后的单图开启局部重绘
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" -H "Content-Type: application/json" \
+  -d '{"model":"midjourney","action":"inpaint","ref_task_id":"task-wave...upscale_task"}'
+
+# 第 2 步:用上一步返回的 task_id,提交遮罩 + 提示完成
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" -H "Content-Type: application/json" \
+  -d '{
+    "model": "midjourney",
+    "action": "modal",
+    "ref_task_id": "task-wave...inpaint_task",
+    "mask_url": "https://cdn.example.com/mask.png",
+    "prompt": "replace the selected area with a red leather sofa"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1781770984b950327128",
+  "model": "midjourney",
+  "action": "imagine",
+  "status": "queued",
+  "created_at": 1781770984120,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `midjourney` | Midjourney 全功能,15 种 action(生成 + 链式),支持 v5.1–v8.1 / niji |
+
+## 链式操作
+
+链式 action 基于前一个任务的产物再加工,核心是 `ref_task_id` 和 `index`。
+
+<Steps>
+  <Step title="先生成网格">
+    调 `imagine` 拿到响应里的 `task_id`(例如 `task-wave1781770984b950327128`),它对应一张 **2×2 四宫格**。
+  </Step>
+  <Step title="引用网格 + 选图">
+    链式操作传 `ref_task_id`(= 上一步的 `task_id`)+ `index`(1-4,左上=1 右上=2 左下=3 右下=4)。例如 `upscale` 放大第 2 张。
+  </Step>
+  <Step title="继续链式">
+    放大后的单图任务又可作为 `zoom` / `pan` / `inpaint` 的 `ref_task_id`,层层叠加。
+  </Step>
+</Steps>
+
+<Warning>
+`ref_task_id` 必须是**你自己**、**已成功**、**同一渠道**的任务,否则报错(`source_task_not_found` / `source_task_not_owned` / `source_task_not_success` / `source_task_channel_mismatch`)。引用的是**任务 `task_id`,不是结果图片 URL**。
+</Warning>
+
+各链式 action 对来源任务的要求:
+
+| action | 来源任务 | 选图 |
+|---|---|---|
+| `upscale` / `variation` | imagine / reroll 的四宫格 | `index` 必填 |
+| `high-variation` / `low-variation` | upscale 后的单图 | `index` 必填 |
+| `reroll` | imagine 的四宫格 | 不需 index |
+| `zoom` / `pan` / `inpaint` | upscale 后的单图 | 不需 index |
+| `remix-strong` / `remix-subtle` | v8/v8.1 的 imagine 四宫格 | `index` 必填 |
+| `modal` | `inpaint` 返回的任务 | — |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  固定 `midjourney`
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型,见 [Action 速查](#action-速查)。生成类传 `imagine`/`blend`/`describe`/`edits`,链式类传对应 action
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  提示词。`imagine`/`edits` 必填;支持原生 MJ flags(如 `--ar 16:9`)。`blend`/`describe` 不用
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面比例,如 `1:1` / `16:9` / `9:16` / `2:3` / `3:2` / `4:3` / `3:4` / `21:9` / `9:21`
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图。`blend` 2-4 张,`describe`/`edits` 1 张,`imagine` 可选(图像引导)
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  任务终态回调地址(可选,替代轮询)
+</ParamField>
+
+## 模型特定参数
+
+<ParamField body="speed" type="string" default="relax">
+  速度档 `relax` / `fast` / `turbo`,影响出图速度与计费(见 [定价](#定价))
+</ParamField>
+
+<ParamField body="ref_task_id" type="string">
+  **链式操作必填** — 前序任务的 `task_id`(本平台返回的 wave task_id)。见 [链式操作](#链式操作)
+</ParamField>
+
+<ParamField body="index" type="integer">
+  选四宫格第几张(1-4)。`upscale`/`variation`/`high-variation`/`low-variation`/`remix-*` 需填
+</ParamField>
+
+<ParamField body="direction" type="string">
+  `pan` 平移方向:`left` / `right` / `up` / `down`
+</ParamField>
+
+<ParamField body="zoom_ratio" type="number">
+  `zoom` 缩放倍数:`<2` 走 Outpaint 1.5x,`≥2` 走 CustomZoom 2x
+</ParamField>
+
+<ParamField body="mask_url" type="string">
+  `modal` 局部重绘遮罩图 URL(PNG,白色 = 重画 / 透明 = 保留)。不传则做外绘扩展
+</ParamField>
+
+<ParamField body="custom_id" type="string">
+  高级:直接指定 MJ 按钮 ID(给了则忽略 `index`),用于网关未抽象的特殊操作
+</ParamField>
+
+<ParamField body="version" type="string">
+  MJ 版本:`8.1` / `7` / `6.1` / `5.2` / `5.1`
+</ParamField>
+
+<ParamField body="niji" type="boolean">
+  切换 Niji(动漫)模式
+</ParamField>
+
+<ParamField body="quality" type="string">
+  画质 `--q`:`0.25` / `0.5` / `1` / `2`
+</ParamField>
+
+<ParamField body="stylize" type="integer">
+  风格化强度 `--s`,0-1000
+</ParamField>
+
+<ParamField body="chaos" type="integer">
+  变异度 `--c`,0-100
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  排除元素 `--no`
+</ParamField>
+
+## 资源限制
+
+- `blend` 参考图 2-4 张,单张 ≤ 12 MiB
+- `describe` 同步返回较快(1-3 秒),结果为文本建议
+- `pan` 仅 v6/v6.1/v7/niji6 支持;v8/v8.1 已移除
+- `remix-strong` / `remix-subtle` 仅 v8/v8.1
+- `inpaint` 后须在 30 分钟内调 `modal` 完成,否则超时
+
+## 相关文档
+
+- [任务系统](/cn/docs/task-system) — 异步提交 / 轮询 / 回调
+- [图像生成概述](/cn/api-reference/image/overview)

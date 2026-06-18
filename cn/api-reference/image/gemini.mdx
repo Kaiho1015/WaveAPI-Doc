@@ -1,39 +1,47 @@
 ---
 title: "Gemini Image 系列"
-description: "Google Gemini 图像生成 — Nano Banana 系列(原版 / Pro / 2),生成 / 编辑 / 多图参考 / 搜索增强"
+description: "Google Gemini 图像生成 — Nano Banana 系列(原版 / Pro / 2),文生图 / 图像编辑 / 多图参考 / 局部重绘 / 搜索增强"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
 Google Gemini 原生多模态图像系列,**三代 Nano Banana 演进 + 双档接入**:
 
-- **Nano Banana 2(Gemini 3.1 Flash Image Preview)** — 轻量快速档,延迟低、成本省,**独家支持 Google 文字 / 图片搜索增强**,适合预览、批量、迭代
+- **Nano Banana 2(Gemini 3.1 Flash Image Preview)** — 轻量快速档,延迟低、成本省,**标准档独家支持 Google 文字 / 图片搜索增强**,支持 `0.5K`~`4K` 分辨率,适合预览、批量、迭代
 - **Nano Banana Pro(Gemini 3 Pro Image Preview)** — 旗舰档,4K 原生输出,专业级保真度,多步规划,内置质量分析
 - **Nano Banana(Gemini 2.5 Flash Image Preview)** — 老一代主力,低延迟、高性价比,多图融合,角色一致性
 
-每代提供两档接入:**标准档**(经济、性价比线)与 **官方直连档**(高 SLA、稳定性更高,价格更高)。两档同模型同能力,区别只在通道与计费。**推荐直接选用对应的 `-official` model id 切换通道**(语义清晰),也可在标准档上设 `official_fallback: true` 在运行时切换。
+每代提供两档接入:**标准档**(经济、性价比线)与 **官方直连档**(高 SLA、稳定性更高,价格更高)。两档同模型同能力,区别只在通道与计费。**推荐直接选用对应的 `-official` model id 切换通道**(语义清晰),也可在标准档上设 `official_fallback: true` 在运行时切换(官方直连档自身不支持该字段)。
 
-按张计费,所有版本支持中英文 prompt。
+按张计费;分辨率越高的档位单价越高。所有版本支持中英文 prompt。
 
 ## 定价
 
-| 模型 | 单价(每张) |
-|---|---|
-| `gemini-3-pro-image-preview-official` | `$0.1139` |
-| `gemini-3-pro-image-preview` | `$0.0425` |
-| `gemini-3.1-flash-image-preview-official` | `$0.05695` |
-| `gemini-3.1-flash-image-preview` | `$0.031875` |
-| `gemini-2.5-flash-image-preview-official` | `$0.03315` |
-| `gemini-2.5-flash-image-preview` | `$0.01328125` |
+单位:美元 / 张。flat 档位不分分辨率;分档档位按 `resolution` 计价。
+
+| 模型 | 0.5K / 1K | 2K | 4K |
+|---|---|---|---|
+| `gemini-3-pro-image-preview-official` | `$0.1206` | `$0.1206` | `$0.216` |
+| `gemini-3-pro-image-preview` | `$0.045` | `$0.045` | `$0.05625` |
+| `gemini-3.1-flash-image-preview-official` | `$0.0603` | `$0.0909` | `$0.1359` |
+| `gemini-3.1-flash-image-preview` | `$0.03375` | `$0.045` | `$0.0675` |
+| `gemini-2.5-flash-image-preview-official` | `$0.0351`(仅 1K) | — | — |
+| `gemini-2.5-flash-image-preview` | `$0.014063`(仅 1K) | — | — |
+
+<Note>
+3 Pro 的 `1K` 与 `2K` 同价(`$0.045` / `$0.1206`),仅 `4K` 加价。3.1 Flash 的 `0.5K` 与 `1K` 同价,`2K`、`4K` 逐档加价。2.5 Flash 仅支持 `1K`,为整条线最经济的档位。
+</Note>
 
 ## 模式速查
 
+所有 Gemini 图像模型只有两个 action:`generate`(文生图)与 `edit`(基于参考图改写 / 局部重绘)。多图融合、图生图都走 `edit` + `image_urls`。
+
 | 模式 | 触发字段 | 支持版本 |
 |---|---|---|
-| **文生图** | 仅 `prompt` | 全部 |
-| **图生图(image2image)** | `+ image_urls` + `action: "image2image"` | 全部 |
-| **图像编辑(指令式重绘)** | `+ image_urls` + `action: "edit"` | 全部 |
-| **多图参考融合** | `+ image_urls`(多张)+ `action: "reference"` | 全部 |
-| **搜索增强(grounding)** | `action: "search_grounded"` 或 `google_search: true` | **仅 3.1 Flash 系列** |
+| **文生图** | `action: "generate"`(默认)+ `prompt` | 全部 |
+| **图像编辑 / 图生图** | `action: "edit"` + `image_urls` | 全部 |
+| **多图参考融合** | `action: "edit"` + `image_urls`(多张) | 全部 |
+| **局部重绘(inpaint)** | `action: "edit"` + `image_urls` + `mask_url` | 全部 |
+| **搜索增强(grounding)** | `google_search: true`(可选 `google_image_search`) | **仅 3.1 Flash 标准档** |
 
 ## 调用示例
 
@@ -57,7 +65,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro-image-preview",
-    "action": "reference",
+    "action": "edit",
     "prompt": "把第一张图的角色融入第二张图的场景,保持光影一致",
     "image_urls": [
       "https://cdn.example.com/character.jpg",
@@ -68,7 +76,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   }'
 ```
 
-```bash 图像编辑(Nano Banana,2.5 Flash)
+```bash 局部重绘(inpaint,需 mask_url)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -77,17 +85,17 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     "action": "edit",
     "prompt": "把背景换成海边日落,人物保持不变",
     "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "mask_url": "https://cdn.example.com/mask.png",
     "aspect_ratio": "1:1"
   }'
 ```
 
-```bash 搜索增强(3.1 Flash 独家)
+```bash 搜索增强(3.1 Flash 标准档独家)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3.1-flash-image-preview",
-    "action": "search_grounded",
     "prompt": "画一张本周登顶 App Store 的热门游戏的关键画面海报",
     "google_search": true,
     "google_image_search": true,
@@ -131,7 +139,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 |---|---|---|
 | `gemini-3-pro-image-preview-official` | Nano Banana Pro · 官方直连 | 旗舰档,同模型直连,稳定性更高 |
 | `gemini-3-pro-image-preview` | Nano Banana Pro · 标准档 | 旗舰档,4K 原生,专业保真,多步规划 |
-| `gemini-3.1-flash-image-preview-official` | Nano Banana 2 · 官方直连 | 快速档直连,搜索增强 |
+| `gemini-3.1-flash-image-preview-official` | Nano Banana 2 · 官方直连 | 快速档直连,支持 `0.5K`~`4K` |
 | `gemini-3.1-flash-image-preview` | Nano Banana 2 · 标准档 | 快速档,Google 文字+图片搜索增强 |
 | `gemini-2.5-flash-image-preview-official` | Nano Banana · 官方直连 | 老一代直连,高性价比 |
 | `gemini-2.5-flash-image-preview` | Nano Banana · 标准档 | 老一代主力,低延迟、多图融合 |
@@ -145,10 +153,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 <ParamField body="action" type="string" default="generate">
   操作类型,可选值:
   - `generate` — 文生图(默认)
-  - `image2image` — 图生图(需配合 `image_urls`)
-  - `edit` — 图像编辑(指令式重绘 / 局部修改)
-  - `reference` — 多图参考融合
-  - `search_grounded` — 搜索增强(**仅 3.1 Flash 系列**)
+  - `edit` — 基于参考图改写 / 图生图 / 多图融合 / 局部重绘(需配合 `image_urls`)
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
@@ -159,35 +164,26 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   生成数量(单次返回多张)
 </ParamField>
 
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
-</ParamField>
-
 <ParamField body="aspect_ratio" type="string" default="1:1">
-  画面宽高比,**取值范围取决于模型**:
-
-  标准 10 种(全部模型支持):
-  - `1:1` — 正方形
-  - `2:3` / `3:2` — 竖/横版相机比
-  - `3:4` / `4:3` — 竖/横版标准
-  - `4:5` / `5:4` — 竖/横版社媒
-  - `9:16` / `16:9` — 竖/横版宽屏
-  - `21:9` — 超宽屏
-
-  极端比例(**仅 3.1 Flash 系列**):
-  - `1:4` / `4:1` — 长条 / 横幅
-  - `1:8` / `8:1` — 极致长条 / 极致横幅
+  画面宽高比,全部 6 个模型支持以下 11 种取值:
+  - `auto` — 自动选择(文生图默认 `1:1` 或 `16:9`;图生图跟随上游)
+  - `1:1` — 正方形,头像 / 社媒
+  - `2:3` / `3:2` — 竖 / 横版相机比
+  - `3:4` / `4:3` — 竖 / 横版标准
+  - `4:5` / `5:4` — 竖 / 横版社媒
+  - `9:16` / `16:9` — 竖 / 横版宽屏
+  - `21:9` — 超宽横幅
 </ParamField>
 
 <ParamField body="resolution" type="string" default="1K">
   输出分辨率,**取决于模型**:
   - 3 Pro:`1K` / `2K` / `4K`
   - 3.1 Flash:`0.5K` / `1K` / `2K` / `4K`
-  - 2.5 Flash:`1K`
+  - 2.5 Flash:仅 `1K`
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  参考图片 URL 数组。`image2image` / `edit` 通常一张,`reference` 多张
+  参考图片 URL 数组(仅 `edit` 使用)。图生图 / 局部重绘通常一张,多图融合可传多张
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -206,16 +202,16 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **系列**:Nano Banana Pro · 官方直连档
 
-    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+    **支持 action**:`generate` / `edit`
 
     **resolution**:`1K` / `2K` / `4K`
 
-    **aspect_ratio**:标准 10 种
+    **aspect_ratio**:11 种(含 `auto`)
 
-    **核心特性**:与 3 Pro 标准档**完全同模型**,通道与稳定性更优,适合对 SLA 敏感的生产线。价格约为标准档的 2.7 倍。
+    **核心特性**:与 3 Pro 标准档**完全同模型**,通道与稳定性更优,适合对 SLA 敏感的生产线。价格约为标准档的 2.7 倍(4K 约 3.8 倍)。
 
-    <ParamField body="official_fallback" type="boolean" default="false">
-      该模型本身已是官方直连档,通常无需开启。保留字段用于上游统一参数模板兼容
+    <ParamField body="mask_url" type="string">
+      局部重绘(inpaint)掩码图 URL,需配合 `image_urls`(仅一张),且掩码图需带 Alpha 通道
     </ParamField>
   </Tab>
 
@@ -224,13 +220,17 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **系列**:Nano Banana Pro · 标准档
 
-    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+    **支持 action**:`generate` / `edit`
 
     **resolution**:`1K` / `2K` / `4K`
 
-    **aspect_ratio**:标准 10 种
+    **aspect_ratio**:11 种(含 `auto`)
 
     **核心特性**:旗舰档,4K 原生输出,专业级保真度,多步规划与内置质量分析,擅长复杂构图与精细排版。
+
+    <ParamField body="mask_url" type="string">
+      局部重绘(inpaint)掩码图 URL,需配合 `image_urls`(仅一张),且掩码图需带 Alpha 通道
+    </ParamField>
 
     <ParamField body="official_fallback" type="boolean" default="false">
       运行时切换到官方直连档,稳定性更高但价格更高。建议直接使用 `-official` 模型 id,语义更清晰
@@ -242,24 +242,16 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **系列**:Nano Banana 2 · 官方直连档
 
-    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `search_grounded`
+    **支持 action**:`generate` / `edit`
 
     **resolution**:`0.5K` / `1K` / `2K` / `4K`
 
-    **aspect_ratio**:标准 10 种 + 极端 4 种(`1:4` / `4:1` / `1:8` / `8:1`)
+    **aspect_ratio**:11 种(含 `auto`)
 
-    **核心特性**:与 3.1 Flash 标准档同模型,通道与 SLA 更优。
+    **核心特性**:与 3.1 Flash 标准档同模型,通道与 SLA 更优。**注意:官方直连档不支持 `google_search` / `google_image_search` 搜索增强**,如需搜索增强请用标准档 `gemini-3.1-flash-image-preview`。
 
-    <ParamField body="google_search" type="boolean" default="false">
-      启用 Google 文字搜索增强 — 模型可基于实时联网信息生成
-    </ParamField>
-
-    <ParamField body="google_image_search" type="boolean" default="false">
-      启用 Google 图片搜索增强 — 引用网络图片做视觉参考
-    </ParamField>
-
-    <ParamField body="official_fallback" type="boolean" default="false">
-      该模型本身已是官方直连档,通常无需开启
+    <ParamField body="mask_url" type="string">
+      局部重绘(inpaint)掩码图 URL,需配合 `image_urls`(仅一张),且掩码图需带 Alpha 通道
     </ParamField>
   </Tab>
 
@@ -268,24 +260,24 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **系列**:Nano Banana 2 · 标准档
 
-    **支持 action**:`generate` / `image2image` / `edit` / `reference` / `search_grounded`
+    **支持 action**:`generate` / `edit`
 
     **resolution**:`0.5K` / `1K` / `2K` / `4K`
 
-    **aspect_ratio**:标准 10 种 + 极端 4 种(`1:4` / `4:1` / `1:8` / `8:1`)
+    **aspect_ratio**:11 种(含 `auto`)
 
-    **核心特性**:轻量快速档,延迟低、成本省,适合预览、批量、迭代。**独家支持 Google 文字与图片搜索增强**,可基于实时网络信息出图;支持极端长条 / 横幅比例。
+    **核心特性**:轻量快速档,延迟低、成本省,支持 `0.5K` 经济档到 `4K` 高清,适合预览、批量、迭代。**独家支持 Google 文字与图片搜索增强**,可基于实时网络信息出图。
 
     <ParamField body="google_search" type="boolean" default="false">
-      启用 Google 文字搜索增强 — 模型可基于实时联网信息生成
+      启用 Google 文字搜索增强 — 模型可基于实时联网信息生成,适合需要真实世界信息的场景
     </ParamField>
 
     <ParamField body="google_image_search" type="boolean" default="false">
-      启用 Google 图片搜索增强 — 引用网络图片做视觉参考
+      启用 Google 图片搜索增强 — 在文字搜索基础上额外引用网络图片做视觉参考。**必须配合 `google_search: true` 使用**
     </ParamField>
 
     <ParamField body="official_fallback" type="boolean" default="false">
-      运行时切换到官方直连档。建议直接使用 `-official` 模型 id
+      运行时切换到官方直连档。建议直接使用 `-official` 模型 id(注意官方档不支持搜索增强)
     </ParamField>
   </Tab>
 
@@ -294,16 +286,16 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **系列**:Nano Banana · 官方直连档
 
-    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+    **支持 action**:`generate` / `edit`
 
-    **resolution**:`1K`
+    **resolution**:仅 `1K`
 
-    **aspect_ratio**:标准 10 种
+    **aspect_ratio**:11 种(含 `auto`)
 
     **核心特性**:老一代 Nano Banana 官方直连,通道稳定,适合在 2.5 Flash 上构建的存量管线。
 
-    <ParamField body="official_fallback" type="boolean" default="false">
-      该模型本身已是官方直连档,通常无需开启
+    <ParamField body="mask_url" type="string">
+      局部重绘(inpaint)掩码图 URL,需配合 `image_urls`(仅一张),且掩码图需带 Alpha 通道
     </ParamField>
   </Tab>
 
@@ -312,13 +304,17 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **系列**:Nano Banana · 标准档
 
-    **支持 action**:`generate` / `image2image` / `edit` / `reference`
+    **支持 action**:`generate` / `edit`
 
-    **resolution**:`1K`
+    **resolution**:仅 `1K`
 
-    **aspect_ratio**:标准 10 种
+    **aspect_ratio**:11 种(含 `auto`)
 
     **核心特性**:老一代图像生成与编辑主力,低延迟、高性价比,多图融合与角色一致性表现稳定。当下最经济的 Gemini 图像档位。
+
+    <ParamField body="mask_url" type="string">
+      局部重绘(inpaint)掩码图 URL,需配合 `image_urls`(仅一张),且掩码图需带 Alpha 通道
+    </ParamField>
 
     <ParamField body="official_fallback" type="boolean" default="false">
       运行时切换到官方直连档。建议直接使用 `-official` 模型 id
@@ -330,11 +326,12 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 | 项目 | 限制 |
 |---|---|
-| 参考图片 | `reference` 模式建议 ≤ 4 张;`edit` / `image2image` 通常 1 张 |
+| 参考图片 | 多图融合可传多张;`edit` 局部重绘 / 图生图通常 1 张 |
+| 掩码图 | `mask_url` 仅可一张,需带 Alpha 通道,与 `image_urls` 配合 |
 | 单张图片大小 | ≤ 30MB,支持 JPG / PNG / WEBP |
-| 输出分辨率 | 详见各 Tab(3 Pro 最高 4K / 3.1 Flash 最高 4K / 2.5 Flash 仅 1K) |
+| 输出分辨率 | 3 Pro 最高 4K / 3.1 Flash 最高 4K(最低 0.5K)/ 2.5 Flash 仅 1K |
 | 输出文件 | JPG,链接 24 小时有效 |
-| 搜索增强 | 仅 3.1 Flash 系列;开启 `google_search` / `google_image_search` 可能略增延迟 |
+| 搜索增强 | 仅 3.1 Flash 标准档;开启 `google_search` / `google_image_search` 可能略增延迟 |
 
 ## 相关文档
 

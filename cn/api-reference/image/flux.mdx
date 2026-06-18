@@ -1,0 +1,234 @@
+---
+title: "FLUX 系列"
+description: "Black Forest Labs FLUX — Kontext 图像编辑(FLUX.1 Kontext)与 FLUX.2 文生图"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Black Forest Labs 出品的 FLUX 图像模型系列,共 **4 个模型**,分为两类:
+
+- **FLUX.1 Kontext(图像编辑)** — `flux-kontext-pro` / `flux-kontext-max`,**以图编图**,擅长局部编辑、风格迁移、元素替换与角色一致性。**必须传入参考图 `image_urls`**,纯文本提示无法出图。
+- **FLUX.2(文生图)** — `flux-2-pro` / `flux-2-flex`,纯文本生成图像,支持 `1K` / `2K` 两档分辨率,`2K` 单独计费。
+
+按张计费,异步任务,提交后轮询任务状态获取结果。
+
+<Warning>
+`flux-kontext-pro` 与 `flux-kontext-max` 是**图像编辑模型**,调用时必须提供参考图 `image_urls`(并配合编辑指令 `prompt`),否则任务会失败。需要纯文本生成图像请改用 `flux-2-pro` / `flux-2-flex`。
+</Warning>
+
+## 定价
+
+### FLUX.1 Kontext(图像编辑,按张统一价)
+
+| 模型 | 单价(每张) |
+|---|---|
+| `flux-kontext-pro` | `$0.0225` |
+| `flux-kontext-max` | `$0.045` |
+
+### FLUX.2(文生图,按分辨率分档)
+
+| 模型 | 1K 档(默认) | 2K 档 |
+|---|---|---|
+| `flux-2-pro` | `$0.028125` | `$0.039375` |
+| `flux-2-flex` | `$0.07875` | `$0.135` |
+
+> 未指定 `resolution` 时按 `1K` 档计费。
+
+## 模型速查
+
+| 模型 | 类型 | 必需输入 | action | 分辨率 |
+|---|---|---|---|---|
+| `flux-kontext-pro` | 图像编辑 | `prompt` + `image_urls` | `generate` / `edit` | — |
+| `flux-kontext-max` | 图像编辑(增强) | `prompt` + `image_urls` | `generate` / `edit` | — |
+| `flux-2-pro` | 文生图 | `prompt` | `generate` | `1K` / `2K` |
+| `flux-2-flex` | 文生图(灵活档) | `prompt` | `generate` | `1K` / `2K` |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash Kontext 图像编辑(必传 image_urls)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-kontext-pro",
+    "action": "edit",
+    "prompt": "把背景换成黄昏海边,人物姿态与服装保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "aspect_ratio": "1:1"
+  }'
+```
+
+```bash Kontext Max(角色一致性,高保真)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-kontext-max",
+    "action": "edit",
+    "prompt": "保持同一角色,换成赛博朋克装束,霓虹氛围",
+    "image_urls": ["https://cdn.example.com/character.jpg"],
+    "aspect_ratio": "3:4"
+  }'
+```
+
+```bash FLUX.2 文生图(1K 默认)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-2-pro",
+    "prompt": "未来主义城市夜景,霓虹灯映在湿润街面,电影感构图",
+    "aspect_ratio": "16:9",
+    "seed": 12345
+  }'
+```
+
+```bash FLUX.2 Flex(2K 档)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-2-flex",
+    "prompt": "极简产品海报,几何构图,留白克制,工作室柔光",
+    "resolution": "2K",
+    "aspect_ratio": "2:3"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775290140a830128812",
+  "model": "flux-kontext-pro",
+  "action": "edit",
+  "status": "queued",
+  "created_at": 1775290140120,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 说明 |
+|---|---|
+| `flux-kontext-pro` | FLUX.1 Kontext Pro,图像编辑模型,需传 `image_urls`,擅长局部编辑与风格迁移 |
+| `flux-kontext-max` | FLUX.1 Kontext Max,增强版编辑模型,角色一致性与高保真更强 |
+| `flux-2-pro` | FLUX.2 Pro,文生图,支持 `1K` / `2K` 两档分辨率 |
+| `flux-2-flex` | FLUX.2 Flex,文生图灵活档,支持 `1K` / `2K` 两档分辨率 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  从 [可用模型](#可用模型) 列表中选一个
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  操作类型:
+  - `generate` — 默认。Kontext 模型在此模式下仍需传 `image_urls`
+  - `edit` — 图像编辑(仅 `flux-kontext-pro` / `flux-kontext-max` 支持)
+
+  FLUX.2(`flux-2-pro` / `flux-2-flex`)仅支持 `generate`。
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图像描述或编辑指令文本,支持中英文。Kontext 模型填写"对参考图做什么"的编辑指令
+</ParamField>
+
+<ParamField body="seed" type="integer" default="-1">
+  随机种子,`-1` 为随机;固定值可复现相似结果。FLUX.2 与 Kontext 均支持
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,4 个模型均支持以下 7 种:
+  - `1:1` — 正方形
+  - `16:9` / `9:16` — 横/竖版宽屏
+  - `4:3` / `3:4` — 横/竖版标准
+  - `3:2` / `2:3` — 横/竖版相机比
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1K">
+  输出分辨率,**仅 FLUX.2(`flux-2-pro` / `flux-2-flex`)支持**:
+  - `1K` — 1K 档(默认,基准价)
+  - `2K` — 2K 档(单独计费,见 [定价](#定价))
+
+  Kontext 模型(`flux-kontext-pro` / `flux-kontext-max`)不接收该字段。
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组。**Kontext 模型(`flux-kontext-pro` / `flux-kontext-max`)必填**;FLUX.2 不接收该字段
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件类型,详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+## 模型特定参数
+
+<Tabs>
+  <Tab title="FLUX.1 Kontext(Pro / Max)">
+    **适用模型**:`flux-kontext-pro` / `flux-kontext-max`
+
+    **支持 action**:`generate` / `edit`
+
+    **aspect_ratio**(7 种):`1:1` / `16:9` / `9:16` / `4:3` / `3:4` / `3:2` / `2:3`
+
+    **resolution**:不接收(沿用模型默认)
+
+    **核心特性**:以图编图,擅长局部编辑、风格迁移、元素替换与角色一致性。
+
+    <ParamField body="image_urls" type="string[]" required>
+      参考图片 URL 数组,**必填**。不提供则任务失败
+    </ParamField>
+
+    <ParamField body="seed" type="integer" default="-1">
+      随机种子,固定可复现相似编辑结果
+    </ParamField>
+  </Tab>
+
+  <Tab title="FLUX.2(Pro / Flex)">
+    **适用模型**:`flux-2-pro` / `flux-2-flex`
+
+    **支持 action**:`generate`(纯文生图)
+
+    **aspect_ratio**(7 种):`1:1` / `16:9` / `9:16` / `4:3` / `3:4` / `3:2` / `2:3`
+
+    **resolution**:`1K`(默认) / `2K`(`2K` 档单独计费)
+
+    **核心特性**:纯文本生成图像,无需参考图;`flux-2-pro` 性价比更高,`flux-2-flex` 为灵活档。
+
+    <ParamField body="resolution" type="string" default="1K">
+      输出分辨率,`1K` / `2K`。`2K` 档按 [定价](#定价) 单独计费
+    </ParamField>
+
+    <ParamField body="seed" type="integer" default="-1">
+      随机种子,固定可复现相似结果
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片(Kontext) | 必填,`flux-kontext-pro` / `flux-kontext-max` 使用 `image_urls` |
+| 参考图片(FLUX.2) | 不支持,`flux-2-pro` / `flux-2-flex` 为纯文生图 |
+| 输出分辨率 | FLUX.2 支持 `1K` / `2K`;Kontext 沿用模型默认 |
+| 单张图片大小 | ≤ 30MB,支持 JPG/PNG/WEBP |
+| 宽高比 | 7 种:`1:1` / `16:9` / `9:16` / `4:3` / `3:4` / `3:2` / `2:3` |
+| 输出文件 | 图片链接,24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

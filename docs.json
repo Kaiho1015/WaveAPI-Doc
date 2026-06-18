@@ -117,7 +117,10 @@
                   "cn/api-reference/image/imagen",
                   "cn/api-reference/image/qwen-image",
                   "cn/api-reference/image/wan-image",
-                  "cn/api-reference/image/z-image"
+                  "cn/api-reference/image/z-image",
+                  "cn/api-reference/image/flux",
+                  "cn/api-reference/image/grok-imagine",
+                  "cn/api-reference/image/midjourney"
                 ]
               },
               {
