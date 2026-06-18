@@ -1,6 +1,6 @@
 ---
 title: "Midjourney"
-description: "Midjourney 全功能接入 — 文生图 / 融图 / 识图 / 编辑 + 放大 / 变体 / 缩放 / 平移 / 局部重绘等链式操作"
+description: "Midjourney 接入 — 文生图 / 融图 / 识图 / 编辑 + 放大 / 变体 / 缩放 / 平移等链式操作"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
@@ -9,7 +9,7 @@ Midjourney 通过统一异步任务接口 `/v1/tasks` 调用,用 `action` 字段
 **两类操作:**
 
 - **独立生成类** — 不依赖前序任务:`imagine`(文生图)、`blend`(多图融合)、`describe`(图转文)、`edits`(全图重写)
-- **链式操作类** — 基于前一个任务的产物再加工,需传 `ref_task_id` 引用前序任务:`upscale`(放大)、`variation` / `high-variation` / `low-variation`(变体)、`reroll`(重出网格)、`zoom`(外绘缩放)、`pan`(方向平移)、`remix-strong` / `remix-subtle`(v8 重塑)、`inpaint` → `modal`(局部重绘,两步)
+- **链式操作类** — 基于前一个任务的产物再加工,需传 `ref_task_id` 引用前序任务:`upscale`(放大)、`variation` / `high-variation` / `low-variation`(变体)、`reroll`(重出网格)、`zoom`(外绘缩放)、`pan`(方向平移)、`remix-strong` / `remix-subtle`(v8 重塑)
 
 <Note>
 `imagine` 等生成类返回 **2×2 四宫格**(一张图含 4 个画面)。要对其中某一张放大 / 变体,用链式操作传 `ref_task_id`(该网格任务的 `task_id`)+ `index`(1-4 选第几张)。详见 [链式操作](#链式操作)。
@@ -25,7 +25,7 @@ Midjourney 通过统一异步任务接口 `/v1/tasks` 调用,用 `action` 字段
 | 其余全部 action | `$0.06192` | `$0.06192` | `$0.1125` |
 
 <Note>
-`inpaint` 与 `modal` 为两次独立调用,**各自计费**(局部重绘 = inpaint + modal 两笔)。任务失败自动全额退款。
+任务失败自动全额退款。
 </Note>
 
 ## Action 速查
@@ -45,8 +45,6 @@ Midjourney 通过统一异步任务接口 `/v1/tasks` 调用,用 `action` 字段
 | `pan` | 链式 | `ref_task_id` + `direction` | 向 `left/right/up/down` 平移外绘 |
 | `remix-strong` | 链式 | `ref_task_id` + `index` | v8/v8.1 大幅重塑,可改 prompt |
 | `remix-subtle` | 链式 | `ref_task_id` + `index` | v8/v8.1 保守重塑 |
-| `inpaint` | 链式 | `ref_task_id` | 开启局部重绘(进入 modal 态,接 `modal`) |
-| `modal` | 链式 | `ref_task_id` | 提交 `mask_url` + `prompt` 完成局部重绘 |
 
 ## 调用示例
 
@@ -116,24 +114,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   }'
 ```
 
-```bash 局部重绘(inpaint → modal 两步)
-# 第 1 步:对放大后的单图开启局部重绘
-curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer $WAVE_API_KEY" -H "Content-Type: application/json" \
-  -d '{"model":"midjourney","action":"inpaint","ref_task_id":"task-wave...upscale_task"}'
-
-# 第 2 步:用上一步返回的 task_id,提交遮罩 + 提示完成
-curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer $WAVE_API_KEY" -H "Content-Type: application/json" \
-  -d '{
-    "model": "midjourney",
-    "action": "modal",
-    "ref_task_id": "task-wave...inpaint_task",
-    "mask_url": "https://cdn.example.com/mask.png",
-    "prompt": "replace the selected area with a red leather sofa"
-  }'
-```
-
 </CodeGroup>
 
 <ResponseExample>
@@ -169,7 +149,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     链式操作传 `ref_task_id`(= 上一步的 `task_id`)+ `index`(1-4,左上=1 右上=2 左下=3 右下=4)。例如 `upscale` 放大第 2 张。
   </Step>
   <Step title="继续链式">
-    放大后的单图任务又可作为 `zoom` / `pan` / `inpaint` 的 `ref_task_id`,层层叠加。
+    放大后的单图任务又可作为 `zoom` / `pan` 的 `ref_task_id`,层层叠加。
   </Step>
 </Steps>
 
@@ -184,9 +164,8 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 | `upscale` / `variation` | imagine / reroll 的四宫格 | `index` 必填 |
 | `high-variation` / `low-variation` | upscale 后的单图 | `index` 必填 |
 | `reroll` | imagine 的四宫格 | 不需 index |
-| `zoom` / `pan` / `inpaint` | upscale 后的单图 | 不需 index |
+| `zoom` / `pan` | upscale 后的单图 | 不需 index |
 | `remix-strong` / `remix-subtle` | v8/v8.1 的 imagine 四宫格 | `index` 必填 |
-| `modal` | `inpaint` 返回的任务 | — |
 
 ## 通用参数
 
@@ -240,10 +219,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   `zoom` 缩放倍数:`<2` 走 Outpaint 1.5x,`≥2` 走 CustomZoom 2x
 </ParamField>
 
-<ParamField body="mask_url" type="string">
-  `modal` 局部重绘遮罩图 URL(PNG,白色 = 重画 / 透明 = 保留)。不传则做外绘扩展
-</ParamField>
-
 <ParamField body="custom_id" type="string">
   高级:直接指定 MJ 按钮 ID(给了则忽略 `index`),用于网关未抽象的特殊操作
 </ParamField>
@@ -278,7 +253,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 - `describe` 同步返回较快(1-3 秒),结果为文本建议
 - `pan` 仅 v6/v6.1/v7/niji6 支持;v8/v8.1 已移除
 - `remix-strong` / `remix-subtle` 仅 v8/v8.1
-- `inpaint` 后须在 30 分钟内调 `modal` 完成,否则超时
 
 ## 相关文档
 
