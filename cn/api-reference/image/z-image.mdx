@@ -12,7 +12,7 @@ api: "POST https://www.qingbo.dev/v1/tasks"
 
 | 模型 | 单价(每张) |
 |---|---|
-| `z-image-turbo` | `$0.010625` |
+| `z-image-turbo` | `$0.01125` |
 
 ## 调用示例
 
@@ -82,10 +82,6 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 <ParamField body="n" type="integer" default="1">
   生成数量。**该模型固定单次返回 1 张,不支持 `n > 1`**
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="1:1">

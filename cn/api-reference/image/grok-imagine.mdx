@@ -1,0 +1,155 @@
+---
+title: "Grok Imagine 系列"
+description: "xAI Grok Imagine 图像生成 — 文生图(1.0 / 1.5)与图像编辑(1.0-edit / 1.5-edit)"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+xAI Grok Imagine 图像生成与编辑系列。包含两代模型,每代各拆出**文生图**与**图像编辑**两个 model:
+
+- **grok-imagine-1.0** / **grok-imagine-1.5** — 文生图(`generate`),纯文本提示出图
+- **grok-imagine-1.0-edit** / **grok-imagine-1.5-edit** — 图像编辑(需传 `image_urls` 参考图)
+
+四个 model 统一按张计费,均为 **`$0.016875`** / 张。
+
+## 定价
+
+| 模型 ID | 类型 | 单价(每张) |
+|---|---|---|
+| `grok-imagine-1.0` | 文生图 | `$0.016875` |
+| `grok-imagine-1.5` | 文生图 | `$0.016875` |
+| `grok-imagine-1.0-edit` | 图像编辑 | `$0.016875` |
+| `grok-imagine-1.5-edit` | 图像编辑 | `$0.016875` |
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生图(grok-imagine-1.5)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.5",
+    "prompt": "赛博朋克都市夜景,霓虹倒映在雨后街道,电影质感",
+    "aspect_ratio": "16:9",
+    "n": 1
+  }'
+```
+
+```bash 文生图(grok-imagine-1.0)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0",
+    "prompt": "一只柴犬戴着宇航头盔漂浮在太空,卡通风格",
+    "aspect_ratio": "1:1"
+  }'
+```
+
+```bash 图像编辑(grok-imagine-1.5-edit)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.5-edit",
+    "prompt": "把背景换成雪山日落,人物保持不变",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "n": 1
+  }'
+```
+
+```bash 图像编辑(grok-imagine-1.0-edit)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-imagine-1.0-edit",
+    "prompt": "给画面加上暖色调滤镜,增强黄昏氛围",
+    "image_urls": ["https://cdn.example.com/street.jpg"]
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775290140a830128812",
+  "model": "grok-imagine-1.5",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775290140120,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 类型 | 说明 |
+|---|---|---|
+| `grok-imagine-1.0` | 文生图 | Grok Imagine 1.0,纯文本提示生成图像,支持 5 种宽高比 |
+| `grok-imagine-1.5` | 文生图 | Grok Imagine 1.5,新一代文生图,支持 5 种宽高比 |
+| `grok-imagine-1.0-edit` | 图像编辑 | Grok Imagine 1.0 图像编辑,需传入参考图 `image_urls` |
+| `grok-imagine-1.5-edit` | 图像编辑 | Grok Imagine 1.5 图像编辑,需传入参考图 `image_urls` |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  从 [可用模型](#可用模型) 列表中选一个。文生图用 `grok-imagine-1.0` / `grok-imagine-1.5`;图像编辑用 `grok-imagine-1.0-edit` / `grok-imagine-1.5-edit`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  提示文本,支持中英文。文生图为画面描述;图像编辑为对参考图的修改指令
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量,取决于服务侧上限
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件类型,详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+## 模型特定参数
+
+### 文生图(grok-imagine-1.0 / grok-imagine-1.5)
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面宽高比,共 5 种:
+  - `1:1` — 正方形
+  - `16:9` / `9:16` — 横/竖版宽屏
+  - `3:2` / `2:3` — 横/竖版相机比
+</ParamField>
+
+### 图像编辑(grok-imagine-1.0-edit / grok-imagine-1.5-edit)
+
+<ParamField body="image_urls" type="string[]" required>
+  待编辑的参考图片 URL。图像编辑模型必须传入此字段
+</ParamField>
+
+<Note>
+图像编辑模型(`*-edit`)不支持 `aspect_ratio` 参数,输出比例随参考图决定。
+</Note>
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片(`*-edit`) | 由 `image_urls` 提供 |
+| 单张图片大小 | ≤ 30MB,支持 JPG/PNG/WEBP |
+| 宽高比(文生图) | `1:1` / `16:9` / `9:16` / `3:2` / `2:3` |
+| 输出文件 | 图片链接,24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

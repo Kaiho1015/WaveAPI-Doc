@@ -1,67 +1,69 @@
 ---
 title: "Veo 系列"
-description: "Google Veo 3.1 — 官方直连 Fast / Quality 双档,逆向 Lite / Quality 双档,原生有声、首尾帧、Remix"
+description: "Google Veo 3.1 — 官方直连 Fast / Quality 双档(按秒、原生有声),标准 Fast / Lite / Quality 三档(按次固定价)"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-Google Veo 3.1 视频生成模型,提供 **官方直连** 与 **逆向接入** 两种渠道,共 **4 个子档**。
+Google Veo 3.1 视频生成模型,提供 **官方直连** 与 **标准接入** 两种渠道,共 **5 个子档**。所有子档时长均**固定 8 秒**,支持 720P / 1080P / 4K 三种分辨率。
 
-- **官方档**(Vertex AI 直连):按 **秒** 计费,支持 4 / 6 / 8 秒时长,720P / 1080P / 4K 三种分辨率。
-- **逆向档**:按 **次** 计费(单次固定价),仅支持 **8 秒** 固定时长。
+- **官方档**(`-official`):**按秒计费**(单价/秒 × 时长),原生支持音频(`generate_audio=true` 触发 `_sound` 加价档)。
+- **标准档**(无 `-official`):**按次计费**(单次固定价,**与时长无关**),不支持音频。
 
-| 档位 | 渠道 | 计费方式 | 定位 |
-|---|---|---|---|
-| `veo3.1-quality-official` | 官方直连 | 按秒 | 旗舰档,最终交付质量 |
-| `veo3.1-fast-official` | 官方直连 | 按秒 | 加速档,适合迭代试稿 |
-| `veo3.1-quality` | 逆向接入 | 按次 | 逆向旗舰子型,固定 8 秒 |
-| `veo3.1-lite` | 逆向接入 | 按次 | 逆向轻量子型,固定 8 秒 |
-
-两种渠道均原生支持音频、首尾帧关键帧、Remix 续写。
+| 档位 | 渠道 | 计费方式 | 音频 | 定位 |
+|---|---|---|---|---|
+| `veo3.1-quality-official` | 官方直连 | 按秒 | 支持 | 旗舰档,最终交付质量 |
+| `veo3.1-fast-official` | 官方直连 | 按秒 | 支持 | 加速档,适合迭代试稿 |
+| `veo3.1-quality` | 标准接入 | 按次 | 不支持 | 标准旗舰子型 |
+| `veo3.1-fast` | 标准接入 | 按次 | 不支持 | 标准加速子型 |
+| `veo3.1-lite` | 标准接入 | 按次 | 不支持 | 标准轻量子型,低成本批量 |
 
 ## 定价
 
 <Note>
-**4K 分辨率不支持静音**,必须设 `generate_audio=true`(720p / 1080p 可静音也可有声)。下表中 `720p_sound` / `1080p_sound` 为带音频加价档,`4k_sound` 是 4K 唯一档。
+两类渠道计费口径**完全不同**:官方档 **按秒**(下表为每秒单价,需乘以时长 8 秒),标准档 **按次**(下表即单次固定价,不乘时长)。
 </Note>
 
 ### 官方档(按秒)
 
-720P 与 1080P 同价(Google 官方阶梯定价),开启 `generate_audio=true` 后单价**翻倍**。
+每秒单价。720P 与 1080P 同价;开启 `generate_audio=true` 触发 `_sound` 加价档。固定 8 秒。
 
 #### `veo3.1-fast-official`
 
 | 规格 | 单价(每秒) | 8 秒视频 |
 |---|---|---|
-| 720P 静音 | `$0.08` | `$0.64` |
-| 1080P 静音 | `$0.08` | `$0.64` |
-| 720P + 音频 | `$0.12` | `$0.96` |
-| 1080P + 音频 | `$0.12` | `$0.96` |
-| 4K + 音频 | `$0.28` | `$2.24` |
+| 720P 静音 | `$0.09` | `$0.72` |
+| 1080P 静音 | `$0.09` | `$0.72` |
+| 720P + 音频 | `$0.135` | `$1.08` |
+| 1080P + 音频 | `$0.135` | `$1.08` |
+| 4K 静音 | `$0.27` | `$2.16` |
+| 4K + 音频 | `$0.315` | `$2.52` |
 
 #### `veo3.1-quality-official`
 
 | 规格 | 单价(每秒) | 8 秒视频 |
 |---|---|---|
-| 720P 静音 | `$0.16` | `$1.28` |
-| 1080P 静音 | `$0.16` | `$1.28` |
-| 720P + 音频 | `$0.32` | `$2.56` |
-| 1080P + 音频 | `$0.32` | `$2.56` |
-| 4K + 音频 | `$0.48` | `$3.84` |
+| 720P 静音 | `$0.18` | `$1.44` |
+| 1080P 静音 | `$0.18` | `$1.44` |
+| 720P + 音频 | `$0.36` | `$2.88` |
+| 1080P + 音频 | `$0.36` | `$2.88` |
+| 4K 静音 | `$0.36` | `$2.88` |
+| 4K + 音频 | `$0.54` | `$4.32` |
 
-### 逆向档(按次)
+### 标准档(按次)
 
-逆向档为**单次固定价**,与时长、分辨率、是否带音频无关(仅支持 8 秒)。具体价格以 admin 面板 / 控制台公示为准。
+**单次固定价**,与时长无关(固定 8 秒),不支持音频。
 
-| 模型 ID | 计费方式 | 时长 | 单次价 |
-|---|---|---|---|
-| `veo3.1-quality` | 按次 | 8 秒(固定) | TBD(参考控制台) |
-| `veo3.1-lite` | 按次 | 8 秒(固定) | TBD(参考控制台) |
+| 模型 ID | 720P / 1080P | 4K |
+|---|---|---|
+| `veo3.1-fast` | `$0.2025` / 次 | `$0.27` / 次 |
+| `veo3.1-lite` | `$0.16875` / 次 | `$0.225` / 次 |
+| `veo3.1-quality` | `$0.675` / 次 | `$2.16` / 次 |
 
 ## 调用示例
 
 <CodeGroup>
 
-```bash 文生视频(最简)
+```bash 文生视频(官方档·最简)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -80,16 +82,14 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Content-Type: application/json" \
   -d '{
     "model": "veo3.1-quality-official",
-    "action": "image2video",
     "prompt": "人物缓缓抬头微笑,头发被风吹起",
-    "first_frame_image": "https://cdn.example.com/portrait.jpg",
-    "duration": 6,
-    "resolution": "1080p",
-    "resize_mode": "pad"
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 8,
+    "resolution": "1080p"
   }'
 ```
 
-```bash 带原生音频(generate_audio=true)
+```bash 带原生音频(仅官方档)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -103,22 +103,20 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   }'
 ```
 
-```bash Remix 续写
+```bash 4K 输出
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "veo3.1-fast-official",
-    "action": "remix",
-    "prompt": "镜头继续推近,人物转身离去",
-    "first_frame_image": "https://cdn.example.com/last-frame.jpg",
-    "duration": 4,
-    "resolution": "1080p",
-    "raw": true
+    "prompt": "航拍雪山日出,云海翻涌,镜头缓缓推进",
+    "duration": 8,
+    "resolution": "4k",
+    "aspect_ratio": "16:9"
   }'
 ```
 
-```bash 逆向档(8 秒固定)
+```bash 标准档(按次,固定 8 秒)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -126,6 +124,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     "model": "veo3.1-quality",
     "prompt": "夕阳下的海滨小镇,鸽群飞过钟楼",
     "duration": 8,
+    "resolution": "1080p",
     "aspect_ratio": "16:9"
   }'
 ```
@@ -149,60 +148,56 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 ## 可用模型
 
-| 模型 ID | 渠道 | 档位 | 计费 | 时长 | 分辨率 |
+| 模型 ID | 渠道 | 计费 | 时长 | 分辨率 | 音频 |
 |---|---|---|---|---|---|
-| `veo3.1-quality-official` | 官方直连 | Quality 旗舰档 | 按秒 | 4 / 6 / 8 秒 | 720P / 1080P / 4K |
-| `veo3.1-fast-official` | 官方直连 | Fast 加速档 | 按秒 | 4 / 6 / 8 秒 | 720P / 1080P / 4K |
-| `veo3.1-quality` | 逆向接入 | Quality 旗舰子型 | 按次 | 8 秒(固定) | 720P / 1080P |
-| `veo3.1-lite` | 逆向接入 | Lite 轻量子型 | 按次 | 8 秒(固定) | 720P / 1080P |
+| `veo3.1-quality-official` | 官方直连 | 按秒 | 8 秒(固定) | 720P / 1080P / 4K | 支持 |
+| `veo3.1-fast-official` | 官方直连 | 按秒 | 8 秒(固定) | 720P / 1080P / 4K | 支持 |
+| `veo3.1-quality` | 标准接入 | 按次 | 8 秒(固定) | 720P / 1080P / 4K | 不支持 |
+| `veo3.1-fast` | 标准接入 | 按次 | 8 秒(固定) | 720P / 1080P / 4K | 不支持 |
+| `veo3.1-lite` | 标准接入 | 按次 | 8 秒(固定) | 720P / 1080P / 4K | 不支持 |
 
 ## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型 ID,可选 `veo3.1-quality-official` / `veo3.1-fast-official` / `veo3.1-quality` / `veo3.1-lite`
-</ParamField>
-
-<ParamField body="action" type="string" default="generate">
-  操作类型,可选值:
-  - `generate` — 文生视频(T2V)
-  - `image2video` — 图生视频(I2V),需配合 `first_frame_image`
-  - `first_last_frame` — 首尾帧关键帧,需同时传 `first_frame_image` 与 `last_frame_image`
-  - `remix` — 基于已有片段续写
+  模型 ID,可选 `veo3.1-quality-official` / `veo3.1-fast-official` / `veo3.1-quality` / `veo3.1-fast` / `veo3.1-lite`
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
-  视频描述文本,所有 action 必填
+  视频描述文本,必填。建议英文 prompt,详细描述场景、动作、风格
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="16:9">
   画面宽高比,可选值:
   - `16:9` — 横版宽屏
   - `9:16` — 竖版长屏
+  - `1:1` — 正方形
 </ParamField>
 
-<ParamField body="resolution" type="string" default="1080p">
+<ParamField body="resolution" type="string" default="720p">
   输出分辨率,可选值:
   - `720p`
   - `1080p`
-  - `4k` — **仅官方档支持**,且**必须** `generate_audio=true`(4K 不支持静音)
+  - `4k`
 </ParamField>
 
 <ParamField body="duration" type="integer" default="8">
-  视频时长(秒):
-  - **官方档**:可选 `4` / `6` / `8`
-  - **逆向档**:仅 `8`(固定)
+  视频时长(秒)。Veo 3.1 全档**固定 `8`**
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  通用图像引用数组(部分场景下与 `first_frame_image` 等价)
+  参考图片 URL 数组。传入即触发图生视频(I2V):首张为首帧,第二张为尾帧
 </ParamField>
 
 <ParamField body="first_frame_image" type="string">
-  视频首帧图 URL。`image2video` / `first_last_frame` / `remix` 模式必填
+  视频首帧图 URL(图生视频)
 </ParamField>
 
 <ParamField body="last_frame_image" type="string">
-  视频尾帧图 URL,**仅 `first_last_frame` 模式必填**
+  视频尾帧图 URL,与 `first_frame_image` 配合控制首尾帧
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子,用于复现生成结果,范围 `0` - `4294967295`
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -216,17 +211,17 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ## 模型特定参数
 
 <Note>
-**4 个子档参数完全一致**,仅渠道、计费方式、可选时长 / 分辨率有差。Tab 顺序为 Quality 在前 / Fast / Lite 在后,官方在前 / 逆向在后。
+官方档与标准档参数有差:**仅官方档**支持 `generate_audio` / `enhance_prompt` / `person_generation` / `sample_count` / `resize_mode`;标准档参数更精简,且**不支持音频**。
 </Note>
 
 <Tabs>
-  <Tab title="veo3.1-quality-official">
+  <Tab title="veo3.1-quality-official / veo3.1-fast-official(官方)">
     <ParamField body="generate_audio" type="boolean" default="false">
-      是否生成音频轨道。开启后单价翻倍;**4K 必须** `true`
+      是否生成音频轨道。开启后触发 `_sound` 加价档(见定价表)
     </ParamField>
 
     <ParamField body="sample_count" type="integer" default="1">
-      生成样本数,范围 1-4
+      生成样本数,范围 1-4,当前建议用 `1`
     </ParamField>
 
     <ParamField body="resize_mode" type="string" default="pad">
@@ -236,7 +231,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     </ParamField>
 
     <ParamField body="enhance_prompt" type="boolean" default="true">
-      上游提示词增强,**只能为 `true`**(Vertex AI 强制开启)
+      提示词增强,**只能为 `true`**(设 `false` 会报错;不需要时直接不传)
     </ParamField>
 
     <ParamField body="person_generation" type="string" default="allow_adult">
@@ -245,98 +240,41 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
       - `disallow` — 禁止生成人物
     </ParamField>
 
-    <ParamField body="raw" type="boolean" default="false">
-      Remix 模式专用,`true` 时仅返回延长部分,不拼接原片段
+    <ParamField body="negative_prompt" type="string">
+      负面提示词,排除不想要的内容,如 `"blurry, low quality, watermark"`
     </ParamField>
   </Tab>
 
-  <Tab title="veo3.1-fast-official">
-    <ParamField body="generate_audio" type="boolean" default="false">
-      是否生成音频轨道。开启后单价翻倍;**4K 必须** `true`
+  <Tab title="veo3.1-quality / veo3.1-fast(标准)">
+    <ParamField body="generation_type" type="string">
+      视频生成类型(图生视频时):
+      - `frame` — 首尾帧模式(2 张图:首张首帧、第二张尾帧)
+      - `reference` — 参考图模式(3 张图)
+      - 不传则按图片数量自动判断(2 张走 frame,3 张走 reference)
+
+      <Note>`veo3.1-quality` 不支持 `reference` 模式。</Note>
     </ParamField>
 
-    <ParamField body="sample_count" type="integer" default="1">
-      生成样本数,范围 1-4
+    <ParamField body="enable_gif" type="boolean" default="false">
+      输出 GIF 格式。注意:GIF 与 1080p / 4k 分辨率**不可同时使用**
     </ParamField>
 
-    <ParamField body="resize_mode" type="string" default="pad">
-      图生视频时图片缩放策略,可选值:
-      - `pad` — 边缘填充,保留完整画面
-      - `crop` — 居中裁剪,贴合输出比例
-    </ParamField>
-
-    <ParamField body="enhance_prompt" type="boolean" default="true">
-      上游提示词增强,**只能为 `true`**(Vertex AI 强制开启)
-    </ParamField>
-
-    <ParamField body="person_generation" type="string" default="allow_adult">
-      人物生成策略,可选值:
-      - `allow_adult` — 允许生成成年人物
-      - `disallow` — 禁止生成人物
-    </ParamField>
-
-    <ParamField body="raw" type="boolean" default="false">
-      Remix 模式专用,`true` 时仅返回延长部分,不拼接原片段
-    </ParamField>
-  </Tab>
-
-  <Tab title="veo3.1-quality(逆向)">
-    <ParamField body="generate_audio" type="boolean" default="false">
-      是否生成音频轨道
-    </ParamField>
-
-    <ParamField body="sample_count" type="integer" default="1">
-      生成样本数,范围 1-4
-    </ParamField>
-
-    <ParamField body="resize_mode" type="string" default="pad">
-      图生视频时图片缩放策略,可选值:
-      - `pad` — 边缘填充,保留完整画面
-      - `crop` — 居中裁剪,贴合输出比例
-    </ParamField>
-
-    <ParamField body="person_generation" type="string" default="allow_adult">
-      人物生成策略,可选值:
-      - `allow_adult` — 允许生成成年人物
-      - `disallow` — 禁止生成人物
-    </ParamField>
-
-    <ParamField body="raw" type="boolean" default="false">
-      Remix 模式专用,`true` 时仅返回延长部分,不拼接原片段
+    <ParamField body="official_fallback" type="boolean" default="false">
+      标准档失败时是否回退官方渠道。`true` 启用,`false` 不启用(默认)
     </ParamField>
 
     <Note>
-    逆向档**按次计费**,`duration` 仅接受 `8`,`resolution` 不支持 `4k`。
+    标准档 **按次计费**(固定 8 秒,与时长无关),**不支持** `generate_audio`。`image_urls` 最多 3 张。
     </Note>
   </Tab>
 
-  <Tab title="veo3.1-lite(逆向)">
-    <ParamField body="generate_audio" type="boolean" default="false">
-      是否生成音频轨道
-    </ParamField>
-
-    <ParamField body="sample_count" type="integer" default="1">
-      生成样本数,范围 1-4
-    </ParamField>
-
-    <ParamField body="resize_mode" type="string" default="pad">
-      图生视频时图片缩放策略,可选值:
-      - `pad` — 边缘填充,保留完整画面
-      - `crop` — 居中裁剪,贴合输出比例
-    </ParamField>
-
-    <ParamField body="person_generation" type="string" default="allow_adult">
-      人物生成策略,可选值:
-      - `allow_adult` — 允许生成成年人物
-      - `disallow` — 禁止生成人物
-    </ParamField>
-
-    <ParamField body="raw" type="boolean" default="false">
-      Remix 模式专用,`true` 时仅返回延长部分,不拼接原片段
+  <Tab title="veo3.1-lite(标准·轻量)">
+    <ParamField body="enable_gif" type="boolean" default="false">
+      输出 GIF 格式。注意:GIF 与 1080p / 4k 分辨率**不可同时使用**
     </ParamField>
 
     <Note>
-    逆向档**按次计费**,`duration` 仅接受 `8`,`resolution` 不支持 `4k`。
+    `veo3.1-lite` 为纯文生视频轻量档,**不支持** `image_urls` / `generation_type` / `official_fallback`(传入会报错),也**不支持** `generate_audio`。按次计费,固定 8 秒。
     </Note>
   </Tab>
 </Tabs>
@@ -345,15 +283,18 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 | 项目 | 限制 |
 |---|---|
-| 参考图片 | JPG / PNG / WEBP,单张 ≤ 20MB,建议 ≥ 720P |
+| 参考图片 | JPG / PNG / WEBP,标准档单张 ≤ 10MB、最多 3 张 |
 | 输出视频 | MP4,链接 24 小时有效 |
-| 时长 | 官方档 4 / 6 / 8 秒;逆向档仅 8 秒(固定) |
-| 分辨率 | 720P / 1080P 任意;**4K 仅官方档**且必须 `generate_audio=true` |
-| 音频 | 原生生成,无需额外 TTS;4K 必须有音频,720P / 1080P 音频可选 |
-| 人物 | 受 `person_generation` 策略约束,违规内容会被上游拦截 |
+| 时长 | 全档固定 8 秒 |
+| 分辨率 | 720P / 1080P / 4K 全档支持 |
+| 音频 | 仅官方档(`-official`)支持 `generate_audio`,标准档不支持 |
+| GIF | 仅标准档 `enable_gif`,且不可与 1080p / 4k 同用 |
+| 人物 | 官方档受 `person_generation` 策略约束,违规内容会被拦截 |
 
 ## 相关文档
 
 - [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
 - [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
 - [认证](/cn/docs/authentication) — API Key 申请与使用
+</content>
+</invoke>

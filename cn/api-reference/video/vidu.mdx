@@ -1,70 +1,52 @@
 ---
 title: "Vidu Q3 系列"
-description: "生数科技 Vidu Q3 — 参考生 / 文生 / 图生 / 首尾帧 / 多图混剪,智能镜头切换"
+description: "生数科技 Vidu Q3 — 参考生 / 文生 / 图生,智能镜头切换,1-16 秒任意整数"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-生数科技 Vidu Q3 系列视频生成模型,**参考生视频(R2V)** 是看家本事 — 接受 1-7 张公网图作为主体 / 风格参考,prompt 只负责描述动作与镜头,人物外观由参考图决定,适合 **角色一致性 / 风格延续 / 多机位切换** 三类场景。
+生数科技 Vidu Q3 系列视频生成模型,**参考生视频(R2V)** 是看家本事 — 接受公网图作为主体 / 风格参考,prompt 负责描述动作与镜头,人物外观由参考图决定,适合 **角色一致性 / 风格延续 / 多机位切换** 三类场景。
 
-四档定位:
+**两档可选:**
 
-- **`viduq3-pro`** — 旗舰档,**按 `image_urls` 数量自动路由** 文生 / 图生 / 首尾帧,默认开启音频直出(对白 + 音效)
-- **`viduq3-mix`** — 综合画质王,支持 **多段参考视频 / 图片混剪** 生成连贯视频,带音频联合生成,720P / 1080P 双档,适合短剧分镜重组、广告素材二创
-- **`viduq3`** — 标准档,日常默认首选,镜头切换更聪明,540p / 720p / 1080p,3-16 秒
-- **`viduq3-turbo`** — 轻量快速档,生成最快、单价最低,质量略低于标准档,适合预览 / 批量 / A/B 测试
+- **`vidu-q3`** — 标准档,日常默认首选,镜头切换更聪明,540p / 720p / 1080p,1-16 秒。比例由参考图决定,**不接受 `aspect_ratio` 参数**
+- **`vidu-q3-mix`** — 混剪档,支持多图混剪生成连贯视频,540p / 720p / 1080p,1-16 秒,支持 `aspect_ratio`,适合短剧分镜重组、广告素材二创
 
 按 **分辨率 × 时长** 计费,**每秒单价**,1-16 秒任意整数。
 
 ## 定价
 
-| 模型 | 540P | 720P | 1080P |
+| 模型 | 540p | 720p | 1080p |
 |---|---|---|---|
-| `viduq3-pro` | `$0.0595` / 秒 | `$0.1275` / 秒 | `$0.136` / 秒 |
-| `viduq3-mix` | — | `$0.10625` / 秒 | `$0.1275` / 秒 |
-| `viduq3` | `$0.0425` / 秒 | `$0.085` / 秒 | `$0.10625` / 秒 |
-| `viduq3-turbo` | `$0.034` / 秒 | `$0.051` / 秒 | `$0.0595` / 秒 |
+| `vidu-q3` | `$0.045` / 秒 | `$0.09` / 秒 | `$0.1125` / 秒 |
+| `vidu-q3-mix` | `$0.1125` / 秒 | `$0.1125` / 秒 | `$0.135` / 秒 |
+
+实际费用 = 单价 / 秒 × `duration`。例:`vidu-q3` 1080p 5 秒 = `$0.1125 × 5 = $0.5625`。
 
 ## 调用示例
 
 <CodeGroup>
 
-```bash 文生视频(Pro)
+```bash 文生视频(标准档)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "viduq3-pro",
+    "model": "vidu-q3",
     "prompt": "黄昏的海滩,女孩迎着夕阳奔跑,长发飞扬,电影感光影",
-    "duration": 5,
-    "resolution": "1080p",
-    "aspect_ratio": "16:9"
-  }'
-```
-
-```bash 图生视频(Pro 单图)
-curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer $WAVE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "viduq3-pro",
-    "prompt": "人物缓缓转身,镜头推近",
-    "image_urls": ["https://cdn.example.com/portrait.jpg"],
     "duration": 5,
     "resolution": "1080p"
   }'
 ```
 
-```bash 首尾帧(Pro 双图)
+```bash 图生视频(标准档单图)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "viduq3-pro",
-    "action": "first_last_frame",
-    "prompt": "从白天平滑过渡到夜晚,光影自然变化",
-    "first_frame_image": "https://cdn.example.com/day.jpg",
-    "last_frame_image": "https://cdn.example.com/night.jpg",
-    "duration": 8,
+    "model": "vidu-q3",
+    "prompt": "人物缓缓转身,镜头推近",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 5,
     "resolution": "1080p"
   }'
 ```
@@ -74,15 +56,30 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "viduq3",
-    "action": "reference",
+    "model": "vidu-q3",
     "prompt": "保持角色形象,在森林中奔跑,镜头跟随",
     "image_urls": [
       "https://cdn.example.com/char-1.jpg",
-      "https://cdn.example.com/char-2.jpg",
       "https://cdn.example.com/style-ref.jpg"
     ],
     "duration": 6,
+    "resolution": "1080p"
+  }'
+```
+
+```bash 多图混剪(Mix 档)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "vidu-q3-mix",
+    "prompt": "镜头在多个场景间平滑切换,氛围连贯",
+    "image_urls": [
+      "https://cdn.example.com/scene-1.jpg",
+      "https://cdn.example.com/scene-2.jpg",
+      "https://cdn.example.com/scene-3.jpg"
+    ],
+    "duration": 8,
     "resolution": "1080p",
     "aspect_ratio": "16:9"
   }'
@@ -94,7 +91,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "viduq3-pro",
+  "model": "vidu-q3",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -107,60 +104,40 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 ## 可用模型
 
-| 模型 ID | 分辨率 | 时长 | 支持 action | 备注 |
-|---|---|---|---|---|
-| `viduq3-pro` | 540p / 720p / 1080p | 1-16 秒 | generate / image2video / first_last_frame | 旗舰档,音频直出 |
-| `viduq3-mix` | 720P / 1080P | 1-16 秒 | reference / image2video | 综合画质王,多素材混剪 |
-| `viduq3` | 540p / 720p / 1080p | 1-16 秒 | reference / image2video | 标准档,日常首选 |
-| `viduq3-turbo` | 540p / 720p / 1080p | 1-16 秒 | reference / image2video | 轻量快速档,生成最快、单价最低 |
+| 模型 ID | 分辨率 | 时长(秒) | Actions | aspect_ratio | 备注 |
+|---|---|---|---|---|---|
+| `vidu-q3` | 540p / 720p / 1080p | 1-16 | generate | 不支持 | 标准档,日常首选,比例由参考图决定 |
+| `vidu-q3-mix` | 540p / 720p / 1080p | 1-16 | generate | 支持 | 混剪档,多素材连贯生成 |
 
 ## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型 ID,见 [可用模型](#可用模型) 表
+  模型 ID,可选值:
+  - `vidu-q3`
+  - `vidu-q3-mix`
 </ParamField>
 
-<ParamField body="action" type="string">
-  操作类型,Pro 档 **可省略**(按 `image_urls` 数量自动路由),其他档建议显式指定。可选值:
-  - `generate` — 文生视频(仅 Pro)
-  - `image2video` — 图生视频
-  - `reference` — 参考生视频(标准 / Mix / Turbo 默认)
-  - `first_last_frame` — 首尾帧(仅 Pro)
+<ParamField body="action" type="string" default="generate">
+  操作类型,固定为 `generate`。传入 `image_urls` 即自动走 **参考生 / 图生视频**,否则为文生视频
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
   视频描述文本,建议描述 **动作 / 镜头 / 氛围**,人物外观由 `image_urls` 决定
 </ParamField>
 
-<ParamField body="aspect_ratio" type="string" default="16:9">
-  画面宽高比,可选值:
-  - `16:9` — 横版宽屏
-  - `9:16` — 竖版长屏
-  - `4:3` — 横版
-  - `3:4` — 竖版
-  - `1:1` — 正方形
-</ParamField>
-
 <ParamField body="resolution" type="string" default="720p">
-  输出分辨率,各模型支持档位见 [可用模型](#可用模型) 表
+  输出分辨率,可选值:
+  - `540p`
+  - `720p`
+  - `1080p`
 </ParamField>
 
 <ParamField body="duration" type="integer" default="5">
-  视频时长(秒),范围 **1-16** 任意整数。Mix 档支持 1 秒短视频
+  视频时长(秒),范围 **1-16** 任意整数
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  参考图片 URL 数组,**1-7 张**:
-  - 标准 / Mix / Turbo:作为主体 / 风格参考(R2V)
-  - Pro 档:0 张文生 / 1 张图生 / 2 张首尾帧,详见 [自动路由](#自动路由说明)
-</ParamField>
-
-<ParamField body="first_frame_image" type="string">
-  视频首帧图 URL,**Pro 档 `first_last_frame` 模式必填**
-</ParamField>
-
-<ParamField body="last_frame_image" type="string">
-  视频尾帧图 URL,**Pro 档 `first_last_frame` 模式必填**
+  参考图片 URL 数组,作为主体 / 风格参考(R2V),或作为首帧 / 混剪素材
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -174,59 +151,33 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ## 模型特定参数
 
 <Tabs>
-  <Tab title="viduq3-pro">
-    <ParamField body="audio" type="boolean" default="true">
-      是否生成音频(默认 `true`)。Pro 档默认开启 **音频直出**(对白 + 音效),传 `false` 可关闭静音输出
-    </ParamField>
-
-    Pro 档按 `image_urls` 数量自动路由模式,详见 [自动路由说明](#自动路由说明)。
-  </Tab>
-
-  <Tab title="viduq3-mix">
-    Mix 档无特定参数。注意 `resolution` 仅支持 `720P` / `1080P`,**不支持 540P**。
-
-    Mix 档默认开启 **多素材联合生成**,可通过 `image_urls` 传入多张参考图(1-7 张),系统会智能转场,适合短剧分镜重组、广告素材二创。
-  </Tab>
-
-  <Tab title="viduq3">
+  <Tab title="vidu-q3">
     标准档无特定参数,所有可选项在 [通用参数](#通用参数) 中。
 
-    日常默认首选,镜头切换更聪明,接受 1-7 张图作主体 / 风格参考。
-  </Tab>
-
-  <Tab title="viduq3-turbo">
-    Turbo 档无特定参数。
-
     <Note>
-    该模型当前部分场景下可能不可用,如有需要请联系商务。
+    `vidu-q3` **不接受 `aspect_ratio` 参数**,输出比例由参考图 / 模型决定。若需指定比例请用 `vidu-q3-mix`。
     </Note>
   </Tab>
+
+  <Tab title="vidu-q3-mix">
+    <ParamField body="aspect_ratio" type="string" default="16:9">
+      画面宽高比(仅 Mix 档支持),可选值:
+      - `16:9` — 横版宽屏
+      - `9:16` — 竖版长屏
+      - `1:1` — 正方形
+    </ParamField>
+
+    Mix 档支持多张参考图混剪,系统会智能转场,适合短剧分镜重组、广告素材二创。
+  </Tab>
 </Tabs>
-
-## 自动路由说明
-
-`viduq3-pro` 按 `image_urls` 数组长度自动选择生成模式,**通常无需显式传 `action`**:
-
-| `image_urls` 数量 | 路由模式 | 等价 `action` | 说明 |
-|---|---|---|---|
-| `0` 张(或不传) | **文生视频** | `generate` | 纯 prompt 驱动 |
-| `1` 张 | **图生视频** | `image2video` | 以图为起始画面 |
-| `2` 张 | **首尾帧** | `first_last_frame` | 第一张作首帧,第二张作尾帧 |
-
-<Note>
-显式传 `first_frame_image` + `last_frame_image` 时优先采用,会覆盖 `image_urls` 的首尾帧路由。
-</Note>
-
-其他档(`viduq3` / `viduq3-mix` / `viduq3-turbo`)默认走 **R2V 参考生** 模式,`image_urls` 1-7 张作为主体 / 风格参考。
 
 ## 资源限制
 
 | 项目 | 限制 |
 |---|---|
-| 参考图片 | 最多 7 张,单张 ≤ 30MB,JPG / PNG / WEBP |
-| 首尾帧图 | JPG / PNG / WEBP,需公网可下载链接 |
+| 参考图片(`image_urls`) | JPG / PNG / WEBP,需公网可下载链接 |
 | Prompt 长度 | 建议 ≤ 2000 字符 |
-| 视频时长 | 1-16 秒任意整数(Mix 支持 1 秒短视频) |
+| 视频时长 | 1-16 秒任意整数 |
 | 输出 | MP4,链接 24 小时有效 |
 
 ## 相关文档

@@ -117,7 +117,10 @@
                   "cn/api-reference/image/imagen",
                   "cn/api-reference/image/qwen-image",
                   "cn/api-reference/image/wan-image",
-                  "cn/api-reference/image/z-image"
+                  "cn/api-reference/image/z-image",
+                  "cn/api-reference/image/flux",
+                  "cn/api-reference/image/grok-imagine",
+                  "cn/api-reference/image/midjourney"
                 ]
               },
               {
@@ -132,7 +135,10 @@
                   "cn/api-reference/video/wan",
                   "cn/api-reference/video/happyhorse",
                   "cn/api-reference/video/skyreels",
-                  "cn/api-reference/video/grok-imagine-video"
+                  "cn/api-reference/video/grok-imagine-video",
+                  "cn/api-reference/video/sora",
+                  "cn/api-reference/video/pixverse",
+                  "cn/api-reference/video/omni"
                 ]
               },
               {

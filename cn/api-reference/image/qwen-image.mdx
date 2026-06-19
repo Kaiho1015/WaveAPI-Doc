@@ -15,8 +15,8 @@ api: "POST https://www.qingbo.dev/v1/tasks"
 
 | 模型 | 单价(每张) |
 |---|---|
-| `qwen-image-2.0-pro` | `$0.053125` |
-| `qwen-image-2.0` | `$0.02125` |
+| `qwen-image-2.0-pro` | `$0.05625` |
+| `qwen-image-2.0` | `$0.0225` |
 
 ## 模式速查
 
@@ -116,11 +116,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="n" type="integer" default="1">
-  生成数量(单次返回多张)
-</ParamField>
-
-<ParamField body="seed" type="integer" default="-1">
-  随机种子,`-1` 为随机;固定值可复现相似结果
+  生成数量,单次返回多张。**取值范围 1–6**
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="1:1">
@@ -131,10 +127,10 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   - `3:2` / `2:3` — 横/竖版相机比
 </ParamField>
 
-<ParamField body="resolution" type="string" default="2K">
+<ParamField body="resolution" type="string" default="1K">
   输出分辨率,可选值:
-  - `1K` — 普通分辨率
-  - `2K` — 高分辨率(默认)
+  - `1K` — 普通分辨率(默认)
+  - `2K` — 高分辨率
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
@@ -163,7 +159,9 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **核心特性**:旗舰最高保真档,原生 2K、强细节、准确构图、专业级文字渲染,适合信息图、海报、营销资产
 
-    该模型无特定参数,所有可调字段均见 [通用参数](#通用参数)。
+    <ParamField body="negative_prompt" type="string">
+      负面提示词,描述不希望出现的内容。**最长 500 字符**
+    </ParamField>
   </Tab>
 
   <Tab title="Qwen Image 2.0">
@@ -175,7 +173,9 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
     **核心特性**:标准版,集成生成和编辑能力,支持超长提示词,2K 高质量输出,适合需要清晰文字和专业设计美感的场景
 
-    该模型无特定参数,所有可调字段均见 [通用参数](#通用参数)。
+    <ParamField body="negative_prompt" type="string">
+      负面提示词,描述不希望出现的内容。**最长 500 字符**
+    </ParamField>
   </Tab>
 </Tabs>
 

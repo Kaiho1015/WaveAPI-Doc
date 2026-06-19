@@ -1,77 +1,116 @@
 ---
 title: "万相 Wan 系列"
-description: "阿里巴巴通义万相 2.7 视频编辑专版 — 风格迁移 / 内容替换 / 视频改写"
+description: "阿里巴巴通义万相 — 文生 / 图生 / 参考生 / 视频编辑,统一任务入口,按秒计费"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-阿里巴巴通义万相 2.7 视频编辑专版。
+阿里巴巴通义万相(Wan)视频生成系列,覆盖 **文生视频 / 图生视频 / 参考生视频 / 视频编辑** 四类场景,统一走异步任务入口。
 
-**专为视频改写场景设计** — 输入一段源视频 + 文本指令(可叠加风格参考图 ≤4 张),输出风格迁移 / 内容替换 / 整段改写后的新视频。区别于 T2V/I2V,VideoEdit 必须传 `video_urls`,围绕"已有视频再加工"工作。
+五个档位:
 
-按 **分辨率** 计费,源视频时长线性叠加。
+- **`wan2.7`** — 最新主力档,文生 / 图生统一入口(传 `image_urls` 自动进图生模式,首帧 / 首尾帧),720P / 1080P,2-15 秒任意整数,支持负面提示词与智能扩写
+- **`wan2.6`** — 经典稳定档,文生 / 图生,480p / 720p / 1080p,5 / 10 / 15 秒
+- **`wan2.5-preview`** — 2.5 预览档,文生 / 图生(传 `image_urls` 自动进图生模式),480p / 720p / 1080p,5 / 10 秒,价位更亲民
+- **`wan2.7-r2v`** — 参考生视频(R2V),以一张或多张参考图作主体 / 风格参考生成新视频,角色一致性 / 风格延续,需传 `image_urls`
+- **`wan2.7-videoedit`** — 视频编辑,输入源视频 + 文本指令实现风格迁移 / 内容替换 / 整段改写,需传 `video_urls`
 
-<Note>
-万相 2.7 系列其他档(T2V / I2V / R2V)目前未上架,如有需求请联系商务。
-</Note>
+全系 **按秒计费**:实际费用 = 对应分辨率单价 × 时长(秒)。下表为各分辨率每秒售价(已含优惠)。
 
 ## 定价
 
-| 分辨率 | 单价 |
-|---|---|
-| 720P | `$0.07055` / 秒 |
-| 1080P | `$0.11645` / 秒 |
+| 模型 | 480P/p | 720P/p | 1080P/p |
+|---|---|---|---|
+| `wan2.7` | — | `$0.0747` / 秒 | `$0.1233` / 秒 |
+| `wan2.6` | `$0.05625` / 秒 | `$0.05625` / 秒 | `$0.0945` / 秒 |
+| `wan2.5-preview` | `$0.0378` / 秒 | `$0.0747` / 秒 | `$0.1233` / 秒 |
+| `wan2.7-r2v` | — | `$0.0747` / 秒 | `$0.1233` / 秒 |
+| `wan2.7-videoedit` | — | `$0.0747` / 秒 | `$0.1233` / 秒 |
 
-VideoEdit 按编辑后视频时长结算,`duration=0` 跟随源视频时,按源视频时长计费。
+实际扣费 = 每秒单价 × `duration`。例:`wan2.7` 1080P 生成 8 秒 = `0.1233 × 8 = $0.9864`。`wan2.7-videoedit` 按用户指定的输出时长结算。
 
 ## 调用示例
 
 <CodeGroup>
 
-```bash 基础视频编辑
+```bash 文生视频(wan2.7)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7",
+    "prompt": "夕阳下的海边公路,慢镜头推进,电影感画面",
+    "duration": 8,
+    "resolution": "1080P",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 图生视频(wan2.7 首帧)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7",
+    "prompt": "人物缓缓站起身,向镜头走来",
+    "image_urls": ["https://cdn.example.com/person.jpg"],
+    "duration": 8,
+    "resolution": "1080P"
+  }'
+```
+
+```bash 文生视频(wan2.6)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.6",
+    "prompt": "一只可爱的猫咪在草地上奔跑",
+    "duration": 5,
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 图生视频(wan2.5-preview)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.5-preview",
+    "prompt": "画面中的人物缓缓抬头望向天空",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 5,
+    "resolution": "720p"
+  }'
+```
+
+```bash 参考生视频(wan2.7-r2v)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wan2.7-r2v",
+    "prompt": "保持角色形象,在森林中奔跑,镜头跟随",
+    "image_urls": [
+      "https://cdn.example.com/char-1.jpg",
+      "https://cdn.example.com/char-2.jpg"
+    ],
+    "duration": 8,
+    "resolution": "1080P",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 视频编辑(wan2.7-videoedit)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "wan2.7-videoedit",
-    "action": "edit",
     "prompt": "把场景改为雪天,保留人物动作",
     "video_urls": ["https://cdn.example.com/source.mp4"],
-    "duration": 0,
-    "resolution": "1080p"
-  }'
-```
-
-```bash 加风格参考图
-curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer $WAVE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "wan2.7-videoedit",
-    "action": "style_transfer",
-    "prompt": "将整段视频迁移为水墨画风格",
-    "video_urls": ["https://cdn.example.com/source.mp4"],
-    "image_urls": [
-      "https://cdn.example.com/style-1.jpg",
-      "https://cdn.example.com/style-2.jpg"
-    ],
-    "duration": 0,
-    "resolution": "1080p",
-    "aspect_ratio": "adaptive"
-  }'
-```
-
-```bash 控制音频策略
-curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer $WAVE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "wan2.7-videoedit",
-    "action": "video_edit",
-    "prompt": "替换背景为霓虹城市街道",
-    "video_urls": ["https://cdn.example.com/source.mp4"],
-    "metadata": {"audio_setting": "origin"},
     "duration": 8,
-    "resolution": "1080p"
+    "resolution": "1080P"
   }'
 ```
 
@@ -81,8 +120,8 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "wan2.7-videoedit",
-  "action": "edit",
+  "model": "wan2.7",
+  "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
   "progress": 0
@@ -94,57 +133,64 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 ## 可用模型
 
-| 模型 ID | 说明 |
-|---|---|
-| `wan2.7-videoedit` | 视频编辑,风格迁移 / 内容替换 / 整段改写,720P/1080P,0-10 秒,参考图 ≤4 |
+| 模型 ID | 分辨率 | 时长 | 宽高比 | 必传 | 备注 |
+|---|---|---|---|---|---|
+| `wan2.7` | 720P / 1080P | 2-15 秒任意整数 | 16:9 / 9:16 / 1:1 / 4:3 / 3:4 | `prompt` | 文生 / 图生统一入口,传 `image_urls` 进图生 |
+| `wan2.6` | 480p / 720p / 1080p | 5 / 10 / 15 秒 | 16:9 / 9:16 / 1:1 | `prompt` | 经典稳定档,文生 / 图生 |
+| `wan2.5-preview` | 480p / 720p / 1080p | 5 / 10 秒 | 16:9 / 9:16 / 1:1 | `prompt` | 2.5 预览档,文生 / 图生,传 `image_urls` 进图生 |
+| `wan2.7-r2v` | 720P / 1080P | 2-15 秒任意整数 | 16:9 / 9:16 / 1:1 | `prompt` + `image_urls` | 参考生视频,角色 / 风格一致性 |
+| `wan2.7-videoedit` | 720P / 1080P | 2-15 秒任意整数 | 16:9 / 9:16 / 1:1 | `prompt` + `video_urls` | 视频编辑,风格迁移 / 内容替换 |
+
+<Note>
+分辨率大小写按模型区分:`wan2.7` / `wan2.7-r2v` / `wan2.7-videoedit` 用大写 `720P` / `1080P`,`wan2.6` / `wan2.5-preview` 用小写 `480p` / `720p` / `1080p`。
+</Note>
 
 ## 通用参数
 
 <ParamField body="model" type="string" required>
-  固定为 `wan2.7-videoedit`
-</ParamField>
-
-<ParamField body="action" type="string" default="edit">
-  操作类型,可选值:
-  - `edit` — 视频编辑(默认)
-  - `video_edit` — 等同于 `edit`
-  - `style_transfer` — 风格迁移
+  模型 ID,见 [可用模型](#可用模型) 表
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
-  编辑指令文本,描述目标效果(替换 / 迁移 / 改写),最多 5000 字符
-</ParamField>
-
-<ParamField body="video_urls" type="string[]" required>
-  源视频 URL 数组(单元素),**必传**:
-  - 暂不支持 base64
-  - 需公网可下载链接
+  视频内容描述。文生模式必填;图生 / 参考生 / 编辑模式可选,但建议填写以指导运镜与动作。最多 5000 字符
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  风格 / 内容参考图片 URL 数组,**最多 4 张**
+  参考 / 输入图片 URL 数组:
+  - `wan2.7`:传入后进入图生模式 —— 1 张为首帧,2 张为首尾帧
+  - `wan2.6`:仅支持 1 张,传入后进入图生模式
+  - `wan2.5-preview`:传入后进入图生模式(图生视频)
+  - `wan2.7-r2v`:**必传**,作为主体 / 风格参考(R2V)
+  - `wan2.7-videoedit`:可选,叠加风格 / 内容参考图,**最多 4 张**
 </ParamField>
 
-<ParamField body="aspect_ratio" type="string" default="adaptive">
-  画面宽高比,可选值:
-  - `16:9` — 横版宽屏
-  - `9:16` — 竖版长屏
-  - `1:1` — 正方形
-  - `4:3` — 横版
-  - `3:4` — 竖版
-  - `adaptive` — 跟随源视频比例(推荐)
+<ParamField body="video_urls" type="string[]">
+  源视频 URL 数组(单元素)。`wan2.7-videoedit` **必传**;暂不支持 base64,需公网可下载链接
 </ParamField>
 
-<ParamField body="resolution" type="string" default="720p">
-  输出分辨率,可选值:
-  - `720p`
-  - `1080p`
+<ParamField body="resolution" type="string">
+  输出分辨率,各模型档位见 [可用模型](#可用模型) 表:
+  - `wan2.7` / `wan2.7-r2v` / `wan2.7-videoedit`:`720P` / `1080P`(默认 `1080P`)
+  - `wan2.6` / `wan2.5-preview`:`480p` / `720p` / `1080p`(默认 `720p`)
 </ParamField>
 
-<ParamField body="duration" type="integer" default="0">
-  视频时长(秒),范围 `0-10`:
-  - `0` — 跟随源视频时长(推荐)
-  - `1-10` — 指定输出时长
+<ParamField body="duration" type="integer">
+  视频时长(秒):
+  - `wan2.7` / `wan2.7-r2v` / `wan2.7-videoedit`:`2`-`15` 任意整数(默认 `5`)
+  - `wan2.6`:仅 `5` / `10` / `15`(默认 `5`)
+  - `wan2.5-preview`:仅 `5` / `10`(默认 `5`)
+
+  `wan2.7-videoedit` 按用户指定的输出时长结算。
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比(图生模式下由输入图片自动决定,此参数会被忽略):
+  - `wan2.7`:`16:9` / `9:16` / `1:1` / `4:3` / `3:4`
+  - `wan2.6` / `wan2.5-preview` / `wan2.7-r2v` / `wan2.7-videoedit`:`16:9` / `9:16` / `1:1`
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子(≥0)。相同请求 + 相同 seed 会生成相似结果,不指定则每次不同
 </ParamField>
 
 <ParamField body="callback_url" type="string">
@@ -152,36 +198,45 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="callback_events" type="string[]">
-  订阅的回调事件类型,默认订阅终态事件
+  订阅的回调事件,默认订阅终态(`succeeded` / `failed` / `cancelled`)
 </ParamField>
 
 ## 模型特定参数
 
-<ParamField body="watermark" type="boolean" default="false">
-  右下角添加 AI 生成水印
-</ParamField>
+<Tabs>
+  <Tab title="wan2.7">
+    <ParamField body="prompt_extend" type="boolean" default="true">
+      提示词智能扩写,对较短提示词效果提升明显,但会增加耗时
+    </ParamField>
 
-<ParamField body="prompt_extend" type="boolean" default="true">
-  提示词智能改写,后端按目标风格自动扩写编辑指令
-</ParamField>
+    <ParamField body="negative_prompt" type="string">
+      负面提示词,描述不希望出现的内容。示例:`"模糊、变形、低质量"`
+    </ParamField>
+  </Tab>
 
-<ParamField body="metadata" type="object">
-  附加参数对象,常用 `audio_setting` 控制输出音轨策略:
-  - `auto` — 自动生成与编辑后视频匹配的音频(默认)
-  - `origin` — 保留源视频原音轨
+  <Tab title="wan2.6">
+    Wan2.6 无额外特定参数,所有可选项在 [通用参数](#通用参数) 中。文生 / 图生由是否传 `image_urls` 自动判定。
+  </Tab>
 
-  示例:
-  ```json
-  {"metadata": {"audio_setting": "origin"}}
-  ```
-</ParamField>
+  <Tab title="wan2.5-preview">
+    Wan2.5 预览档无额外特定参数,所有可选项在 [通用参数](#通用参数) 中。文生 / 图生由是否传 `image_urls` 自动判定。
+  </Tab>
+
+  <Tab title="wan2.7-r2v">
+    R2V 档无额外特定参数。`image_urls` 必传,作为角色 / 风格参考,prompt 负责描述动作与镜头。
+  </Tab>
+
+  <Tab title="wan2.7-videoedit">
+    VideoEdit 档无额外特定参数。`video_urls` 必传(源视频),`image_urls` 可叠加风格 / 内容参考图(≤4 张),`duration` 由用户指定输出时长。
+  </Tab>
+</Tabs>
 
 ## 资源限制
 
 | 项目 | 限制 |
 |---|---|
-| 源视频 | MP4/MOV,≤ 100MB,2-30 秒,需公网可下载 |
-| 风格参考图 | 最多 4 张,单张 ≤ 30MB,JPG/PNG/WEBP |
+| 源视频(videoedit) | MP4 / MOV,≤ 100MB,需公网可下载 |
+| 参考图片 | JPG / PNG / WEBP,需公网可下载链接(videoedit 最多 4 张) |
 | Prompt | ≤ 5000 字符 |
 | 输出 | MP4,链接 24 小时有效,请及时下载 |
 
