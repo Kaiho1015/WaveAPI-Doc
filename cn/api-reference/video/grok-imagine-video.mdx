@@ -161,7 +161,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 - **图生模式比例自动匹配** — 传入 `image_urls` 后,`aspect_ratio` 字段会被忽略,输出比例跟随首张参考图。
 - **duration 范围特殊** — `6-30` 秒,跟仓内多数 video model(`5/10/15` 三档)不同,业务侧表单做枚举校验时记得放开整段区间。
-- **可用性受上游影响** — 上游 xAI / Grok 配额可能波动,建议生产环境配 `callback_url` 异步推送、不要纯轮询。
+- **可用性受配额影响** — xAI / Grok 配额可能波动,建议生产环境配 `callback_url` 异步推送、不要纯轮询。
 
 ## 资源限制
 
