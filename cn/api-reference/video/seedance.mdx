@@ -1,32 +1,85 @@
 ---
-title: "Seedance 1.5 Pro"
-description: "字节跳动豆包 Seedance 1.5 Pro 视频 — 音视频联合生成,首帧/尾帧驱动,多语言对白口型同步"
+title: "Seedance 系列"
+description: "字节跳动豆包 Seedance — 1.5 Pro 有声视频 + 2.0 家族(标准 / Fast / Face),文生 / 图生,按秒计费"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-字节跳动豆包(Doubao)的新一代有声视频生成模型 **`doubao-seedance-1.5-pro`** — 音视频联合生成,支持多语言对白 + 口型同步,可用首帧 / 尾帧约束镜头起止画面。
+字节跳动豆包(Doubao)Seedance 视频生成系列,覆盖 **文生视频 / 图生视频** 场景,统一走异步任务入口,**按秒计费**。
 
 <Note>
 这是 **视频** 模型 Seedance(动态视频),请勿与豆包的图像模型 **Seedream**(静态图像)混淆,两者是不同产品线。
 </Note>
 
-按 **分辨率 × 时长** 计费,**每秒单价**,支持 480P / 720P / 1080P 三档分辨率。
+五个档位:
+
+- **`doubao-seedance-1.5-pro`** — 1.5 代有声档,音视频联合生成,支持多语言对白 + 口型同步,可用首帧 / 尾帧约束镜头,480p / 720p / 1080p,5 / 10 秒
+- **`doubao-seedance-2.0`** — 2.0 标准档,文生 / 图生,480p / 720p / 1080p,4-15 秒任意整数
+- **`doubao-seedance-2.0-fast`** — 2.0 加速档,更快更便宜,480p / 720p(无 1080p),4-15 秒
+- **`doubao-seedance-2.0-face`** — 2.0 人脸档,面向人脸 / 数字人场景,480p / 720p / 1080p,4-15 秒
+- **`doubao-seedance-2.0-fast-face`** — 2.0 人脸加速档,人脸场景的快速 / 低价版,480p / 720p,4-15 秒
+
+## 图生视频更便宜
+
+Seedance 2.0 家族(`doubao-seedance-2.0` / `-fast` / `-face` / `-fast-face`)对 **文生** 与 **图生** 分档计费:
+
+- **不传 `image_urls`(文生档)** — 纯 prompt 驱动,按各分辨率 **文生档** 单价计费。
+- **传 `image_urls`(图生档)** — 以输入图作首帧 / 参考,按 **图生档** 单价计费,**通常比文生更便宜**(约为文生的 0.6x)。
+
+下方定价表分别列出文生档与图生档两组单价。`doubao-seedance-1.5-pro` 不区分文生 / 图生,统一单价。
 
 ## 定价
 
-按秒计费,单位 `$/秒`(售价即结算 USD 价)。
+全系 **按秒计费**(`$/秒`),实际费用 = 对应档位单价 × 时长(秒)。售价即结算 USD 价。
+
+### `doubao-seedance-1.5-pro`
 
 | 分辨率 | 单价 | 5 秒视频 |
 |---|---|---|
-| 480P | `$0.02295` / 秒 | `$0.114750` |
-| 720P | `$0.0495` / 秒 | `$0.247500` |
-| 1080P | `$0.1215` / 秒 | `$0.607500` |
+| 480p | `$0.02295` / 秒 | `$0.114750` |
+| 720p | `$0.0495` / 秒 | `$0.247500` |
+| 1080p | `$0.1215` / 秒 | `$0.607500` |
+
+### `doubao-seedance-2.0`
+
+| 分辨率 | 文生档 | 图生档 |
+|---|---|---|
+| 480p | `$0.07425` / 秒 | `$0.045` / 秒 |
+| 720p | `$0.15975` / 秒 | `$0.09657` / 秒 |
+| 1080p | `$0.36` / 秒 | `$0.21843` / 秒 |
+
+### `doubao-seedance-2.0-fast`
+
+| 分辨率 | 文生档 | 图生档 |
+|---|---|---|
+| 480p | `$0.05976` / 秒 | `$0.03555` / 秒 |
+| 720p | `$0.12843` / 秒 | `$0.07695` / 秒 |
+
+### `doubao-seedance-2.0-face`
+
+| 分辨率 | 文生档 | 图生档 |
+|---|---|---|
+| 480p | `$0.1116` / 秒 | `$0.0675` / 秒 |
+| 720p | `$0.2403` / 秒 | `$0.1449` / 秒 |
+| 1080p | `$0.5625` / 秒 | `$0.3375` / 秒 |
+
+### `doubao-seedance-2.0-fast-face`
+
+| 分辨率 | 文生档 | 图生档 |
+|---|---|---|
+| 480p | `$0.09` / 秒 | `$0.054` / 秒 |
+| 720p | `$0.1935` / 秒 | `$0.1161` / 秒 |
+
+实际扣费 = 单价 / 秒 × `duration`。例:`doubao-seedance-2.0` 720p 文生 5 秒 = `$0.15975 × 5 = $0.798750`;同档传 `image_urls`(图生)5 秒 = `$0.09657 × 5 = $0.482850`。
+
+<Note>
+**图生更便宜** — Seedance 2.0 家族只要请求带 `image_urls`,即按"图生档"列计价;不带则按"文生档"列。`fast` 版更快更便宜,`face` 版面向人脸 / 数字人场景。
+</Note>
 
 ## 调用示例
 
 <CodeGroup>
 
-```bash 文生视频(有声)
+```bash 文生视频(有声,1.5 Pro)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -40,33 +93,55 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   }'
 ```
 
-```bash 图生视频(首帧驱动)
+```bash 文生视频(2.0 标准档)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-1.5-pro",
+    "model": "doubao-seedance-2.0",
+    "prompt": "一只小猫对着镜头打哈欠,慢镜头特写",
+    "duration": 5,
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 图生视频(2.0 标准档,走图生档计费)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2.0",
     "prompt": "人物缓缓走向镜头,镜头微微推进",
     "image_urls": ["https://cdn.example.com/portrait.jpg"],
-    "duration": 5,
+    "duration": 6,
     "resolution": "1080p"
   }'
 ```
 
-```bash 首尾帧(有声)
+```bash 人脸 / 数字人(2.0-face)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-1.5-pro",
-    "prompt": "她回头微笑,说:你来了。",
-    "image_urls": [
-      "https://cdn.example.com/start.jpg",
-      "https://cdn.example.com/end.jpg"
-    ],
-    "duration": 10,
-    "resolution": "1080p",
-    "audio": true
+    "model": "doubao-seedance-2.0-face",
+    "prompt": "数字人正面讲解,自然眨眼与口型变化",
+    "image_urls": ["https://cdn.example.com/avatar.jpg"],
+    "duration": 8,
+    "resolution": "720p"
+  }'
+```
+
+```bash 快速预览(2.0-fast)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2.0-fast",
+    "prompt": "城市夜景延时,车流光轨",
+    "duration": 5,
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
   }'
 ```
 
@@ -76,7 +151,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "doubao-seedance-1.5-pro",
+  "model": "doubao-seedance-2.0",
   "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
@@ -89,24 +164,32 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 ## 媒体字段路由
 
-`doubao-seedance-1.5-pro` 仅支持 `generate` 一种 action,后端按 `image_urls` 数量自动决定首帧 / 尾帧用途,**无需显式传 `action`**。
+Seedance 全系仅支持 `generate` 一种 action,后端按 `image_urls` 数量自动决定生成模式,**无需显式传 `action`**。
 
-| `image_urls` 数量 | 用途 | 说明 |
+| `image_urls` 数量 | 用途 | 计费档 |
 |---|---|---|
-| `0` 张(或不传) | 文生视频 | 纯 prompt 驱动,画面比例由 `aspect_ratio` 控制 |
-| `1` 张 | 图生视频 | 该图作为首帧 |
-| `2` 张 | 首尾帧 | 第一张作首帧,第二张作尾帧,跟随首帧比例 |
+| `0` 张(或不传) | 文生视频,画面比例由 `aspect_ratio` 控制 | 文生档 |
+| `1` 张 | 图生视频,该图作首帧 | 图生档 |
+| `2` 张 | 首尾帧(1.5 Pro / 2.0 标准档),跟随首帧比例 | 图生档 |
+
+<Note>
+`doubao-seedance-2.0` 标准档另支持 `video_urls`(参考视频);`fast` / `face` / `fast-face` 仅支持 `image_urls`。
+</Note>
 
 ## 可用模型
 
-| 模型 ID | 分辨率 | 时长(秒) | 支持 action | 备注 |
-|---|---|---|---|---|
-| `doubao-seedance-1.5-pro` | 480p / 720p / 1080p | 5 / 10 | generate | 音视频联合生成,口型同步,多语言对白 |
+| 模型 ID | 分辨率 | 时长(秒) | 备注 |
+|---|---|---|---|
+| `doubao-seedance-1.5-pro` | 480p / 720p / 1080p | 5 / 10 | 音视频联合生成,口型同步,多语言对白 |
+| `doubao-seedance-2.0` | 480p / 720p / 1080p | 4-15 任意整数 | 2.0 标准档,文生 / 图生,支持参考视频 |
+| `doubao-seedance-2.0-fast` | 480p / 720p | 4-15 任意整数 | 加速档,更快更便宜 |
+| `doubao-seedance-2.0-face` | 480p / 720p / 1080p | 4-15 任意整数 | 人脸 / 数字人场景 |
+| `doubao-seedance-2.0-fast-face` | 480p / 720p | 4-15 任意整数 | 人脸场景的快速 / 低价版 |
 
 ## 通用参数
 
 <ParamField body="model" type="string" required>
-  固定为 `doubao-seedance-1.5-pro`
+  模型 ID,见 [可用模型](#可用模型) 表
 </ParamField>
 
 <ParamField body="prompt" type="string" required>
@@ -114,14 +197,15 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="duration" type="integer" default="5">
-  视频时长(秒),可选 `5` 或 `10`
+  视频时长(秒):
+  - `doubao-seedance-1.5-pro`:`5` / `10`
+  - 2.0 家族:`4`-`15` 任意整数
 </ParamField>
 
 <ParamField body="resolution" type="string" default="720p">
-  输出分辨率,可选值:
-  - `480p` — 标清
-  - `720p` — 高清(默认)
-  - `1080p` — 全高清
+  输出分辨率,各模型档位见 [可用模型](#可用模型) 表:
+  - `1.5-pro` / `2.0` / `2.0-face`:`480p` / `720p` / `1080p`
+  - `2.0-fast` / `2.0-fast-face`:`480p` / `720p`
 </ParamField>
 
 <ParamField body="aspect_ratio" type="string" default="16:9">
@@ -132,9 +216,13 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  参考图片 URL 数组(0-2 张):
+  参考图片 URL 数组(传入即走 **图生档** 计费):
   - 1 张 = 首帧驱动(图生视频)
-  - 2 张 = 首帧 + 尾帧约束插值
+  - 2 张 = 首帧 + 尾帧约束插值(`1.5-pro` / `2.0` 标准档)
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  参考视频 URL 数组,**仅 `doubao-seedance-2.0` 标准档支持**。需公网可下载链接
 </ParamField>
 
 <ParamField body="seed" type="integer">
@@ -145,23 +233,48 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
 </ParamField>
 
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件,默认订阅终态(`succeeded` / `failed` / `cancelled`)
+</ParamField>
+
 ## 模型特定参数
 
-<ParamField body="audio" type="boolean" default="false">
-  是否生成音频(有声视频)。设为 `true` 时视频包含 AI 生成的配套音频,支持多语言对白 + 口型同步
-</ParamField>
+<Tabs>
+  <Tab title="doubao-seedance-1.5-pro">
+    <ParamField body="audio" type="boolean" default="false">
+      是否生成音频(有声视频)。设为 `true` 时视频包含 AI 生成的配套音频,支持多语言对白 + 口型同步
+    </ParamField>
 
-<ParamField body="camerafixed" type="boolean" default="false">
-  是否固定摄像头。设为 `true` 时摄像头位置保持固定
-</ParamField>
+    <ParamField body="camerafixed" type="boolean" default="false">
+      是否固定摄像头。设为 `true` 时摄像头位置保持固定
+    </ParamField>
+  </Tab>
+
+  <Tab title="doubao-seedance-2.0">
+    2.0 标准档无额外特定参数,所有可选项见 [通用参数](#通用参数)。文生 / 图生由是否传 `image_urls` 自动判定,另支持 `video_urls` 参考视频。
+  </Tab>
+
+  <Tab title="doubao-seedance-2.0-fast">
+    加速档无额外特定参数,所有可选项见 [通用参数](#通用参数)。相比标准档更快更便宜,分辨率上限 720p。
+  </Tab>
+
+  <Tab title="doubao-seedance-2.0-face">
+    人脸档无额外特定参数,所有可选项见 [通用参数](#通用参数)。面向人脸 / 数字人场景,建议配合 `image_urls` 传入人物图。
+  </Tab>
+
+  <Tab title="doubao-seedance-2.0-fast-face">
+    人脸加速档无额外特定参数,所有可选项见 [通用参数](#通用参数)。人脸场景的快速 / 低价版,分辨率上限 720p。
+  </Tab>
+</Tabs>
 
 ## 资源限制
 
 | 项目 | 限制 |
 |---|---|
-| 参考图(`image_urls`) | 最多 2 张(首帧 + 尾帧),JPG / PNG / WEBP |
+| 参考图(`image_urls`) | 最多 2 张(首帧 + 尾帧),JPG / PNG / WEBP,需公网可下载 |
+| 参考视频(`video_urls`) | 仅 `2.0` 标准档,MP4 / MOV,需公网可下载 |
 | Prompt 长度 | 建议详细描述场景 / 动作 / 对白 |
-| 视频时长 | 5 或 10 秒 |
+| 视频时长 | `1.5-pro`:5 / 10 秒;2.0 家族:4-15 秒 |
 | 输出 | MP4,链接 24 小时有效 |
 
 ## 相关文档
@@ -170,4 +283,3 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 - [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
 - [认证](/cn/docs/authentication) — API Key 申请与使用
 </content>
-</invoke>
