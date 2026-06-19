@@ -1,123 +1,72 @@
 ---
-title: "Seedance 系列"
-description: "豆包 Seedance — 1.0 Lite / Pro / 1.5 / 2.0 多模态视频生成全家桶"
+title: "Seedance 1.5 Pro"
+description: "字节跳动豆包 Seedance 1.5 Pro 视频 — 音视频联合生成,首帧/尾帧驱动,多语言对白口型同步"
 api: "POST https://www.qingbo.dev/v1/tasks"
 ---
 
-豆包 Seedance 视频生成系列,覆盖 **旗舰加速 (Pro Fast) → 旗舰高质量 (Pro Quality) → 有声 1.5 → 多模态 2.0** 全档位。
+字节跳动豆包(Doubao)的新一代有声视频生成模型 **`doubao-seedance-1.5-pro`** — 音视频联合生成,支持多语言对白 + 口型同步,可用首帧 / 尾帧约束镜头起止画面。
 
-| 系列分代 | 定位 |
-|---|---|
-| **1.0 Pro Fast** | 旗舰加速档,质量速度均衡,出片速度约 Pro Quality 3 倍 |
-| **1.0 Pro Quality** | 旗舰高质量档,1080P 多镜头叙事,适合最终交付 |
-| **1.5 Pro** | 新一代有声视频,音视频联合生成,多语言对白 + 口型同步 |
-| **2.0** | 多模态旗舰,文+图(≤9)+视频(≤3)+音频(≤3)统一架构,`@image1`/`@video2`/`@audio3` 引用语法 |
-| **2.0 Face** | 2.0 强化人脸/身份参考,数字人短剧、口播 |
-| **2.0 Fast / Fast Face** | 2.0 加速档,无 1080P,换更快出片 + 更低成本 |
+<Note>
+这是 **视频** 模型 Seedance(动态视频),请勿与豆包的图像模型 **Seedream**(静态图像)混淆,两者是不同产品线。
+</Note>
+
+按 **分辨率 × 时长** 计费,**每秒单价**,支持 480P / 720P / 1080P 三档分辨率。
 
 ## 定价
 
-按 **分辨率 × 时长** 计费,单位 `$/秒`。
+按秒计费,单位 `$/秒`(售价即结算 USD 价)。
 
-| 模型 | 480P | 720P | 1080P |
-|---|---|---|---|
-| `doubao-seedance-2.0-fast-face` | `$0.085` | `$0.18275` | — |
-| `doubao-seedance-2.0-fast` | `$0.06205` | `$0.13345` | — |
-| `doubao-seedance-2.0-face` | `$0.1054` | `$0.22695` | `$0.53125` |
-| `doubao-seedance-2.0` | `$0.077095` | `$0.16592` | `$0.374` |
-| `doubao-seedance-1.5-pro` | `$0.021675` | `$0.04675` | `$0.11475` |
-| `doubao-seedance-1.0-pro-quality` | `$0.021675` | `$0.04675` | `$0.1105` |
-| `doubao-seedance-1.0-pro-fast` | `$0.00935` | `$0.02125` | `$0.0442` |
-
-**2.0 系列视频参考子价**(传入 `video_urls` 触发 `reference_video` / `reference` 时**按下表计费,替换上方基础价**,单位 `$/秒`):
-
-| 模型 | 480P | 720P | 1080P |
-|---|---|---|---|
-| `doubao-seedance-2.0-fast-face` | `$0.051` | `$0.10965` | — |
-| `doubao-seedance-2.0-fast` | `$0.036975` | `$0.0799` | — |
-| `doubao-seedance-2.0-face` | `$0.06375` | `$0.13685` | `$0.31875` |
-| `doubao-seedance-2.0` | `$0.04675` | `$0.1003` | `$0.22695` |
-
-<Note>
-**视频参考反而便宜** — 带 `video_urls` 的生成因有运动节奏参考,生成难度更小,**子价显著低于纯生成基础价**(例:2.0 720P 基础 `$0.16592` vs 视频参考 `$0.1003`,约为基础价 60%)。请勿误解为加价。
-</Note>
-
-## 模式路由
-
-整个系列共用字段路由约定 — 后端按传入媒体字段自动决定 action,通常无需显式传 `action`。
-
-| 传入字段 | 路由模式 | 说明 |
+| 分辨率 | 单价 | 5 秒视频 |
 |---|---|---|
-| 仅 `prompt` | **generate**(T2V) | 文生视频,画面比例由 `aspect_ratio` 控制 |
-| `+ first_frame_image` | **image2video**(I2V) | 首帧驱动,跟随首帧比例 |
-| `+ first_frame_image + last_frame_image` | **first_last_frame** | 首帧 + 尾帧约束插值 |
-| `+ image_urls` | **reference** | 多图角色 / 风格一致性 |
-| `+ video_urls`(2.0) | **reference_video** | 视频片段参考(2.0 独有) |
-| `+ audio_urls`(2.0) | **reference_audio** | 音频驱动(2.0 独有) |
-
-<Warning>
-**2.0 多素材引用语法** — `prompt` 中可用 `@image1` / `@video2` / `@audio3` 等占位符引用 `image_urls[0]` / `video_urls[1]` / `audio_urls[2]`,索引从 1 开始。
-</Warning>
+| 480P | `$0.02295` / 秒 | `$0.114750` |
+| 720P | `$0.0495` / 秒 | `$0.247500` |
+| 1080P | `$0.1215` / 秒 | `$0.607500` |
 
 ## 调用示例
 
 <CodeGroup>
 
-```bash 文生视频(Pro Fast)
+```bash 文生视频(有声)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-1.0-pro-fast",
-    "prompt": "一只柴犬穿宇航服在月球上行走,电影感光影",
+    "model": "doubao-seedance-1.5-pro",
+    "prompt": "海边日落,金色阳光洒在海面上,海浪轻轻拍打沙滩,电影感光影",
     "duration": 5,
     "resolution": "720p",
-    "aspect_ratio": "16:9"
+    "aspect_ratio": "16:9",
+    "audio": true
   }'
 ```
 
-```bash 图生视频(Pro Quality)
+```bash 图生视频(首帧驱动)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-1.0-pro-quality",
+    "model": "doubao-seedance-1.5-pro",
     "prompt": "人物缓缓走向镜头,镜头微微推进",
-    "first_frame_image": "https://cdn.example.com/portrait.jpg",
-    "duration": 8,
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 5,
     "resolution": "1080p"
   }'
 ```
 
-```bash 首尾帧(1.5 Pro 有声)
+```bash 首尾帧(有声)
 curl -X POST https://www.qingbo.dev/v1/tasks \
   -H "Authorization: Bearer $WAVE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "doubao-seedance-1.5-pro",
     "prompt": "她回头微笑,说:你来了。",
-    "first_frame_image": "https://cdn.example.com/start.jpg",
-    "last_frame_image": "https://cdn.example.com/end.jpg",
-    "duration": 6,
+    "image_urls": [
+      "https://cdn.example.com/start.jpg",
+      "https://cdn.example.com/end.jpg"
+    ],
+    "duration": 10,
     "resolution": "1080p",
     "audio": true
-  }'
-```
-
-```bash 多模态参考(2.0)
-curl -X POST https://www.qingbo.dev/v1/tasks \
-  -H "Authorization: Bearer $WAVE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "doubao-seedance-2.0",
-    "prompt": "保持 @image1 中角色形象,延续 @video1 的运镜节奏,搭配 @audio1 作背景配音",
-    "image_urls": ["https://cdn.example.com/char.jpg"],
-    "video_urls": ["https://cdn.example.com/ref-cam.mp4"],
-    "audio_urls": ["https://cdn.example.com/bgm.mp3"],
-    "duration": 8,
-    "resolution": "1080p",
-    "aspect_ratio": "16:9",
-    "generate_audio": true
   }'
 ```
 
@@ -127,8 +76,8 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 ```json 提交成功
 {
   "task_id": "task-wave1775285160b950328499",
-  "model": "doubao-seedance-2.0",
-  "action": "reference",
+  "model": "doubao-seedance-1.5-pro",
+  "action": "generate",
   "status": "queued",
   "created_at": 1775285160040,
   "progress": 0
@@ -138,196 +87,81 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
 
+## 媒体字段路由
+
+`doubao-seedance-1.5-pro` 仅支持 `generate` 一种 action,后端按 `image_urls` 数量自动决定首帧 / 尾帧用途,**无需显式传 `action`**。
+
+| `image_urls` 数量 | 用途 | 说明 |
+|---|---|---|
+| `0` 张(或不传) | 文生视频 | 纯 prompt 驱动,画面比例由 `aspect_ratio` 控制 |
+| `1` 张 | 图生视频 | 该图作为首帧 |
+| `2` 张 | 首尾帧 | 第一张作首帧,第二张作尾帧,跟随首帧比例 |
+
 ## 可用模型
 
-| 模型 ID | 系列 | 支持 action | 分辨率 | 时长(秒) |
+| 模型 ID | 分辨率 | 时长(秒) | 支持 action | 备注 |
 |---|---|---|---|---|
-| `doubao-seedance-2.0-fast-face` | 2.0 | 同 2.0 | 480p / 720p | 4-15 |
-| `doubao-seedance-2.0-fast` | 2.0 | 同 2.0 | 480p / 720p | 4-15 |
-| `doubao-seedance-2.0-face` | 2.0 | 同 2.0 | 480p / 720p / 1080p | 4-15 |
-| `doubao-seedance-2.0` | 2.0 | generate / image2video / first_last_frame / reference / reference_video / reference_audio | 480p / 720p / 1080p | 4-15 |
-| `doubao-seedance-1.5-pro` | 1.5 | generate / image2video / first_last_frame | 480p / 720p / 1080p | 4-12 |
-| `doubao-seedance-1.0-pro-quality` | 1.0 Pro | generate / image2video / first_last_frame / reference | 480p / 720p / 1080p | 2-12 |
-| `doubao-seedance-1.0-pro-fast` | 1.0 Pro | generate / image2video / reference | 480p / 720p / 1080p | 2-12 |
+| `doubao-seedance-1.5-pro` | 480p / 720p / 1080p | 5 / 10 | generate | 音视频联合生成,口型同步,多语言对白 |
 
 ## 通用参数
 
 <ParamField body="model" type="string" required>
-  模型 ID,见上方"可用模型"表
+  固定为 `doubao-seedance-1.5-pro`
 </ParamField>
 
-<ParamField body="action" type="string" default="generate">
-  操作类型,**通常无需显式传**,后端按媒体字段自动路由。可选值:
-  - `generate` — 文生视频(T2V)
-  - `image2video` — 图生视频(I2V),需配合 `first_frame_image`
-  - `first_last_frame` — 首尾帧约束,需配合 `first_frame_image` + `last_frame_image`
-  - `reference` — 参考图驱动,需配合 `image_urls`
-  - `reference_video` — 视频片段参考(仅 2.0 系列),需配合 `video_urls`
-  - `reference_audio` — 音频驱动(仅 2.0 系列),需配合 `audio_urls`
-</ParamField>
-
-<ParamField body="prompt" type="string">
-  视频描述文本。**T2V 必填**;其他模式可选作引导。2.0 系列支持 `@image1` / `@video2` / `@audio3` 引用语法
-</ParamField>
-
-<ParamField body="aspect_ratio" type="string" default="16:9">
-  画面宽高比。可选值:
-  - `16:9` — 横版宽屏
-  - `9:16` — 竖版长屏
-  - `1:1` — 正方形
-  - `4:3` — 横版
-  - `3:4` — 竖版
-  - `21:9` — 超宽屏
-  - `adaptive` — 自适应(**仅 2.0 系列**,跟随参考素材)
-</ParamField>
-
-<ParamField body="resolution" type="string" default="720p">
-  输出分辨率,可选值因模型而异:
-  - `480p`
-  - `720p`
-  - `1080p`(Lite-i2v / 2.0-fast / 2.0-fast-face 不支持)
+<ParamField body="prompt" type="string" required>
+  视频描述文本。建议详细描述场景 / 动作 / 风格 / 对白,以获得更好的生成效果
 </ParamField>
 
 <ParamField body="duration" type="integer" default="5">
-  视频时长(秒)。范围因系列而异:
-  - 1.0 系列:2-12
-  - 1.5 Pro:4-12
-  - 2.0 系列:4-15
+  视频时长(秒),可选 `5` 或 `10`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率,可选值:
+  - `480p` — 标清
+  - `720p` — 高清(默认)
+  - `1080p` — 全高清
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比,**仅文生视频生效**;带 `image_urls` 时跟随首帧比例。可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `1:1` — 正方形
 </ParamField>
 
 <ParamField body="image_urls" type="string[]">
-  参考图 URL 数组,触发 **reference** 模式。1.0 / 1.5 支持 1-9 张,2.0 支持 ≤9 张
+  参考图片 URL 数组(0-2 张):
+  - 1 张 = 首帧驱动(图生视频)
+  - 2 张 = 首帧 + 尾帧约束插值
 </ParamField>
 
-<ParamField body="first_frame_image" type="string">
-  视频首帧图 URL,触发 **image2video** 或 **first_last_frame** 模式
-</ParamField>
-
-<ParamField body="last_frame_image" type="string">
-  视频尾帧图 URL,与 `first_frame_image` 同传触发 **first_last_frame** 模式
-</ParamField>
-
-<ParamField body="video_urls" type="string[]">
-  参考视频 URL 数组(**仅 2.0 系列**),≤3 段,触发 **reference_video** 模式。**计费按上方"视频参考子价"表替换基础价**(显著低于纯生成)
-</ParamField>
-
-<ParamField body="audio_urls" type="string[]">
-  参考音频 URL 数组(**仅 2.0 系列**),≤3 条,触发 **reference_audio** 模式
+<ParamField body="seed" type="integer">
+  随机种子。相同请求 + 相同 seed 会生成类似结果(不保证完全一致);省略或传 `-1` 则随机
 </ParamField>
 
 <ParamField body="callback_url" type="string">
   Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
 </ParamField>
 
-<ParamField body="callback_events" type="string[]">
-  订阅的回调事件类型,默认仅终态(`completed` / `failed`)
-</ParamField>
-
 ## 模型特定参数
 
-<Tabs>
-
-<Tab title="2.0 Fast / 2.0 Fast Face">
-
-参数与 2.0 / 2.0 Face 相同(`generate_audio` / `tools` / `image_with_roles` / `return_last_frame`)。
-
-**差异**:
-- 仅 480P / 720P,**无 1080P**
-- 加速档,质量略降换更快出片 + 更低成本
-- Fast Face 子型保留人脸一致性能力
-- 时长 4-15 秒
-
-**典型用途**:
-- 数字人短视频批量生产
-- 社媒口播运营
-- 素材快速迭代
-
-</Tab>
-
-<Tab title="2.0 / 2.0 Face">
-
-<ParamField body="generate_audio" type="boolean" default="false">
-  是否生成音频(有声视频)。2.0 系列字段名为 `generate_audio`
-</ParamField>
-
-<ParamField body="tools" type="array">
-  工具列表,例:`[{"type": "web_search"}]` 启用网络检索增强
-</ParamField>
-
-<ParamField body="image_with_roles" type="array">
-  带角色标记的参考图,优先级高于 `image_urls` + `first_frame_image` / `last_frame_image`。元素结构:
-  - `url` — 图片 URL
-  - `role` — `first_frame` / `last_frame`
-</ParamField>
-
-<ParamField body="return_last_frame" type="boolean" default="false">
-  是否额外返回视频尾帧图,用于连续生成续集
-</ParamField>
-
-**特性(2.0)**:
-- 多模态统一架构:文 + 图(≤9)+ 视频(≤3)+ 音频(≤3)任意组合
-- `@image1` / `@video2` / `@audio3` prompt 引用语法
-- `aspect_ratio` 支持 `adaptive`
-- 时长 4-15 秒
-
-**2.0 Face 额外**:
-- 强化人脸 / 身份一致性,五官 + 肤色多镜头稳定
-- 适合数字人短剧 / 口播
-
-</Tab>
-
-<Tab title="1.5 Pro">
-
 <ParamField body="audio" type="boolean" default="false">
-  是否生成音频(有声视频)。1.5 系列字段名为 `audio`,**与 2.0 的 `generate_audio` 不同**
+  是否生成音频(有声视频)。设为 `true` 时视频包含 AI 生成的配套音频,支持多语言对白 + 口型同步
 </ParamField>
 
 <ParamField body="camerafixed" type="boolean" default="false">
-  是否固定摄像头
+  是否固定摄像头。设为 `true` 时摄像头位置保持固定
 </ParamField>
-
-**特性**:
-- 音视频联合生成,口型同步
-- 多语言对白:中 / 英 / 日 / 韩 / 西
-- 方言:四川话 / 粤语
-- 时长 4-12 秒
-
-</Tab>
-
-<Tab title="1.0 Pro Quality">
-
-无模型特定参数,仅使用通用参数。
-
-**特性**:
-- 旗舰高质量档,极致画面与运动表现
-- 1080P 多镜头叙事,适合最终交付
-- 全 action 支持(generate / image2video / first_last_frame / reference)
-- 时长 2-12 秒
-
-</Tab>
-
-<Tab title="1.0 Pro Fast">
-
-无模型特定参数,仅使用通用参数。
-
-**特性**:
-- 旗舰加速档,出片速度约 Pro Quality 3 倍
-- 480P / 720P / 1080P 全分辨率
-- 时长 2-12 秒
-- 不支持 `first_last_frame`
-
-</Tab>
-
-</Tabs>
 
 ## 资源限制
 
 | 项目 | 限制 |
 |---|---|
-| 参考图(`image_urls`) | 最多 9 张,单张 ≤ 30MB,JPG / PNG / WEBP |
-| 首尾帧(`first_frame_image` / `last_frame_image`) | 单张 ≤ 30MB,JPG / PNG / WEBP |
-| 参考视频(`video_urls`,仅 2.0) | 最多 3 段,MP4 / MOV,≤ 100MB / 段 |
-| 参考音频(`audio_urls`,仅 2.0) | 最多 3 条,WAV / MP3,≤ 15MB / 条 |
+| 参考图(`image_urls`) | 最多 2 张(首帧 + 尾帧),JPG / PNG / WEBP |
+| Prompt 长度 | 建议详细描述场景 / 动作 / 对白 |
+| 视频时长 | 5 或 10 秒 |
 | 输出 | MP4,链接 24 小时有效 |
 
 ## 相关文档
@@ -335,3 +169,5 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 - [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
 - [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
 - [认证](/cn/docs/authentication) — API Key 申请与使用
+</content>
+</invoke>

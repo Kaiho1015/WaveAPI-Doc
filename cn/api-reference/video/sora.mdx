@@ -1,0 +1,156 @@
+---
+title: "Sora 2 系列"
+description: "OpenAI Sora 2 — 文生 / 图生视频,物理一致性强,原生音画同步,Pro 档支持 1080P"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+OpenAI Sora 2 系列视频生成模型,以 **物理一致性 / 原生音画同步 / 镜头语言** 见长,适合 **电影感短片 / 创意广告 / 概念演示** 三类场景。支持文生视频与图生视频(单图作起始画面),异步出图。
+
+三档定位:
+
+- **`sora-2`** — 标准档,日常默认首选,仅 720p,文生 / 图生通吃,性价比最高
+- **`sora-2-pro`** — 旗舰档,支持 **720p / 1024p / 1080p** 三档分辨率,画质最强,单价最高
+- **`sora-2-preview`** — 预览档,能力与价格同标准档 `sora-2` 对齐,用于尝鲜 / 灰度
+
+按 **分辨率 × 时长** 计费,**每秒单价**,时长仅支持 `4` / `8` / `12` / `16` / `20` 秒固定档位。
+
+## 定价
+
+| 模型 | 720p | 1024p | 1080p |
+|---|---|---|---|
+| `sora-2` | `$0.09` / 秒 | — | — |
+| `sora-2-preview` | `$0.09` / 秒 | — | — |
+| `sora-2-pro` | `$0.27` / 秒 | `$0.45` / 秒 | `$0.63` / 秒 |
+
+> 价为售价(USD)。**按秒计费** = 单价/秒 × `duration`。例:`sora-2-pro` 1080p 8 秒 = `$0.63 × 8 = $5.04`。
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频(标准档)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sora-2",
+    "prompt": "瀑布飞泻而下,水雾中升起一道彩虹,电影感光影",
+    "duration": 8,
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 图生视频(标准档单图)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sora-2",
+    "prompt": "镜头缓缓推近,人物迎风转身",
+    "image_urls": ["https://cdn.example.com/portrait.jpg"],
+    "duration": 8,
+    "resolution": "720p"
+  }'
+```
+
+```bash 高清出片(Pro 档 1080p)
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sora-2-pro",
+    "prompt": "黄昏的海滩,女孩迎着夕阳奔跑,长发飞扬,海浪声与脚步声同步",
+    "duration": 12,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "sora-2",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 分辨率 | 时长 | 支持 action | 备注 |
+|---|---|---|---|---|
+| `sora-2` | 720p | 4 / 8 / 12 / 16 / 20 秒 | generate | 标准档,日常首选 |
+| `sora-2-pro` | 720p / 1024p / 1080p | 4 / 8 / 12 / 16 / 20 秒 | generate | 旗舰档,画质最强 |
+| `sora-2-preview` | 720p | 4 / 8 / 12 / 16 / 20 秒 | generate | 预览档,价格同标准档 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  模型 ID,见 [可用模型](#可用模型) 表
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  视频描述文本,建议描述 **场景 / 主体 / 动作 / 镜头 / 氛围**
+</ParamField>
+
+<ParamField body="duration" type="integer" default="4">
+  视频时长(秒),仅支持固定档位:`4` / `8` / `12` / `16` / `20`
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率。`sora-2` / `sora-2-preview` 仅支持 `720p`;`sora-2-pro` 支持 `720p` / `1024p` / `1080p`
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比,可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `1:1` — 正方形
+
+  传 `image_urls`(图生视频)时,`aspect_ratio` 被忽略,方向由参考图自动决定。
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子,相同 prompt + seed 可复现相似结果
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组,用于图生视频。**最多 1 张**,不传则为文生视频。需公网可下载链接
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件,默认订阅终态(`succeeded` / `failed` / `cancelled`)
+</ParamField>
+
+## 模型特定参数
+
+Sora 2 系列无模型特定参数,所有可选项均在 [通用参数](#通用参数) 中。
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考图片 | 最多 1 张,单张 ≤ 10MB,JPG / PNG / WEBP |
+| Prompt 长度 | 建议 ≤ 2000 字符 |
+| 视频时长 | 4 / 8 / 12 / 16 / 20 秒固定档位 |
+| 分辨率 | `sora-2` / `preview` 仅 720p;`pro` 支持 720p / 1024p / 1080p |
+| 输出 | MP4,链接 24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用

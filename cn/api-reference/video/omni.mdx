@@ -1,0 +1,146 @@
+---
+title: "Omni-Flash-Ext"
+description: "Omni-Flash-Ext — 文生 / 参考视频统一模型,按次计费,固定时长档,支持 4K"
+api: "POST https://www.qingbo.dev/v1/tasks"
+---
+
+Omni-Flash-Ext 统一视频生成模型,支持 **文生视频** 与 **参考视频生成**(`video_urls` 提供 1 段参考视频作运动 / 风格参考),720p / 1080p / 4k 三档分辨率,`4` / `6` / `8` / `10` 秒固定时长,适合 **创意短片 / 风格迁移 / 二创延展** 场景。异步出图。
+
+**按次计费** — 每次生成单一固定价,**不乘时长、不分分辨率**。
+
+## 定价
+
+| 模型 | 计费方式 | 单价 |
+|---|---|---|
+| `omni-flash-ext` | **按次**(每次生成固定价) | `$0.16875` / 次 |
+
+> 价为售价(USD)。**按次计费** = 每次生成固定收费,与 `resolution` / `duration` 无关。例:无论 720p 4 秒还是 4k 10 秒,均按 `$0.16875 / 次` 计。
+
+## 调用示例
+
+<CodeGroup>
+
+```bash 文生视频
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "omni-flash-ext",
+    "prompt": "海面上的日落,海鸥掠过,电影感光影",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 4K 短视频
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "omni-flash-ext",
+    "prompt": "蜂鸟在红花前悬停的特写镜头",
+    "duration": 4,
+    "resolution": "4k",
+    "aspect_ratio": "16:9"
+  }'
+```
+
+```bash 参考视频生成
+curl -X POST https://www.qingbo.dev/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "omni-flash-ext",
+    "prompt": "同样的场景,但改为霓虹灯下的夜景",
+    "resolution": "720p",
+    "aspect_ratio": "16:9",
+    "video_urls": ["https://cdn.example.com/reference.mp4"]
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+```json 提交成功
+{
+  "task_id": "task-wave1775285160b950328499",
+  "model": "omni-flash-ext",
+  "action": "generate",
+  "status": "queued",
+  "created_at": 1775285160040,
+  "progress": 0
+}
+```
+</ResponseExample>
+
+提交后用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 轮询状态,详见 [任务系统](/cn/docs/task-system)。
+
+## 可用模型
+
+| 模型 ID | 分辨率 | 时长 | 支持 action | 备注 |
+|---|---|---|---|---|
+| `omni-flash-ext` | 720p / 1080p / 4k | 4 / 6 / 8 / 10 秒 | generate | 文生 / 参考视频统一,按次计费 |
+
+## 通用参数
+
+<ParamField body="model" type="string" required>
+  模型 ID,固定为 `omni-flash-ext`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  视频描述文本,建议详细描述 **场景 / 主体 / 动作 / 环境 / 镜头运动 / 视觉风格 / 音效**
+</ParamField>
+
+<ParamField body="duration" type="integer" default="6">
+  视频时长(秒),仅支持固定档位:`4` / `6` / `8` / `10`。
+
+  <Note>传 `video_urls`(参考视频)时,**不要同时传 `duration`**,二者互斥,时长由参考视频决定。</Note>
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率,可选 `720p` / `1080p` / `4k`(大小写不敏感)
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面宽高比,可选值:
+  - `16:9` — 横版宽屏
+  - `9:16` — 竖版长屏
+  - `1:1` — 正方形
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子,相同 prompt + seed 可复现相似结果
+</ParamField>
+
+<ParamField body="video_urls" type="string[]">
+  参考视频 URL 数组,用于参考视频生成。**最多 1 段**,需公网可下载链接。传入时不要再传 `duration`
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook 回调地址,任务终态时调用。详见 [回调机制](/cn/docs/sync-async#异步任务-webhook)
+</ParamField>
+
+<ParamField body="callback_events" type="string[]">
+  订阅的回调事件,默认订阅终态(`succeeded` / `failed` / `cancelled`)
+</ParamField>
+
+## 模型特定参数
+
+Omni-Flash-Ext 无模型特定参数,所有可选项均在 [通用参数](#通用参数) 中。
+
+## 资源限制
+
+| 项目 | 限制 |
+|---|---|
+| 参考视频 | 最多 1 段,需公网可下载链接(MP4);传入时不可同时传 `duration` |
+| Prompt 长度 | 建议 ≤ 2000 字符 |
+| 视频时长 | 4 / 6 / 8 / 10 秒固定档位 |
+| 分辨率 | 720p / 1080p / 4k |
+| 输出 | MP4,链接 24 小时有效 |
+
+## 相关文档
+
+- [任务系统详解](/cn/docs/task-system) — 任务状态机 / 轮询节奏 / 异步推送
+- [请求响应格式](/cn/docs/request-response) — 通用错误码 / Headers / 限流
+- [认证](/cn/docs/authentication) — API Key 申请与使用
