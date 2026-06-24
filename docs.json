@@ -55,11 +55,6 @@
           "href": "https://status.qingboai.com"
         },
         {
-          "anchor": "Community",
-          "icon": "discord",
-          "href": "https://discord.gg/你的邀请码"
-        },
-        {
           "anchor": "GitHub",
           "icon": "github",
           "href": "https://github.com/Kaiho1015/docs"
@@ -306,7 +301,6 @@
   "footer": {
     "socials": {
       "github": "https://github.com/Kaiho1015/WaveAPI-Doc",
-      "discord": "https://discord.gg/你的邀请码",
       "website": "https://qingbo.dev"
     }
   }
