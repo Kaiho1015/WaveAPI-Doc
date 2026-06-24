@@ -172,7 +172,9 @@
               {
                 "group": "更新公告",
                 "pages": [
-                  "cn/changelog/index"
+                  "cn/changelog/notices",
+                  "cn/changelog/models",
+                  "cn/changelog/pricing"
                 ]
               }
             ]
@@ -278,7 +280,9 @@
               {
                 "group": "Changelog",
                 "pages": [
-                  "en/changelog/index"
+                  "en/changelog/notices",
+                  "en/changelog/models",
+                  "en/changelog/pricing"
                 ]
               }
             ]
