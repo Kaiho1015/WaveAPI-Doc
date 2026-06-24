@@ -3,31 +3,52 @@ title: "模型动态"
 ---
 
 <Update label="2026-06-17" description="模型上架">
-**新模型上架**
+**Kling 3.0 Turbo · 视频生成**
 
-- [`kling-3.0-turbo`](/cn/api-reference/video/kling) — 视频生成
-- [`grok-imagine-1.5`](/cn/api-reference/image/grok-imagine)、[`grok-imagine-1.5-edit`](/cn/api-reference/image/grok-imagine) — 图像生成 / 编辑
-- [`grok-imagine-1.5-video`](/cn/api-reference/video/grok-imagine-video) — 视频生成
+- **模型 ID**：`kling-3.0-turbo`
+- **生成方式**：文生视频、图生视频（传 `image_urls` 作首帧）
+- **分辨率**：720P / 1080P　·　**时长**：5 / 10 秒　·　**画面比例**：16:9 / 9:16 / 1:1
+- **文档**：[Kling 视频生成 API](/cn/api-reference/video/kling)
 
-以上模型已上架，可直接调用。
+**Grok Imagine 1.5 · 图像生成 / 编辑 / 视频**
+
+- **图像**　`grok-imagine-1.5` — 文生图，画面比例 1:1 / 16:9 / 9:16 / 3:2 / 2:3，支持批量 `n`
+- **编辑**　`grok-imagine-1.5-edit` — 生成 / 编辑，传 `image_urls` 作参考图
+- **视频**　`grok-imagine-1.5-video` — 文生视频 / 图生视频，分辨率 480p / 720p，时长 6–30 秒，比例 16:9 / 9:16 / 1:1
+- **文档**：[Grok Imagine 图像 API](/cn/api-reference/image/grok-imagine)　·　[Grok Imagine 视频 API](/cn/api-reference/video/grok-imagine-video)
 </Update>
 
 <Update label="2026-05-27" description="模型上架">
-**新模型上架**
+**Claude Opus 4.8 · 文本生成**
 
-- [`claude-opus-4.8`](/cn/api-reference/text/general-chat) — 文本生成
+- **模型 ID**：`claude-opus-4.8`
+- **接入方式**：OpenAI 兼容 Chat Completions，支持流式输出
+- **文档**：[文本生成 API](/cn/api-reference/text/general-chat)
 </Update>
 
 <Update label="2026-05-19" description="模型上架">
-**新模型上架**
+**Gemini 3.5 Flash · 文本生成**
 
-- [`gemini-3.5-flash`](/cn/api-reference/text/general-chat) — 文本生成
-- [`omni-flash-ext`](/cn/api-reference/video/omni) — 视频生成
+- **模型 ID**：`gemini-3.5-flash`　·　OpenAI 兼容 Chat Completions
+- **文档**：[文本生成 API](/cn/api-reference/text/general-chat)
+
+**Omni-Flash-Ext · 视频生成**
+
+- **模型 ID**：`omni-flash-ext`
+- **生成方式**：文生视频、视频参考生成（传 `video_urls`）
+- **分辨率**：720p / 1080p / 4K　·　**时长**：4 / 6 / 8 / 10 秒　·　**画面比例**：16:9 / 9:16 / 1:1
+- **文档**：[Omni 视频生成 API](/cn/api-reference/video/omni)
 </Update>
 
 <Update label="2026-04-24" description="模型上架">
-**新模型上架**
+**GPT-5.5 · 文本生成**
 
-- [`gpt-5.5`](/cn/api-reference/text/general-chat) — 文本生成
-- [`deepseek-v4-pro`](/cn/api-reference/text/general-chat)、[`deepseek-v4-flash`](/cn/api-reference/text/general-chat) — 文本生成
+- **模型 ID**：`gpt-5.5`　·　新一代旗舰文本模型，OpenAI 兼容 Chat Completions
+- **文档**：[文本生成 API](/cn/api-reference/text/general-chat)
+
+**DeepSeek V4 · 文本生成**
+
+- `deepseek-v4-pro` — 面向深度推理、复杂多轮与长上下文
+- `deepseek-v4-flash` — 轻量极速，面向高并发、低延迟实时交互
+- **文档**：[文本生成 API](/cn/api-reference/text/general-chat)
 </Update>

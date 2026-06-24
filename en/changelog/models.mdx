@@ -3,31 +3,52 @@ title: "Model Updates"
 ---
 
 <Update label="2026-06-17" description="Model launch">
-**New models available**
+**Kling 3.0 Turbo · Video generation**
 
-- [`kling-3.0-turbo`](/en/api-reference/video/kling) — video generation
-- [`grok-imagine-1.5`](/en/api-reference/image/grok-imagine), [`grok-imagine-1.5-edit`](/en/api-reference/image/grok-imagine) — image generation / editing
-- [`grok-imagine-1.5-video`](/en/api-reference/video/grok-imagine-video) — video generation
+- **Model ID**: `kling-3.0-turbo`
+- **Modes**: text-to-video, image-to-video (pass `image_urls` as the first frame)
+- **Resolution**: 720P / 1080P　·　**Duration**: 5 / 10 s　·　**Aspect ratios**: 16:9 / 9:16 / 1:1
+- **Docs**: [Kling video API](/en/api-reference/video/kling)
 
-These models are now live and ready to call.
+**Grok Imagine 1.5 · Image / edit / video**
+
+- **Image**　`grok-imagine-1.5` — text-to-image, aspect ratios 1:1 / 16:9 / 9:16 / 3:2 / 2:3, batch `n`
+- **Edit**　`grok-imagine-1.5-edit` — generate / edit, pass `image_urls` as references
+- **Video**　`grok-imagine-1.5-video` — text/image-to-video, resolution 480p / 720p, duration 6–30 s, ratios 16:9 / 9:16 / 1:1
+- **Docs**: [Grok Imagine image API](/en/api-reference/image/grok-imagine)　·　[Grok Imagine video API](/en/api-reference/video/grok-imagine-video)
 </Update>
 
 <Update label="2026-05-27" description="Model launch">
-**New models available**
+**Claude Opus 4.8 · Text generation**
 
-- [`claude-opus-4.8`](/en/api-reference/text/general-chat) — text generation
+- **Model ID**: `claude-opus-4.8`
+- **Access**: OpenAI-compatible Chat Completions, streaming supported
+- **Docs**: [Text generation API](/en/api-reference/text/general-chat)
 </Update>
 
 <Update label="2026-05-19" description="Model launch">
-**New models available**
+**Gemini 3.5 Flash · Text generation**
 
-- [`gemini-3.5-flash`](/en/api-reference/text/general-chat) — text generation
-- [`omni-flash-ext`](/en/api-reference/video/omni) — video generation
+- **Model ID**: `gemini-3.5-flash`　·　OpenAI-compatible Chat Completions
+- **Docs**: [Text generation API](/en/api-reference/text/general-chat)
+
+**Omni-Flash-Ext · Video generation**
+
+- **Model ID**: `omni-flash-ext`
+- **Modes**: text-to-video, video-reference generation (pass `video_urls`)
+- **Resolution**: 720p / 1080p / 4K　·　**Duration**: 4 / 6 / 8 / 10 s　·　**Aspect ratios**: 16:9 / 9:16 / 1:1
+- **Docs**: [Omni video API](/en/api-reference/video/omni)
 </Update>
 
 <Update label="2026-04-24" description="Model launch">
-**New models available**
+**GPT-5.5 · Text generation**
 
-- [`gpt-5.5`](/en/api-reference/text/general-chat) — text generation
-- [`deepseek-v4-pro`](/en/api-reference/text/general-chat), [`deepseek-v4-flash`](/en/api-reference/text/general-chat) — text generation
+- **Model ID**: `gpt-5.5`　·　next-gen flagship text model, OpenAI-compatible Chat Completions
+- **Docs**: [Text generation API](/en/api-reference/text/general-chat)
+
+**DeepSeek V4 · Text generation**
+
+- `deepseek-v4-pro` — for deep reasoning, complex multi-turn, and long-context tasks
+- `deepseek-v4-flash` — lightweight and ultra-fast, for high-concurrency, low-latency interactive use
+- **Docs**: [Text generation API](/en/api-reference/text/general-chat)
 </Update>
