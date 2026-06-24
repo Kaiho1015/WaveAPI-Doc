@@ -176,6 +176,12 @@
                   "cn/changelog/models",
                   "cn/changelog/pricing"
                 ]
+              },
+              {
+                "group": "联系我们",
+                "pages": [
+                  "cn/changelog/contact"
+                ]
               }
             ]
           }
@@ -283,6 +289,12 @@
                   "en/changelog/notices",
                   "en/changelog/models",
                   "en/changelog/pricing"
+                ]
+              },
+              {
+                "group": "Contact",
+                "pages": [
+                  "en/changelog/contact"
                 ]
               }
             ]
