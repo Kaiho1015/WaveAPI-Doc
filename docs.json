@@ -165,6 +165,17 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "产品动态",
+            "groups": [
+              {
+                "group": "更新公告",
+                "pages": [
+                  "cn/changelog/index"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -257,6 +268,17 @@
                   "en/api-reference/task/submit",
                   "en/api-reference/task/status",
                   "en/api-reference/task/cancel"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Product Updates",
+            "groups": [
+              {
+                "group": "Changelog",
+                "pages": [
+                  "en/changelog/index"
                 ]
               }
             ]
