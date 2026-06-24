@@ -1,13 +1,8 @@
 ---
 title: "取消任务"
 description: "POST /v1/tasks/{task_id}/cancel — 取消排队中的任务"
+api: "POST https://www.qingbo.dev/v1/tasks/{task_id}/cancel"
 ---
-
-## 端点
-
-```
-POST https://www.qingbo.dev/v1/tasks/{task_id}/cancel
-```
 
 取消一个处于 `queued` 状态的任务，配额自动退还。
 

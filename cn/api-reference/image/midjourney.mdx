@@ -41,7 +41,7 @@ Midjourney 通过统一异步任务接口 `/v1/tasks` 调用,用 `action` 字段
 | `high-variation` | 链式 | `ref_task_id` + `index` | 强变体(变化幅度大) |
 | `low-variation` | 链式 | `ref_task_id` + `index` | 弱变体(保持主体) |
 | `reroll` | 链式 | `ref_task_id` | 用同 prompt 重出一组四宫格 |
-| `zoom` | 链式 | `ref_task_id` + `zoom_ratio` | 外绘缩放(<2 用 1.5x,≥2 用 2x) |
+| `zoom` | 链式 | `ref_task_id` + `zoom_ratio` | 外绘缩放(`<2` 用 1.5x,`≥2` 用 2x) |
 | `pan` | 链式 | `ref_task_id` + `direction` | 向 `left/right/up/down` 平移外绘 |
 | `remix-strong` | 链式 | `ref_task_id` + `index` | v8/v8.1 大幅重塑,可改 prompt |
 | `remix-subtle` | 链式 | `ref_task_id` + `index` | v8/v8.1 保守重塑 |
