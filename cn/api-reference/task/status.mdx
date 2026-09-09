@@ -176,7 +176,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
 <ResponseField name="result" type="object">
   生成结果,**仅 completed 态有此字段**。根据任务媒体类型,key 为 `images` / `videos` / `audios`(数组),每项含:
   - `url` — `string[]` 数组(单元素也用数组形式)
-  - `expires_at` — Unix 秒时间戳,建议下载期限。该值在**每次查询时**按「当前时间 + 3 天」重新计算,不是存储侧的保留期承诺
+  - `expires_at` — Unix 秒时间戳,产物的删除时刻。自**任务完成时刻**起算 7 天,同一个任务查多少次都是同一个值;到期后对象存储会自动删除该文件
 </ResponseField>
 
 <ResponseField name="urls" type="object">
@@ -195,7 +195,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
 详见 [任务系统](/cn/docs/task-system) 完整流程说明。
 
 <Warning>
-**生成结果链接请及时下载保存到自己的存储。** `expires_at` 是查询时刻起 3 天的建议下载期限,每次查询都会重新计算;它不代表文件一定保留到那一刻,也不代表之后一定失效。不要依赖结果链接做长期存储。
+**生成结果请及时下载保存到自己的存储。** 产物在我方对象存储只保留 7 天(自任务完成时刻起算,即 `expires_at`),到期由存储的生命周期规则自动删除,不再可取。结果链接不能当长期存储用。
 </Warning>
 
 ## 错误码
