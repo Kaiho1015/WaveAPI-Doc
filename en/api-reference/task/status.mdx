@@ -175,7 +175,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
 <ResponseField name="result" type="object">
   Generation result. **Only present in the completed state**. Depending on the task's media type, the key is `images` / `videos` / `audios` (an array). Each item contains:
   - `url` — `string[]` array (always an array, even with a single element)
-  - `expires_at` — Unix timestamp in seconds; a suggested download deadline. It is recomputed **on every query** as "now + 3 days" and is not a storage-side retention promise
+  - `expires_at` — Unix timestamp in seconds; when the artifact is deleted. Counted as 7 days from the moment the **task finished**, so it is the same value however many times you query; after it passes, object storage deletes the file
 </ResponseField>
 
 <ResponseField name="urls" type="object">
@@ -194,7 +194,7 @@ curl https://www.qingbo.dev/v1/tasks/task-wave1775285160b950328499 \
 See [Task System](/en/docs/task-system) for the full workflow.
 
 <Warning>
-**Download and persist result links to your own storage promptly.** `expires_at` is a suggested download deadline of 3 days from the moment of the query and is recomputed on every query; it neither guarantees that the file is kept until then nor that it disappears afterwards. Do not rely on result links for long-term storage.
+**Download and persist results to your own storage promptly.** Artifacts are kept in our object storage for 7 days only, counted from the moment the task finished (that is `expires_at`); after that a storage lifecycle rule deletes them and they cannot be fetched again. Do not use result links as long-term storage.
 </Warning>
 
 ## Error Codes
