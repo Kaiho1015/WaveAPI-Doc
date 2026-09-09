@@ -1,9 +1,9 @@
 ---
 title: "GPT Image Series"
-description: "Four GPT Image models from OpenAI: three official lines billed on token usage, one reverse line at a fixed price per image"
+description: "Six GPT Image models from OpenAI: five official lines billed on token usage, one reverse line at a fixed price per image"
 ---
 
-All four models in the GPT Image series are served on `POST /v1/tasks` — the request URL does not change between them. They share the same actions and request shape; the differences are the aspect-ratio and resolution values, the line-specific parameters, and billing. Picking a model only changes the `model` field.
+All six models in the GPT Image series are served on `POST /v1/tasks` — the request URL does not change between them. They share the same actions and request shape; the differences are the aspect-ratio and resolution values, the line-specific parameters, and billing. Picking a model only changes the `model` field.
 
 ## Available models
 
@@ -17,6 +17,12 @@ All four models in the GPT Image series are served on `POST /v1/tasks` — the r
   <Card title="GPT Image 2 Official" href="/en/api-reference/image/gpt-image/gpt-image-2">
     `gpt-image-2` · 15 aspect ratios, `1k` / `2k` / `4k` resolutions, up to 16 references, mask inpainting and WebP output; billed on actual token usage
   </Card>
+  <Card title="GPT Image 2.5 Flare" href="/en/api-reference/image/gpt-image/gpt-image-2.5">
+    `gpt-image-2.5` · Flare line, five quality levels (including `xhigh` and `max`), 15 aspect ratios, up to 16 references; faster output; billed on actual token usage
+  </Card>
+  <Card title="GPT Image 2.5 Sunburst" href="/en/api-reference/image/gpt-image/gpt-image-2.5">
+    `gpt-image-2.5-sunburst` · Sunburst line, the same parameters and rates as Flare, trading speed for editing precision; billed on actual token usage
+  </Card>
   <Card title="GPT Image 2 Reverse" href="/en/api-reference/image/gpt-image/gpt-image-2-rev">
     `gpt-image-2-rev` · text-to-image and edits with up to 15 references; fixed per-image pricing at `1k`, `2k`, or `4k`
   </Card>
@@ -26,19 +32,22 @@ All four models in the GPT Image series are served on `POST /v1/tasks` — the r
 
 | Need | Recommended model | Why |
 |---|---|---|
-| `2k` / `4k` output, or an aspect ratio beyond `1:1` `2:3` `3:2` | `gpt-image-2` | It is the only model that accepts `resolution`, and it supports 15 aspect ratios |
+| The highest quality, or the `xhigh` / `max` levels | `gpt-image-2.5` `gpt-image-2.5-sunburst` | Only 2.5 has five quality levels, and levels sharing a name are not interchangeable with the previous generation |
+| Production assets where editing precision comes first | `gpt-image-2.5-sunburst` | Same parameters and rates as Flare, with the trade-off toward precision |
+| `2k` / `4k` output, or an aspect ratio beyond `1:1` `2:3` `3:2` | `gpt-image-2` `gpt-image-2.5` `gpt-image-2.5-sunburst` | These three accept `resolution` and support 15 aspect ratios |
 | A fixed per-image price before submission | `gpt-image-2-rev` | Billing is fixed by output resolution, independent of aspect ratio and prompt length |
-| Mask inpainting, transparent backgrounds, or output-format control | `gpt-image-1` `gpt-image-1.5` `gpt-image-2` | All three official lines expose these line-specific parameters |
-| WebP output | `gpt-image-2` | The other three models output `png` and `jpeg` only |
-| Multi-image reference editing | All four | `gpt-image-2` accepts up to 16 images; the other three accept up to 15 |
+| Mask inpainting | `gpt-image-1` `gpt-image-1.5` `gpt-image-2` | Only these three accept `mask_url`; 2.5 has no such parameter |
+| Transparent backgrounds or output-format control | All five official lines | Every official line exposes these line-specific parameters |
+| WebP output | `gpt-image-2` `gpt-image-2.5` `gpt-image-2.5-sunburst` | The other three models output `png` and `jpeg` only |
+| Multi-image reference editing | All six | `gpt-image-2` and both 2.5 models accept up to 16 images; the other three accept up to 15 |
 
 <Note>
 The models never switch automatically: the `model` field selects the model, and its own page is authoritative for the parameters it accepts.
 </Note>
 
-## What all four share
+## What all six share
 
-These are identical on all four models:
+These are identical on all six models:
 
 | Item | Value |
 |---|---|
@@ -69,6 +78,7 @@ Swap `model` for any model ID on this page and the request still runs. A success
 
 - [GPT Image 1 and 1.5 Official](/en/api-reference/image/gpt-image/gpt-image-1)
 - [GPT Image 2 Official](/en/api-reference/image/gpt-image/gpt-image-2)
+- [GPT Image 2.5](/en/api-reference/image/gpt-image/gpt-image-2.5)
 - [GPT Image 2 Reverse](/en/api-reference/image/gpt-image/gpt-image-2-rev)
 - [Submit Task](/en/api-reference/task/submit)
 - [Query Task Status](/en/api-reference/task/status)

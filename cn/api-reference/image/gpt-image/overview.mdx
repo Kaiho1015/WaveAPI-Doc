@@ -1,9 +1,9 @@
 ---
 title: "GPT Image 系列"
-description: "OpenAI GPT Image 的四个模型：三个官方版按 token 用量计费，一个逆向版按张固定价"
+description: "OpenAI GPT Image 的六个模型：五个官方版按 token 用量计费，一个逆向版按张固定价"
 ---
 
-GPT Image 系列的四个模型都走 `POST /v1/tasks`，请求地址不随模型变化。它们的动作和请求形状一致，差别集中在画幅与分辨率的取值、专有参数和计费方式三处，选型只改 `model` 字段。
+GPT Image 系列的六个模型都走 `POST /v1/tasks`，请求地址不随模型变化。它们的动作和请求形状一致，差别集中在画幅与分辨率的取值、专有参数和计费方式三处，选型只改 `model` 字段。
 
 ## 可用模型
 
@@ -17,6 +17,12 @@ GPT Image 系列的四个模型都走 `POST /v1/tasks`，请求地址不随模�
   <Card title="GPT Image 2 官方版" href="/cn/api-reference/image/gpt-image/gpt-image-2">
     `gpt-image-2` · 15 种画幅、`1k` / `2k` / `4k` 分辨率、最多 16 张参考图、掩码重绘与 WebP 输出；按实际 token 用量结算
   </Card>
+  <Card title="GPT Image 2.5 Flare" href="/cn/api-reference/image/gpt-image/gpt-image-2.5">
+    `gpt-image-2.5` · Flare 线，五档画质（含 `xhigh`、`max`）、15 种画幅、最多 16 张参考图；出图更快；按实际 token 用量结算
+  </Card>
+  <Card title="GPT Image 2.5 Sunburst" href="/cn/api-reference/image/gpt-image/gpt-image-2.5">
+    `gpt-image-2.5-sunburst` · Sunburst 线，与 Flare 同参数同单价，取舍偏向编辑精度；按实际 token 用量结算
+  </Card>
   <Card title="GPT Image 2 逆向版" href="/cn/api-reference/image/gpt-image/gpt-image-2-rev">
     `gpt-image-2-rev` · 文生图与最多 15 张参考图编辑；按 `1k` / `2k` / `4k` 固定张价结算
   </Card>
@@ -26,11 +32,14 @@ GPT Image 系列的四个模型都走 `POST /v1/tasks`，请求地址不随模�
 
 | 需求 | 推荐模型 | 原因 |
 |---|---|---|
-| `2k` / `4k` 分辨率，或 `1:1` `2:3` `3:2` 之外的画幅 | `gpt-image-2` | 只有它接受 `resolution`，并支持 15 种画幅 |
+| 最高画质，或 `xhigh` / `max` 档位 | `gpt-image-2.5` `gpt-image-2.5-sunburst` | 只有 2.5 有五档画质；同名档位与上一代不通用 |
+| 编辑精度优先的成品素材 | `gpt-image-2.5-sunburst` | 与 Flare 同参数同价，取舍偏向精度 |
+| `2k` / `4k` 分辨率，或 `1:1` `2:3` `3:2` 之外的画幅 | `gpt-image-2` `gpt-image-2.5` `gpt-image-2.5-sunburst` | 这三个接受 `resolution`，并支持 15 种画幅 |
 | 提交前确定单张价格 | `gpt-image-2-rev` | 按输出分辨率固定计费，与画幅和提示词长度无关 |
-| 掩码局部重绘、透明背景或输出格式控制 | `gpt-image-1` `gpt-image-1.5` `gpt-image-2` | 三个官方版都提供这组专有参数 |
-| WebP 输出 | `gpt-image-2` | 另外三个模型只输出 `png` 和 `jpeg` |
-| 多图参考编辑 | 四个都支持 | `gpt-image-2` 最多 16 张，其余三个最多 15 张 |
+| 掩码局部重绘 | `gpt-image-1` `gpt-image-1.5` `gpt-image-2` | 只有这三个接受 `mask_url`；2.5 没有这个参数 |
+| 透明背景或输出格式控制 | 五个官方版 | 官方线路都提供这组专有参数 |
+| WebP 输出 | `gpt-image-2` `gpt-image-2.5` `gpt-image-2.5-sunburst` | 其余三个模型只输出 `png` 和 `jpeg` |
+| 多图参考编辑 | 六个都支持 | `gpt-image-2` 与两个 2.5 最多 16 张，其余三个最多 15 张 |
 
 <Note>
 模型之间不会自动切换：`model` 字段决定用哪个模型，参数以该模型的页面为准。
@@ -38,7 +47,7 @@ GPT Image 系列的四个模型都走 `POST /v1/tasks`，请求地址不随模�
 
 ## 共同点
 
-以下部分四个模型完全一致：
+以下部分六个模型完全一致：
 
 | 项目 | 取值 |
 |---|---|
@@ -69,6 +78,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 - [GPT Image 1 与 1.5 官方版](/cn/api-reference/image/gpt-image/gpt-image-1)
 - [GPT Image 2 官方版](/cn/api-reference/image/gpt-image/gpt-image-2)
+- [GPT Image 2.5](/cn/api-reference/image/gpt-image/gpt-image-2.5)
 - [GPT Image 2 逆向版](/cn/api-reference/image/gpt-image/gpt-image-2-rev)
 - [提交任务](/cn/api-reference/task/submit)
 - [查询任务状态](/cn/api-reference/task/status)
