@@ -2,6 +2,17 @@
 title: "模型动态"
 ---
 
+<Update label="2026-09-09" description="模型上架">
+**GPT Image 2.5 上架 · 新增 `xhigh` 与 `max` 两档画质**
+
+- **模型 ID**：`gpt-image-2.5`（Flare 线，出图更快）　·　`gpt-image-2.5-sunburst`（Sunburst 线，编辑精度优先）
+- 两个模型的动作、参数、取值范围与单价完全相同：文生图与参考图编辑（最多 16 张参考图），15 种画幅，`1k` / `2k` / `4k`，每次出 1 张，差别只在生成结果本身。
+- 画质从三档扩到五档：`low` / `medium` / `high` / `xhigh` / `max`。`xhigh` 与 `max` 是 2.5 独有的档位，发给 `gpt-image-2` 会返回 `400`，不会自动降档。
+- **同名档位与上一代不通用**：2.5 的 `medium` 与 `high` 输出 token 约为 GPT Image 2 同名档位的四分之一，2.5 的 `max` 才对应 GPT Image 2 的 `high`。从 `gpt-image-2` 迁过来请按新页的阶梯重新估算成本。
+- 按实际 token 用量结算，计费维度为文本输入、缓存文本输入、图片输入、缓存图片输入、图片输出。本组不接受 `mask_url` 与 `seed`，掩码局部重绘仍用 `gpt-image-2`。
+- **文档**：[GPT Image 2.5](/cn/api-reference/image/gpt-image/gpt-image-2.5) · [GPT Image 系列](/cn/api-reference/image/gpt-image/overview)
+</Update>
+
 <Update label="2026-09-08" description="能力更新">
 **Wan 2.7 Image 放开多图生成**
 

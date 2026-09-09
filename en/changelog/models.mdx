@@ -2,6 +2,17 @@
 title: "Model Updates"
 ---
 
+<Update label="2026-09-09" description="Model launch">
+**GPT Image 2.5 is available, adding the `xhigh` and `max` quality levels**
+
+- **Model IDs**: `gpt-image-2.5` (the Flare line, faster output) · `gpt-image-2.5-sunburst` (the Sunburst line, editing precision first)
+- Both models share the same actions, parameters, value ranges and rates: text-to-image and reference editing (up to 16 reference images), 15 aspect ratios, `1k` / `2k` / `4k`, one image per request. Only the generated result differs.
+- Quality widens from three levels to five: `low` / `medium` / `high` / `xhigh` / `max`. `xhigh` and `max` exist only on 2.5; sending them to `gpt-image-2` returns `400` and is not downgraded silently.
+- **Levels sharing a name are not interchangeable across generations**: `medium` and `high` on 2.5 are about a quarter of the output tokens of the same-named levels on GPT Image 2, and `max` on 2.5 is what corresponds to `high` on GPT Image 2. Re-estimate cost against the new page when migrating from `gpt-image-2`.
+- Billed from actual token usage across text input, cached text input, image input, cached image input and image output. This line does not accept `mask_url` or `seed`; masked inpainting stays on `gpt-image-2`.
+- **Docs**: [GPT Image 2.5](/en/api-reference/image/gpt-image/gpt-image-2.5) · [GPT Image Series](/en/api-reference/image/gpt-image/overview)
+</Update>
+
 <Update label="2026-09-08" description="Capability update">
 **Multi-image generation opened on Wan 2.7 Image**
 

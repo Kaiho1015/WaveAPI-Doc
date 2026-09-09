@@ -157,6 +157,7 @@
                     "pages": [
                       "cn/api-reference/image/gpt-image/gpt-image-1",
                       "cn/api-reference/image/gpt-image/gpt-image-2",
+                      "cn/api-reference/image/gpt-image/gpt-image-2.5",
                       "cn/api-reference/image/gpt-image/gpt-image-2-rev"
                     ]
                   },
@@ -313,6 +314,7 @@
                     "pages": [
                       "en/api-reference/image/gpt-image/gpt-image-1",
                       "en/api-reference/image/gpt-image/gpt-image-2",
+                      "en/api-reference/image/gpt-image/gpt-image-2.5",
                       "en/api-reference/image/gpt-image/gpt-image-2-rev"
                     ]
                   },
