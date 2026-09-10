@@ -51,7 +51,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "midjourney",
     "action": "upscale",
-    "ref_task_id": "taski_example",
+    "ref_task_id": "task-wave1789004688b950049238",
     "index": 2
   }'
 ```
@@ -63,7 +63,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "midjourney",
     "action": "variation",
-    "ref_task_id": "taski_example",
+    "ref_task_id": "task-wave1789004688b950049238",
     "index": 3,
     "speed": "fast"
   }'
@@ -240,7 +240,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
 
 ```json imagine 完成
 {
-  "task_id": "taski_example",
+  "task_id": "task-wave1789004688b950049238",
   "model": "midjourney",
   "action": "imagine",
   "status": "completed",
@@ -258,15 +258,15 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     ]
   },
   "urls": {
-    "get": "https://www.qingbo.dev/v1/tasks/taski_example",
-    "cancel": "https://www.qingbo.dev/v1/tasks/taski_example/cancel"
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1789004688b950049238",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1789004688b950049238/cancel"
   }
 }
 ```
 
 ```json upscale 完成
 {
-  "task_id": "taski_example_upscale",
+  "task_id": "task-wave1789004901b950221487",
   "model": "midjourney",
   "action": "upscale",
   "status": "completed",
@@ -281,8 +281,8 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
     ]
   },
   "urls": {
-    "get": "https://www.qingbo.dev/v1/tasks/taski_example_upscale",
-    "cancel": "https://www.qingbo.dev/v1/tasks/taski_example_upscale/cancel"
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1789004901b950221487",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1789004901b950221487/cancel"
   }
 }
 ```
@@ -316,7 +316,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "midjourney",
     "action": "zoom",
-    "ref_task_id": "taski_example_upscale",
+    "ref_task_id": "task-wave1789004901b950221487",
     "index": 1,
     "zoom_ratio": 1.5
   }'
@@ -329,7 +329,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "midjourney",
     "action": "pan",
-    "ref_task_id": "taski_example_upscale",
+    "ref_task_id": "task-wave1789004901b950221487",
     "index": 1,
     "direction": "right"
   }'
@@ -342,7 +342,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "midjourney",
     "action": "inpaint",
-    "ref_task_id": "taski_example_upscale",
+    "ref_task_id": "task-wave1789004901b950221487",
     "index": 1
   }'
 
@@ -352,7 +352,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "midjourney",
     "action": "modal",
-    "ref_task_id": "taski_example_inpaint",
+    "ref_task_id": "task-wave1789004955b950663104",
     "prompt": "把选中区域换成一张红色皮质沙发",
     "mask_url": "https://cdn.example.com/mask.png"
   }'
