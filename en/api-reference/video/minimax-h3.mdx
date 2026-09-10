@@ -63,7 +63,7 @@ curl -X POST https://www.qingbo.dev/v1/tasks \
   -d '{
     "model": "minimax-h3-regeneration",
     "action": "regenerate",
-    "ref_task_id": "taski-d2d658ce585b5046dde1b95a884cc96c-task-wave1788783825b950188816"
+    "ref_task_id": "task-wave1788783825b950188816"
   }'
 ```
 
@@ -170,7 +170,7 @@ An amount is held at submission along those dimensions and settled against the a
 
 ```json Task completed
 {
-  "task_id": "taski-d2d658ce585b5046dde1b95a884cc96c-task-wave1788783825b950188816",
+  "task_id": "task-wave1788783825b950188816",
   "model": "minimax-h3",
   "action": "generate",
   "status": "completed",
@@ -188,8 +188,8 @@ An amount is held at submission along those dimensions and settled against the a
   "billing_status": "settled",
   "cost": 144000,
   "urls": {
-    "get": "https://www.qingbo.dev/v1/tasks/taski-d2d658ce585b5046dde1b95a884cc96c-task-wave1788783825b950188816",
-    "cancel": "https://www.qingbo.dev/v1/tasks/taski-d2d658ce585b5046dde1b95a884cc96c-task-wave1788783825b950188816/cancel"
+    "get": "https://www.qingbo.dev/v1/tasks/task-wave1788783825b950188816",
+    "cancel": "https://www.qingbo.dev/v1/tasks/task-wave1788783825b950188816/cancel"
   }
 }
 ```
