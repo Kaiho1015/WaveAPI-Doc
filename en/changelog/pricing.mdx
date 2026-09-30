@@ -6,6 +6,28 @@ title: "Pricing Updates"
 This page lists, newest first, each model's launch pricing and the price changes that followed. Launch entries show the model's **current** unit price (earlier prices are in the corresponding "Price change" entries); retired models are kept and marked with their retirement date. Pricing changes apply only to calls made **after** the change takes effect; historical calls are unaffected. Each model's live unit price is shown in the [Models overview](/en/docs/models) and the console "Model Market"; check each call's cost fields and units against [Request & Response Format](/en/docs/request-response) and the relevant endpoint documentation.
 </Note>
 
+<Update label="2026-09-30" description="Pricing change">
+**`gpt-6-sol` long-context output rate raised**
+
+| Model | Change |
+|---|---|
+| `gpt-6-sol` | Output above 272K input tokens: \$15 → **\$15.75** (per 1M tokens) |
+
+All other rates are unchanged. Changes take effect **immediately** and apply only to calls made afterwards.
+</Update>
+
+<Update label="2026-09-30" description="Model launch">
+**2 models launched · pricing**
+
+**Text**
+
+| Model ID | Price (USD) |
+|---|---|
+| `claude-sonnet-5-5` | input \$1.8 · output \$9 · cache read \$0.18 · cache write \$2.25 · cache write (1h) \$3.6 (per 1M tokens) |
+| `gpt-6.1-sol` | input \$1.8 · output \$9 · cache read \$0.18 · cache write \$2.25; above 272K input tokens: input \$3.6 / output \$15.75 (per 1M tokens) |
+
+</Update>
+
 <Update label="2026-09-24" description="Model launch">
 **`minimax-h3-max` launched · pricing**
 
@@ -180,7 +202,7 @@ The number of cached tokens is reported in `usage.prompt_tokens_details.cached_t
 | `claude-opus-5-5` | input \$3.6 · output \$18 · cache read \$0.18 · cache write \$4.5 · cache write (1h) \$7.2 (per 1M tokens) |
 | `glm-5.3` | input \$1.26 · output \$3.96 · cache read \$0.234 (per 1M tokens) |
 | `gpt-6-luna` | input \$0.09 · output \$0.45 · cache read \$0.009 · cache write \$0.1125; above 272K input tokens: input \$0.18 / output \$0.675 (per 1M tokens) |
-| `gpt-6-sol` | input \$1.8 · output \$9 · cache read \$0.18 · cache write \$2.25; above 272K input tokens: input \$3.6 / output \$15 (per 1M tokens) |
+| `gpt-6-sol` | input \$1.8 · output \$9 · cache read \$0.18 · cache write \$2.25; above 272K input tokens: input \$3.6 / output \$15.75 (per 1M tokens) |
 | `grok-4.7` | input \$1.8 · output \$5.4 · cache read \$0.45; above 200K input tokens: input \$3.6 / output \$10.8 (per 1M tokens) |
 | `qwen3.7-flash` | input \$0.0252 · output \$0.099 · cache read \$0.0054 · cache write \$0.0306; above 32K input tokens: input \$0.0747 / output \$0.297 (per 1M tokens) |
 | `qwen3.8-2.4t-a95b` | input \$1.485 · output \$4.4559 · cache read \$0.1854 · cache write \$1.8567 (per 1M tokens) |

@@ -2,6 +2,15 @@
 title: "Model Updates"
 ---
 
+<Update label="2026-09-30" description="Model launch">
+**Text models · 2 new models (OpenAI / Anthropic)**
+
+- **OpenAI**: `gpt-6.1-sol` — GPT-6.1 Sol, about 1M-token context, reasons before answering, image input, JSON Schema structured output and function calling (function calling goes through `/v1/responses`); `reasoning_effort` accepts `low` / `medium` / `high` / `xhigh`; prompts over 272K tokens are billed at the long-context tier.
+- **Anthropic**: `claude-sonnet-5-5` — the Sonnet model of Claude 5.5, 1M-token context, adaptive thinking on by default, image input, function calling, web search and the native `/v1/messages` endpoint, priced the same as `claude-sonnet-5`.
+- Both served via `/v1/chat/completions` and `/v1/responses` with streaming.
+- **Docs**: [Text models overview](/en/api-reference/text/overview)
+</Update>
+
 <Update label="2026-09-24" description="Capability update">
 **Asset library launched · Seedance asset references**
 
