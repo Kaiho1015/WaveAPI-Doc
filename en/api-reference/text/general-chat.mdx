@@ -359,7 +359,7 @@ public class Main {
 <ParamField body="reasoning_effort" type="string">
   Reasoning tier (OpenAI reasoning models).
 
-  One of `none` / `low` / `medium` / `high`. GPT-5.6 and GPT-5.4 / 5.5 were accepted with `none`; GPT-6 Astra was accepted with `low` only and rejects `none`. Do not send this field to non-OpenAI models.
+  One of `none` / `low` / `medium` / `high` / `xhigh`. GPT-5.6 and GPT-5.4 / 5.5 were accepted with `none`; GPT-6.1 Sol accepts `low` / `medium` / `high` / `xhigh` and rejects `none`; GPT-6 Astra was accepted with `low` only and rejects `none`. Do not send this field to non-OpenAI models.
 </ParamField>
 
 <ParamField body="stream_options" type="object">
