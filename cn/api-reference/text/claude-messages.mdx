@@ -4,7 +4,7 @@ description: "为已有 Anthropic SDK 的应用保留的原生 Messages 接口"
 api: "POST https://api.qingbo.ai/v1/messages"
 ---
 
-Anthropic 原生 Messages 接口，为已有 Anthropic SDK 的应用保留，GPT-5.6、GPT-6 系列与 Responses 专用模型之外的全部文本模型都可调用。除联网搜索（见[文本模型总览 · 计费口径](/cn/api-reference/text/overview#计费口径)）外，本接口不提供 Chat 之外的额外能力，新接入建议直接用[通用对话接口](/cn/api-reference/text/general-chat)。
+Anthropic 原生 Messages 接口，为已有 Anthropic SDK 的应用保留，GPT-5.6、GPT-6、GPT-6.1 系列与 Responses 专用模型之外的全部文本模型都可调用。除联网搜索（见[文本模型总览 · 计费口径](/cn/api-reference/text/overview#计费口径)）外，本接口不提供 Chat 之外的额外能力，新接入建议直接用[通用对话接口](/cn/api-reference/text/general-chat)。
 
 <RequestExample>
 ```bash cURL
@@ -237,7 +237,7 @@ Anthropic SDK 的 base URL 设为 `https://api.qingbo.ai`，SDK 会自行追加 
 <ParamField body="model" type="string" required>
   模型 ID
 
-  除以下模型外，全部文本模型都可调用本接口：GPT-5.6 与 GPT-6 系列（`gpt-5.6-luna`、`gpt-5.6-sol`、`gpt-5.6-terra`、`gpt-6-astra`、`gpt-6-luna`、`gpt-6-sol`），以及只接受 [Responses 接口](/cn/api-reference/text/openai-multimodal)的 `gpt-5-pro`、`gpt-5.2-pro`、`gpt-5.4-pro`、`gpt-5.3-codex`、`o3-pro`。这些模型发到本接口返回 `400`。
+  除以下模型外，全部文本模型都可调用本接口：GPT-5.6、GPT-6 与 GPT-6.1 系列（`gpt-5.6-luna`、`gpt-5.6-sol`、`gpt-5.6-terra`、`gpt-6-astra`、`gpt-6-luna`、`gpt-6-sol`、`gpt-6.1-sol`），以及只接受 [Responses 接口](/cn/api-reference/text/openai-multimodal)的 `gpt-5-pro`、`gpt-5.2-pro`、`gpt-5.4-pro`、`gpt-5.3-codex`、`o3-pro`。这些模型发到本接口返回 `400`。
 
   各模型的缓存档位与支持的能力见[文本模型总览](/cn/api-reference/text/overview)。
 
@@ -473,7 +473,7 @@ Anthropic SDK 的 base URL 设为 `https://api.qingbo.ai`，SDK 会自行追加 
 ## 当前不支持
 
 - **结构化输出**——Claude 模型不接受 `response_format` 的 `json_schema` 与 `json_object`。
-- **工具调用限制**——不支持工具调用的模型（见[文本模型总览](/cn/api-reference/text/overview)「JSON / 工具」列）传 `tools` / `tool_choice`；Fable 系列与 `claude-opus-5-5` 的 `tool_choice` 取 `any` 或 `tool`（只接受 `auto`）。
+- **工具调用限制**——不支持工具调用的模型（见[文本模型总览](/cn/api-reference/text/overview)「JSON / 工具」列）传 `tools` / `tool_choice`；Fable 系列、`claude-opus-5-5` 与 `claude-sonnet-5-5` 的 `tool_choice` 取 `any` 或 `tool`（只接受 `auto`）。
 - **图像输入**。
 
 以上请求返回 `400`，不计费。显式缓存在本接口可用：把要复用的长前缀放进 `system` 数组，写法与命中条件见[文本模型总览 · 缓存](/cn/api-reference/text/overview#缓存)。

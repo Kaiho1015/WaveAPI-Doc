@@ -2,6 +2,15 @@
 title: "模型动态"
 ---
 
+<Update label="2026-09-30" description="模型上架">
+**文本模型 · 2 个新模型（OpenAI / Anthropic）**
+
+- **OpenAI**：`gpt-6.1-sol` —— GPT-6.1 Sol，约 100 万 token 上下文，回答前进行推理，支持图片输入、JSON Schema 结构化输出与函数调用（函数调用需走 `/v1/responses`）；`reasoning_effort` 支持 `low` / `medium` / `high` / `xhigh`；单次输入超过 272K token 按长上下文档计费。
+- **Anthropic**：`claude-sonnet-5-5` —— Claude 5.5 系列的 Sonnet 模型，100 万 token 上下文，默认开启自适应思考，支持图片输入、函数调用、联网搜索与原生 `/v1/messages` 接口，单价与 `claude-sonnet-5` 相同。
+- 两个模型都走 `/v1/chat/completions` 与 `/v1/responses`，支持流式输出。
+- **文档**：[文本模型总览](/cn/api-reference/text/overview)
+</Update>
+
 <Update label="2026-09-24" description="能力更新">
 **素材库上线 · Seedance 素材引用**
 

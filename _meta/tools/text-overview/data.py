@@ -15,7 +15,10 @@ T256 = dict(th="256K", op=">")
 
 MODELS = [
  # ---------- OpenAI ----------
- m("gpt-6-sol","openai",1.8,9,cr=0.18,cw=2.25,tier=dict(T272,inp=3.6,out=15,cr=0.36,cw=4.5),ver="TSJF",limits=("922K","128K"),notes=["函数调用需 `reasoning_effort: \"none\"`","`reasoning_effort` 不为 `none` 时不接受 `temperature`、`top_p`、`logprobs`"],notes_en=["function calling requires `reasoning_effort: \"none\"`","when `reasoning_effort` is not `none`, `temperature`, `top_p` and `logprobs` are not supported"]),
+ m("gpt-6.1-sol","openai",1.8,9,cr=0.18,cw=2.25,tier=dict(T272,inp=3.6,out=15.75,cr=0.36,cw=4.5),ver="TSJF",limits=("922K","128K"),
+   notes=["函数调用只能走 `/v1/responses`，Chat 接口带 `tools` 返回 400","`reasoning_effort` 支持 `\"low\"` / `\"medium\"` / `\"high\"` / `\"xhigh\"`，不支持 `\"none\"` 与 `\"minimal\"`"],
+   notes_en=["function calling works only through `/v1/responses`, and sending `tools` on Chat returns 400","`reasoning_effort` accepts `\"low\"`, `\"medium\"`, `\"high\"` and `\"xhigh\"`, not `\"none\"` or `\"minimal\"`"]),
+ m("gpt-6-sol","openai",1.8,9,cr=0.18,cw=2.25,tier=dict(T272,inp=3.6,out=15.75,cr=0.36,cw=4.5),ver="TSJF",limits=("922K","128K"),notes=["函数调用需 `reasoning_effort: \"none\"`","`reasoning_effort` 不为 `none` 时不接受 `temperature`、`top_p`、`logprobs`"],notes_en=["function calling requires `reasoning_effort: \"none\"`","when `reasoning_effort` is not `none`, `temperature`, `top_p` and `logprobs` are not supported"]),
  m("gpt-6-luna","openai",0.09,0.45,cr=0.009,cw=0.1125,tier=dict(T272,inp=0.18,out=0.675,cr=0.018,cw=0.225),ver="TSJF",limits=("922K","128K"),notes=["函数调用需 `reasoning_effort: \"none\"`","`reasoning_effort` 不为 `none` 时不接受 `temperature`、`top_p`、`logprobs`"],notes_en=["function calling requires `reasoning_effort: \"none\"`","when `reasoning_effort` is not `none`, `temperature`, `top_p` and `logprobs` are not supported"]),
  m("gpt-6-astra","openai",9,45,cr=0.9,cw=11.25,tier=dict(T272,inp=18,out=67.5,cr=1.8,cw=22.5),ver="TSJF",limits=("922K","12.8K"),
    notes=["函数调用只能走 `/v1/responses`","`reasoning_effort` 用 `\"low\"`，不支持 `\"none\"`；不接受 `temperature`、`top_p`、`logprobs`",],
@@ -56,6 +59,9 @@ MODELS = [
    notes=["不支持 JSON Schema 结构化输出","`tool_choice` 只接受 `\"auto\"`"],
    notes_en=["JSON Schema structured output is not supported","`tool_choice` accepts only `\"auto\"`"]),
  m("claude-opus-5-5","anthropic",3.6,18,cr=0.18,cw5=4.5,cw1=7.2,ws=9,ver="TSF",notes=["不支持 JSON Schema 与 `json_object`","`tool_choice` 用 `\"auto\"`，不支持 `any` / `tool`","始终进行思考，不能关闭"],notes_en=["JSON Schema and `json_object` are not supported","use `tool_choice: \"auto\"`; `any` and `tool` are not supported","thinking is always on and cannot be disabled"]),
+ m("claude-sonnet-5-5","anthropic",1.8,9,cr=0.18,cw5=2.25,cw1=3.6,ws=9,ver="TSF",limits=("1M","128K"),
+   notes=["不支持 JSON Schema 与 `json_object`","`tool_choice` 用 `\"auto\"`，不支持 `any` / `tool`","`temperature`、`top_p`、`top_k` 只接受默认值，传其他值返回 400","默认开启自适应思考"],
+   notes_en=["JSON Schema and `json_object` are not supported","use `tool_choice: \"auto\"`; `any` and `tool` are not supported","`temperature`, `top_p` and `top_k` accept only their defaults, and other values return 400","adaptive thinking is on by default"]),
  m("claude-opus-5","anthropic",4.50,22.50,cr=0.45,cw5=5.625,cw1=9.00,ws=9,ver="TSF",limits=("128K","16K"),
    notes=["不支持 JSON Schema 与 `json_object`"],
    notes_en=["JSON Schema and `json_object` are not supported"]),

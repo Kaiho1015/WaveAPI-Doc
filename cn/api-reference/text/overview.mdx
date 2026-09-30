@@ -15,7 +15,7 @@ description: "全部文本模型的目录：支持的能力、计费方式与调
     `POST /v1/responses`。除 `deepseek-v3.1-terminus` 外的全部文本模型都可从这里调用，Codex 等客户端走这个入口；GPT Pro / Codex / o3-pro 系列只接受这个入口。
   </Card>
   <Card title="Claude Messages" icon="message" href="/cn/api-reference/text/claude-messages">
-    `POST /v1/messages`。为已有 Anthropic SDK 的应用保留的原生信封；GPT-5.6、GPT-6 系列与 Responses 专用模型之外的全部文本模型都可从这里调用。
+    `POST /v1/messages`。为已有 Anthropic SDK 的应用保留的原生信封；GPT-5.6、GPT-6、GPT-6.1 系列与 Responses 专用模型之外的全部文本模型都可从这里调用。
   </Card>
   <Card title="Gemini 原生" icon="google" href="/cn/api-reference/text/gemini-native">
     `POST /v1beta/models/{model}:generateContent`。为已有 Gemini 客户端保留的原生信封。
@@ -41,8 +41,8 @@ description: "全部文本模型的目录：支持的能力、计费方式与调
 
 | 入口 | 工具类型 | 模型 |
 |---|---|---|
-| `POST /v1/responses` | `web_search`、`web_search_preview` | `gpt-5.6-luna` `gpt-5.6-terra` `gpt-5.6-sol` `gpt-5.5` `gpt-5.4` `gpt-5.4-mini` `gpt-5.4-nano` `gpt-5.2` `gpt-5.1` `gpt-5` `gpt-5-mini` `gpt-5-nano` `o3` `o4-mini` `claude-fable-5-1` `claude-fable-5` `claude-opus-5-5` `claude-opus-5` `claude-sonnet-5` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-haiku-4-5` `qwen3.8-max` `qwen3.8-max-0902` `qwen3.8-2.4t-a95b` `qwen3.8-27b` `qwen3.8-flash` `qwen3.7-flash` |
-| `POST /v1/messages` | `web_search_20250305` | `claude-fable-5-1` `claude-fable-5` `claude-opus-5-5` `claude-opus-5` `claude-sonnet-5` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-haiku-4-5` |
+| `POST /v1/responses` | `web_search`、`web_search_preview` | `gpt-5.6-luna` `gpt-5.6-terra` `gpt-5.6-sol` `gpt-5.5` `gpt-5.4` `gpt-5.4-mini` `gpt-5.4-nano` `gpt-5.2` `gpt-5.1` `gpt-5` `gpt-5-mini` `gpt-5-nano` `o3` `o4-mini` `claude-fable-5-1` `claude-fable-5` `claude-opus-5-5` `claude-sonnet-5-5` `claude-opus-5` `claude-sonnet-5` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-haiku-4-5` `qwen3.8-max` `qwen3.8-max-0902` `qwen3.8-2.4t-a95b` `qwen3.8-27b` `qwen3.8-flash` `qwen3.7-flash` |
+| `POST /v1/messages` | `web_search_20250305` | `claude-fable-5-1` `claude-fable-5` `claude-opus-5-5` `claude-sonnet-5-5` `claude-opus-5` `claude-sonnet-5` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-haiku-4-5` |
 
 表外模型在 `/v1/responses` 上带联网搜索工具时，该工具被忽略，不执行搜索、不收搜索费（`gpt-5-pro`、`gpt-5.2-pro`、`gpt-5.4-pro`、`gpt-5.3-codex`、`o3-pro` 不支持工具调用，返回 `400`）；`tool_choice` 强制指定联网搜索时返回 `400`。表外模型在 `/v1/messages` 上带联网搜索工具返回 `400`。Chat 接口不提供联网搜索。
 
@@ -80,8 +80,8 @@ quota      = 费用（USD） × 500,000，向下取整，最低 1
 |---|---|---|
 | 无缓存优惠 | `cache_billing: "input_output"` | 目录中其余全部模型；响应里若带缓存统计，一律按普通输入价计 |
 | 只有缓存读 | 配了 `cache_read` | `gpt-5.5` `gpt-5.4` `gpt-5.4-mini` `gpt-5.4-nano` `gpt-5.2` `gpt-5.1` `gpt-5` `gpt-5-mini` `gpt-5-nano` `gpt-4.1` `gpt-4.1-mini` `gpt-4.1-nano` `o4-mini` `o3-mini` `o1` `grok-4.7` `grok-4.6` `gemini-3.6-flash` `gemini-3.7-flash` `gemini-3.8-flash` `kimi-k3` `glm-5.3` |
-| 缓存读 + 写 | 再配 `cache_write` | `gpt-5.6-luna` `gpt-5.6-terra` `gpt-5.6-sol` `gpt-6-astra` `gpt-6-sol` `gpt-6-luna` `qwen3.8-max` `qwen3.8-max-0902` `qwen3.8-2.4t-a95b` `qwen3.8-27b` `qwen3.8-flash` `qwen3.7-flash` |
-| 缓存读 + 5 分钟写 + 1 小时写 | 再配 `cache_write_1h` | `claude-opus-5-5` `claude-opus-5` `claude-sonnet-5` `claude-fable-5` `claude-fable-5-1` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-sonnet-4-6` `claude-sonnet-4-5` `claude-haiku-4-5` |
+| 缓存读 + 写 | 再配 `cache_write` | `gpt-5.6-luna` `gpt-5.6-terra` `gpt-5.6-sol` `gpt-6-astra` `gpt-6-sol` `gpt-6-luna` `gpt-6.1-sol` `qwen3.8-max` `qwen3.8-max-0902` `qwen3.8-2.4t-a95b` `qwen3.8-27b` `qwen3.8-flash` `qwen3.7-flash` |
+| 缓存读 + 5 分钟写 + 1 小时写 | 再配 `cache_write_1h` | `claude-opus-5-5` `claude-sonnet-5-5` `claude-opus-5` `claude-sonnet-5` `claude-fable-5` `claude-fable-5-1` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-sonnet-4-6` `claude-sonnet-4-5` `claude-haiku-4-5` |
 | 时段缓存价 | `text_schedule` 各时段带 `cache_read` | `deepseek-v4-pro` `deepseek-v4-flash` |
 
 ### 自动缓存与显式缓存
@@ -93,7 +93,7 @@ quota      = 费用（USD） × 500,000，向下取整，最低 1
 
 | 模型 | 显式 `cache_control` |
 |---|---|
-| `claude-opus-5-5` `claude-opus-5` `claude-sonnet-5` `claude-fable-5` `claude-fable-5-1` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-sonnet-4-6` `claude-sonnet-4-5` `claude-haiku-4-5` | ✅ 放行，三档缓存价齐备（读 / 5 分钟写 / 1 小时写） |
+| `claude-opus-5-5` `claude-sonnet-5-5` `claude-opus-5` `claude-sonnet-5` `claude-fable-5` `claude-fable-5-1` `claude-opus-4-8` `claude-opus-4-7` `claude-opus-4-6` `claude-sonnet-4-6` `claude-sonnet-4-5` `claude-haiku-4-5` | ✅ 放行，三档缓存价齐备（读 / 5 分钟写 / 1 小时写） |
 | `qwen3.8-*`、`qwen3.7-flash` | ✅ 放行，写入按缓存写入价计，显式命中按缓存读价计 |
 | 所有 `gemini-*` | 上游只有自动缓存，`cache_control` 不生效；原生接口的 `cachedContent` 不支持，传入返回 400 |
 | 两项计价模型 | `cache_control` 会被忽略，输入全部按输入价计费 |
@@ -165,6 +165,7 @@ Chat 响应里 `usage.prompt_tokens_details.cached_tokens` 是命中量；原生
 
 | 模型 ID | 计费方式 | JSON / 工具 |
 |---|---|:---:|
+| `gpt-6.1-sol` | 含缓存读写 | ✓ / ✓ |
 | `gpt-6-sol` | 含缓存读写 | ✓ / ✓ |
 | `gpt-6-luna` | 含缓存读写 | ✓ / ✓ |
 | `gpt-6-astra` | 含缓存读写 | ✓ / ✓ |
@@ -195,6 +196,7 @@ Chat 响应里 `usage.prompt_tokens_details.cached_tokens` 是命中量；原生
 
 **模型备注**
 
+- `gpt-6.1-sol` — 272K 长上下文分档；有独立缓存写入价；最大输入 922K、最大输出 128K；函数调用只能走 `/v1/responses`，Chat 接口带 `tools` 返回 400；`reasoning_effort` 支持 `"low"` / `"medium"` / `"high"` / `"xhigh"`，不支持 `"none"` 与 `"minimal"`
 - `gpt-6-sol` — 272K 长上下文分档；有独立缓存写入价；最大输入 922K、最大输出 128K；函数调用需 `reasoning_effort: "none"`；`reasoning_effort` 不为 `none` 时不接受 `temperature`、`top_p`、`logprobs`
 - `gpt-6-luna` — 272K 长上下文分档；有独立缓存写入价；最大输入 922K、最大输出 128K；函数调用需 `reasoning_effort: "none"`；`reasoning_effort` 不为 `none` 时不接受 `temperature`、`top_p`、`logprobs`
 - `gpt-6-astra` — 272K 长上下文分档；有独立缓存写入价；最大输入 922K、最大输出 12.8K；函数调用只能走 `/v1/responses`；`reasoning_effort` 用 `"low"`，不支持 `"none"`；不接受 `temperature`、`top_p`、`logprobs`
@@ -231,6 +233,7 @@ GPT-5 及之后的模型用 `max_completion_tokens` 限制输出、用 `reasonin
 | `claude-fable-5-1` | 含缓存三档 | — / ✓ |
 | `claude-fable-5` | 含缓存三档 | — / ✓ |
 | `claude-opus-5-5` | 含缓存三档 | — / ✓ |
+| `claude-sonnet-5-5` | 含缓存三档 | — / ✓ |
 | `claude-opus-5` | 含缓存三档 | — / ✓ |
 | `claude-sonnet-5` | 含缓存三档 | — / ✓ |
 | `claude-opus-4-8` | 含缓存三档 | — / ✓ |
@@ -246,6 +249,7 @@ GPT-5 及之后的模型用 `max_completion_tokens` 限制输出、用 `reasonin
 - `claude-fable-5-1` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 结构化输出；`tool_choice` 只接受 `"auto"`，`"required"` 与指定函数名会返回 400
 - `claude-fable-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 结构化输出；`tool_choice` 只接受 `"auto"`
 - `claude-opus-5-5` — 缓存写入分 5 分钟 / 1 小时两档；不支持 JSON Schema 与 `json_object`；`tool_choice` 用 `"auto"`，不支持 `any` / `tool`；始终进行思考，不能关闭
+- `claude-sonnet-5-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 与 `json_object`；`tool_choice` 用 `"auto"`，不支持 `any` / `tool`；`temperature`、`top_p`、`top_k` 只接受默认值，传其他值返回 400；默认开启自适应思考
 - `claude-opus-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 128K、最大输出 16K；不支持 JSON Schema 与 `json_object`
 - `claude-sonnet-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 与 `json_object`
 - `claude-opus-4-8` — 缓存写入分 5 分钟 / 1 小时两档
@@ -255,7 +259,7 @@ GPT-5 及之后的模型用 `max_completion_tokens` 限制输出、用 `reasonin
 - `claude-sonnet-4-5` — 缓存写入分 5 分钟 / 1 小时两档
 - `claude-haiku-4-5` — 缓存写入分 5 分钟 / 1 小时两档
 
-Chat 接口用 `max_tokens` 限制输出；GPT 专用的 `reasoning_effort` 与 `max_completion_tokens` 不适用于 Claude 模型。除 `claude-opus-4-5` 外的 Claude 模型都是三段缓存价（读 / 5 分钟写 / 1 小时写），放行显式 `cache_control`，写法见[缓存](#缓存)；Claude 5、Claude 5.5 与 Fable 五个模型**不支持结构化输出**，`response_format` 的 `json_schema` 与 `json_object` 会返回 400。Fable 系列与 `claude-opus-5-5` 的 `tool_choice` 只接受 `"auto"`，`"required"` 或指定函数名会返回 400。`claude-opus-4-5` 只有输入 / 输出两项计价，会忽略 `cache_control`，输入全部按输入价计费。已有 Anthropic SDK 的应用可走原生 [Messages 接口](/cn/api-reference/text/claude-messages)，全部 Claude 模型都可调用。
+Chat 接口用 `max_tokens` 限制输出；GPT 专用的 `reasoning_effort` 与 `max_completion_tokens` 不适用于 Claude 模型。除 `claude-opus-4-5` 外的 Claude 模型都是三段缓存价（读 / 5 分钟写 / 1 小时写），放行显式 `cache_control`，写法见[缓存](#缓存)；Claude 5、Claude 5.5 与 Fable 六个模型**不支持结构化输出**，`response_format` 的 `json_schema` 与 `json_object` 会返回 400。Fable 系列、`claude-opus-5-5` 与 `claude-sonnet-5-5` 的 `tool_choice` 只接受 `"auto"`，`"required"` 或指定函数名会返回 400。`claude-opus-4-5` 只有输入 / 输出两项计价，会忽略 `cache_control`，输入全部按输入价计费。已有 Anthropic SDK 的应用可走原生 [Messages 接口](/cn/api-reference/text/claude-messages)，全部 Claude 模型都可调用。
 
 ### Google Gemini
 
