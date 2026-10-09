@@ -12,6 +12,7 @@ def m(id, vendor, inp, out, cr=None, cw=None, cw5=None, cw1=None, tier=None, ver
 T272 = dict(th="272K", op=">")
 T200 = dict(th="200K", op="≥")
 T256 = dict(th="256K", op=">")
+T100 = dict(th="100K", op=">")
 
 MODELS = [
  # ---------- OpenAI ----------
@@ -62,6 +63,9 @@ MODELS = [
  m("claude-sonnet-5-5","anthropic",1.8,9,cr=0.18,cw5=2.25,cw1=3.6,ws=9,ver="TSF",limits=("1M","128K"),
    notes=["不支持 JSON Schema 与 `json_object`","`tool_choice` 用 `\"auto\"`，不支持 `any` / `tool`","`temperature`、`top_p`、`top_k` 只接受默认值，传其他值返回 400","默认开启自适应思考"],
    notes_en=["JSON Schema and `json_object` are not supported","use `tool_choice: \"auto\"`; `any` and `tool` are not supported","`temperature`, `top_p` and `top_k` accept only their defaults, and other values return 400","adaptive thinking is on by default"]),
+ m("claude-haiku-5-5","anthropic",0.09,0.45,cr=0.009,cw5=0.1125,cw1=0.18,tier=dict(T100,inp=0.45,out=2.25,cr=0.045,cw5=0.5625,cw1=0.9),ver="TSF",limits=("1M","128K"),
+   notes=["不支持 JSON Schema 与 `json_object`","不支持联网搜索","`temperature`、`top_p`、`top_k` 只接受默认值，传其他值返回 400","默认开启自适应思考"],
+   notes_en=["JSON Schema and `json_object` are not supported","web search is not supported","`temperature`, `top_p` and `top_k` accept only their defaults, and other values return 400","adaptive thinking is on by default"]),
  m("claude-opus-5","anthropic",4.50,22.50,cr=0.45,cw5=5.625,cw1=9.00,ws=9,ver="TSF",limits=("128K","16K"),
    notes=["不支持 JSON Schema 与 `json_object`"],
    notes_en=["JSON Schema and `json_object` are not supported"]),

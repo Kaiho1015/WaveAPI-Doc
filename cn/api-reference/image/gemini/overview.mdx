@@ -14,6 +14,12 @@ Nano Banana 是 Google Gemini 的图像模型线，在这里有官方版和经�
   <Card title="Nano Banana 经济版" href="/cn/api-reference/image/gemini/nano-banana-rev">
     `gemini-3-pro-image-rev` · `gemini-3.1-flash-image-rev` · `gemini-3.1-flash-lite-image-rev` · `gemini-2.5-flash-image-preview-rev`——按成功出图的固定张价结算
   </Card>
+  <Card title="Nano Banana 2.1" href="/cn/api-reference/image/gemini/nano-banana-2-1">
+    `gemini-nano-banana-2.1`——Google 官方 API 线路，按实际 token 用量结算，单次最多 4 张
+  </Card>
+  <Card title="Nano Banana 2.1 经济版" href="/cn/api-reference/image/gemini/nano-banana-2-1-rev">
+    `gemini-nano-banana-2.1-rev`——按成功出图的固定张价结算
+  </Card>
 </CardGroup>
 
 ## 如何选择
@@ -25,6 +31,7 @@ Nano Banana 是 Google Gemini 的图像模型线，在这里有官方版和经�
 | 复杂指令、精确文字渲染 | `gemini-3-pro-image` 或 `gemini-3-pro-image-rev` | 旗舰档，最高 4K |
 | 极端长条画幅（`1:4` `8:1` 等） | `gemini-3.1-flash-image` 或 `gemini-3.1-flash-image-rev` | 只有快速档支持这 4 种画幅 |
 | 联网检索辅助出图 | `gemini-3.1-flash-image` 或 `gemini-3.1-flash-image-rev` | 只有快速档接受 `google_search` |
+| 一次生成多张 | `gemini-nano-banana-2.1` | 单次最多 4 张，其余模型每次 1 张 |
 | 低延迟、固定 1K 出图 | `gemini-3.1-flash-lite-image` 或 `gemini-3.1-flash-lite-image-rev` | 只输出 1K，不接受 `resolution` |
 
 <Note>
@@ -37,9 +44,9 @@ Nano Banana 是 Google Gemini 的图像模型线，在这里有官方版和经�
 |---|---|
 | 端点 | `POST /v1/tasks`（异步任务，见[任务系统](/cn/docs/task-system)） |
 | 动作 | `generate` 文生图 · `edit` 参考图编辑（必须带 `image_urls`） |
-| 每次输出 | 1 张 |
+| 每次输出 | 1 张（`gemini-nano-banana-2.1` 最多 4 张） |
 | 参考图 | 最多 14 张（`gemini-2.5-flash-image-preview-rev` 的张数上限由上游决定） |
-| 画面比例 | 快速档 15 种，其余各档 11 种，默认 `1:1` |
+| 画面比例 | 快速档与 Nano Banana 2.1 为 15 种，其余各档 11 种，默认 `1:1` |
 | 不支持 | `mask_url`、`quality`、`seed` |
 
 差异集中在**计费方式**和各档的**分辨率**上，见「如何选择」。
@@ -66,6 +73,8 @@ curl -X POST https://api.qingbo.ai/v1/tasks \
 
 - [Nano Banana 官方版](/cn/api-reference/image/gemini/nano-banana)
 - [Nano Banana 经济版](/cn/api-reference/image/gemini/nano-banana-rev)
+- [Nano Banana 2.1](/cn/api-reference/image/gemini/nano-banana-2-1)
+- [Nano Banana 2.1 经济版](/cn/api-reference/image/gemini/nano-banana-2-1-rev)
 - [提交任务](/cn/api-reference/task/submit)
 - [查询任务状态](/cn/api-reference/task/status)
 - [任务系统](/cn/docs/task-system)

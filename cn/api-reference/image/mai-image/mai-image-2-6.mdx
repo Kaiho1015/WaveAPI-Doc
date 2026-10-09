@@ -1,0 +1,226 @@
+---
+title: "MAI-Image-2.6"
+description: "微软 MAI-Image-2.6 与 Flash 版：文生图、单图编辑与最多 5 张参考图合成，可指定精确像素尺寸，按实际 token 用量结算"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+MAI-Image-2.6 是微软的图像模型，支持文生图、单图编辑和最多 5 张参考图的多图合成，输出固定为 PNG。本页覆盖标准版 `mai-image-2.6` 与高速低价版 `mai-image-2.6-flash`：两个模型的动作、参数和计费方式相同，只有单价不同，换模型只改 `model`。需要蒙版局部重绘时用 [`gpt-image-2`](/cn/api-reference/image/gpt-image/gpt-image-2)。
+
+## 快速开始
+
+<CodeGroup>
+
+```bash 文生图
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: mai-demo-001" \
+  -d '{
+    "model": "mai-image-2.6",
+    "action": "generate",
+    "prompt": "黄昏时分的大学图书馆前广场，写实摄影，暖色逆光",
+    "aspect_ratio": "16:9",
+    "resolution": "2k"
+  }'
+```
+
+```bash 精确尺寸
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mai-image-2.6-flash",
+    "action": "generate",
+    "prompt": "夜晚的外滩与江面游船，旅行海报风格",
+    "width": 2048,
+    "height": 1152,
+    "web_grounding": true
+  }'
+```
+
+```bash 单图编辑
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: mai-edit-001" \
+  -d '{
+    "model": "mai-image-2.6",
+    "action": "edit",
+    "prompt": "把杯子改成深绿色，在桌面上加一束干花",
+    "image_urls": ["https://cdn.example.com/source.png"]
+  }'
+```
+
+```bash 多图合成
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mai-image-2.6-flash",
+    "action": "edit",
+    "prompt": "把两张参考图里的产品合成一张干净的产品照片，白色背景",
+    "image_urls": [
+      "https://cdn.example.com/first.png",
+      "https://cdn.example.com/second.png"
+    ]
+  }'
+```
+
+</CodeGroup>
+
+提交成功后返回 `task_id`。用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 查询结果，也可以用 [`Prefer: wait`](/cn/api-reference/task/submit#请求内等待prefer-wait) 在一次调用里等待，或配置 Webhook。
+
+## 请求参数
+
+<ParamField body="model" type="string" required>
+  二选一：`mai-image-2.6` 或 `mai-image-2.6-flash`。
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  - `generate`：根据文字生成图片，不接受参考图
+  - `edit`：基于参考图编辑，必须提供 `image_urls`。传 1 张是单图编辑，传 2–5 张是多图合成
+
+  编辑时输出尺寸由模型决定，约 100 万像素，比例贴近参考图：`aspect_ratio` 与 `resolution` 不生效，`width`、`height` 不接受。
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图片描述或编辑指令，中英文均可。
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组。`edit` 时必填，最多 5 张；`generate` 不接受。参考图按图片输入 token 计费，见「计费」。
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  画面比例：`auto`、`1:1`、`4:3`、`3:4`、`3:2`、`2:3`、`16:9`、`9:16`、`2:1`、`1:2`、`21:9`、`9:21`、`4:1`、`1:4`。`auto` 表示由模型按提示词选择比例。
+
+  只对 `generate` 生效；传了 `width` 与 `height` 时以像素尺寸为准。
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1k">
+  输出档位：`1k` 或 `2k`。`1k` 约 100 万像素，`2k` 约 230 万像素；短边至少 768，画幅较极端时 `1k` 也会超过 100 万像素。各画幅的实际输出尺寸见「计费」。
+
+  只对 `generate` 生效；传了 `width` 与 `height` 时不参与尺寸计算。
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量，取值 `1`。每次请求返回一张图。
+</ParamField>
+
+<ParamField body="web_grounding" type="boolean" default="false">
+  生成前检索实时信息，适合涉及真实人物、地点或事件的图片。`generate` 与 `edit` 都可用。
+</ParamField>
+
+<ParamField body="width" type="integer">
+  精确输出宽度（像素），须与 `height` 成对传入；至少 `768`，宽 × 高不超过 2,359,296（即 1536 × 1536 的像素量），向下取整到 32 的倍数。传了之后优先于 `aspect_ratio` 和 `resolution`。仅 `action: "generate"`，`edit` 时传入返回 `400`。
+
+  上限是总像素，不是单边长度：`2048 × 1152`、`3072 × 768` 都可以。不是 32 的倍数时向下取整，例如 `1000 × 1000` 实际输出 `992 × 992`。
+</ParamField>
+
+<ParamField body="height" type="integer">
+  精确输出高度（像素），须与 `width` 成对传入，限制同 `width`。仅 `action: "generate"`。
+</ParamField>
+
+通用的 `callback_url`、`callback_events`、`Prefer: wait`、`Idempotency-Key` 和费用上限请求头见[提交任务](/cn/api-reference/task/submit)。
+
+两个模型都不接受 `seed`、`quality`、`background`、`output_format`、`negative_prompt`、`mask_url`：输出固定为 PNG，不支持蒙版编辑。传入这些参数或以上之外的参数会返回 `400`，不计费。
+
+## 限制
+
+| 条件 | 限制 |
+|---|---|
+| 每次请求 | 提示词必填，每次生成 1 张图片。 |
+| `action: "generate"` | 文生图不接收参考图，请使用 edit。 |
+| `action: "edit"` | 图片编辑需要参考图。 |
+| `action: "edit"` | 编辑时输出尺寸由模型决定（约 100 万像素，比例贴近参考图）。 |
+| 传了 `width` 或 `height` | width 与 height 必须成对传入。 |
+| 参考图张数 | 最多 5 张 |
+| 精确尺寸 | `width`、`height` 各至少 768，宽 × 高不超过 2,359,296 |
+
+## 计费
+
+**按实际 token 用量结算**，共三个计费维度：文本输入、图片输入、图片输出。两个模型的计费维度相同，单价不同，`mai-image-2.6-flash` 各项单价都低于 `mai-image-2.6`。
+
+- **图片输出**：输出图像 token = 输出宽 × 高 ÷ 1024。例如 1024×1024 对应 1,024 token，1536×1536 对应 2,304 token
+- **图片输入**：每张参考图约为宽 × 高 ÷ 1024 token
+- **文本输入**：按提示词的 token 数计
+
+输出 token 只取决于输出图的像素量，所以画幅、档位和 `width` / `height` 都会影响费用；编辑的输出约 100 万像素，约合 1,000 token。
+
+### 输出尺寸
+
+文生图按 `aspect_ratio` 与 `resolution` 输出以下尺寸（宽 × 高，像素）。传了 `width` 与 `height` 时按传入值输出（向下取整到 32 的倍数）。
+
+| 画幅 | `1k` | `2k` |
+|---|---|---|
+| `1:1` | 1024×1024 | 1536×1536 |
+| `4:3` / `3:4` | 1152×864 / 864×1152 | 1760×1312 / 1312×1760 |
+| `3:2` / `2:3` | 1248×832 / 832×1248 | 1856×1248 / 1248×1856 |
+| `16:9` / `9:16` | 1344×768 / 768×1344 | 2048×1152 / 1152×2048 |
+| `2:1` / `1:2` | 1536×768 / 768×1536 | 2144×1056 / 1056×2144 |
+| `21:9` / `9:21` | 1792×768 / 768×1792 | 2336×992 / 992×2336 |
+| `4:1` / `1:4` | 3072×768 / 768×3072 | 3072×768 / 768×3072 |
+
+短边至少 768，画幅越极端，`1k` 档的像素量越大：`4:1` 在 `1k` 与 `2k` 下都输出 3072×768，输出 token 与 `2k` 的 `1:1` 相同。`auto` 的输出尺寸随模型选定的比例而定。
+
+### 冻结与结算
+
+提交任务时按预估用量冻结一笔额度，任务完成后按实际用量结算，差额退回。预估用量的算法是：
+
+- **图片输出**：按最大输出尺寸预留 2,304 token，与画幅和档位无关
+- **文本输入**：不足 64 token 按 64 计
+- **参考图**：每张按宽 × 高 ÷ 1024 估算；读不到尺寸时按 4,096 token 计
+
+图片输出按上限预留，输出小于最大尺寸时（例如 `1k` 的 `1:1`，或编辑），冻结额度会高于最终结算金额，差额在任务完成时退回。
+
+<Note>
+各模型的单价见 `GET /v1/models` 返回的 `price_config`，或控制台「模型市场」。
+
+看这一单实际花了多少：任务响应里的 `cost`（整数 quota，500,000 quota = 1 USD）。
+</Note>
+
+只有成功出图才计费。任务失败、取消，或没有返回可用图片时，全额退款。最终费用以任务响应里的 `cost` 为准，它是整数 quota 不是美元。
+
+## 响应
+
+```json 任务完成
+{
+  "task_id": "task-wave1791564844b950137402",
+  "model": "mai-image-2.6",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564844,
+  "completed_at": 1791564896,
+  "billing_status": "settled",
+  "cost": 17533,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1792169696,
+        "url": ["https://cdn.example.com/result.png"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564844b950137402",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564844b950137402/cancel"
+  }
+}
+```
+
+`result.images` 返回生成的图片（PNG），`url` 是数组，`expires_at` 是图片链接的过期时间戳。完整字段说明见[查询任务状态](/cn/api-reference/task/status)。
+
+## 可用模型
+
+| 模型 ID | 定位 | 计费 |
+|---|---|---|
+| `mai-image-2.6` | 标准版 | 按实际 token 用量 |
+| `mai-image-2.6-flash` | 高速低价版，能力与参数同 `mai-image-2.6` | 按实际 token 用量，单价更低 |
+
+## 相关文档
+
+- [图像生成概述](/cn/api-reference/image/overview)
+- [提交任务](/cn/api-reference/task/submit)
+- [查询任务状态](/cn/api-reference/task/status)
+- [任务系统](/cn/docs/task-system)

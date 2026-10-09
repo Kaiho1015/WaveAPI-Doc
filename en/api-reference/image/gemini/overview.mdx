@@ -14,6 +14,12 @@ Nano Banana is Google's Gemini image model line. It comes in an official and an 
   <Card title="Nano Banana Economy" href="/en/api-reference/image/gemini/nano-banana-rev">
     `gemini-3-pro-image-rev` · `gemini-3.1-flash-image-rev` · `gemini-3.1-flash-lite-image-rev` · `gemini-2.5-flash-image-preview-rev` — a fixed price per successful image
   </Card>
+  <Card title="Nano Banana 2.1" href="/en/api-reference/image/gemini/nano-banana-2-1">
+    `gemini-nano-banana-2.1` — Google's official API line, billed from actual token usage, up to 4 images per request
+  </Card>
+  <Card title="Nano Banana 2.1 Economy" href="/en/api-reference/image/gemini/nano-banana-2-1-rev">
+    `gemini-nano-banana-2.1-rev` — a fixed price per successful image
+  </Card>
 </CardGroup>
 
 ## Choose a line
@@ -25,6 +31,7 @@ Nano Banana is Google's Gemini image model line. It comes in an official and an 
 | Complex instructions and accurate text rendering | `gemini-3-pro-image` or `gemini-3-pro-image-rev` | The flagship tier, up to 4K |
 | Extreme banner ratios (`1:4`, `8:1`, …) | `gemini-3.1-flash-image` or `gemini-3.1-flash-image-rev` | Only the fast tier offers those four ratios |
 | Web search to ground the image | `gemini-3.1-flash-image` or `gemini-3.1-flash-image-rev` | Only the fast tier accepts `google_search` |
+| Several images in one request | `gemini-nano-banana-2.1` | Up to 4 images per request; every other model returns one |
 | Low latency at a fixed 1K | `gemini-3.1-flash-lite-image` or `gemini-3.1-flash-lite-image-rev` | 1K output only, no `resolution` parameter |
 
 <Note>
@@ -37,9 +44,9 @@ The two lines never switch automatically: the model ID selects the line, and its
 |---|---|
 | Endpoint | `POST /v1/tasks` (async task, see [Task system](/en/docs/task-system)) |
 | Actions | `generate` text-to-image · `edit` reference-image editing (requires `image_urls`) |
-| Output count | One image per request |
+| Output count | One image per request (up to 4 on `gemini-nano-banana-2.1`) |
 | Reference images | Up to 14 (`gemini-2.5-flash-image-preview-rev` leaves the ceiling to the upstream model) |
-| Aspect ratios | 15 on the fast tier, 11 on every other tier, default `1:1` |
+| Aspect ratios | 15 on the fast tier and Nano Banana 2.1, 11 on every other tier, default `1:1` |
 | Not supported | `mask_url`, `quality`, `seed` |
 
 The differences are concentrated in **billing** and in the **resolutions** each tier offers — see "Choose a line" above.
@@ -66,6 +73,8 @@ A successful submission returns a `task_id`. Retrieve the result with [`GET /v1/
 
 - [Nano Banana Official](/en/api-reference/image/gemini/nano-banana)
 - [Nano Banana Economy](/en/api-reference/image/gemini/nano-banana-rev)
+- [Nano Banana 2.1](/en/api-reference/image/gemini/nano-banana-2-1)
+- [Nano Banana 2.1 Economy](/en/api-reference/image/gemini/nano-banana-2-1-rev)
 - [Submit Task](/en/api-reference/task/submit)
 - [Query Task Status](/en/api-reference/task/status)
 - [Task System](/en/docs/task-system)

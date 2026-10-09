@@ -4,7 +4,7 @@ description: "Black Forest Labs FLUX 图像模型：FLUX.2 按百万像素档出
 api: "POST https://api.qingbo.ai/v1/tasks"
 ---
 
-FLUX 是 Black Forest Labs 的图像模型系列，本页覆盖当前可用的五个模型，分成两代：FLUX.2 可以选输出的百万像素档、最多带 8 张参考图，按 MP 档计价；FLUX.1 Kontext 专做上下文编辑，输出固定 1 MP、最多 4 张参考图，按张固定价。两代共用同一个任务接口和同一套动作，换模型只改 `model`。
+FLUX 是 Black Forest Labs 的图像模型系列，本页覆盖当前可用的五个模型，分成两代：FLUX.2 可以选输出的百万像素档、最多带 8 张参考图，按 MP 档计价；FLUX.1 Kontext 专做上下文编辑，输出固定 1 MP、最多 4 张参考图，按张固定价。两代共用同一个任务接口和同一套动作，换模型只改 `model`。FLUX 3 Image 的参数与分档不同，见 [FLUX 3 Image](/cn/api-reference/image/flux/flux-3-image)。
 
 ## 快速开始
 
@@ -197,6 +197,7 @@ curl -X POST https://api.qingbo.ai/v1/tasks \
 
 ## 相关文档
 
+- [FLUX 3 Image](/cn/api-reference/image/flux/flux-3-image)
 - [图像生成概述](/cn/api-reference/image/overview)
 - [提交任务](/cn/api-reference/task/submit)
 - [查询任务状态](/cn/api-reference/task/status)

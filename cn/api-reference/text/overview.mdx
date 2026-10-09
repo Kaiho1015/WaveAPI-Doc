@@ -234,6 +234,7 @@ GPT-5 及之后的模型用 `max_completion_tokens` 限制输出、用 `reasonin
 | `claude-fable-5` | 含缓存三档 | — / ✓ |
 | `claude-opus-5-5` | 含缓存三档 | — / ✓ |
 | `claude-sonnet-5-5` | 含缓存三档 | — / ✓ |
+| `claude-haiku-5-5` | 含缓存三档 | — / ✓ |
 | `claude-opus-5` | 含缓存三档 | — / ✓ |
 | `claude-sonnet-5` | 含缓存三档 | — / ✓ |
 | `claude-opus-4-8` | 含缓存三档 | — / ✓ |
@@ -250,6 +251,7 @@ GPT-5 及之后的模型用 `max_completion_tokens` 限制输出、用 `reasonin
 - `claude-fable-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 结构化输出；`tool_choice` 只接受 `"auto"`
 - `claude-opus-5-5` — 缓存写入分 5 分钟 / 1 小时两档；不支持 JSON Schema 与 `json_object`；`tool_choice` 用 `"auto"`，不支持 `any` / `tool`；始终进行思考，不能关闭
 - `claude-sonnet-5-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 与 `json_object`；`tool_choice` 用 `"auto"`，不支持 `any` / `tool`；`temperature`、`top_p`、`top_k` 只接受默认值，传其他值返回 400；默认开启自适应思考
+- `claude-haiku-5-5` — 100K 长上下文分档；缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 与 `json_object`；不支持联网搜索；`temperature`、`top_p`、`top_k` 只接受默认值，传其他值返回 400；默认开启自适应思考
 - `claude-opus-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 128K、最大输出 16K；不支持 JSON Schema 与 `json_object`
 - `claude-sonnet-5` — 缓存写入分 5 分钟 / 1 小时两档；最大输入 1M、最大输出 128K；不支持 JSON Schema 与 `json_object`
 - `claude-opus-4-8` — 缓存写入分 5 分钟 / 1 小时两档
@@ -259,7 +261,7 @@ GPT-5 及之后的模型用 `max_completion_tokens` 限制输出、用 `reasonin
 - `claude-sonnet-4-5` — 缓存写入分 5 分钟 / 1 小时两档
 - `claude-haiku-4-5` — 缓存写入分 5 分钟 / 1 小时两档
 
-Chat 接口用 `max_tokens` 限制输出；GPT 专用的 `reasoning_effort` 与 `max_completion_tokens` 不适用于 Claude 模型。除 `claude-opus-4-5` 外的 Claude 模型都是三段缓存价（读 / 5 分钟写 / 1 小时写），放行显式 `cache_control`，写法见[缓存](#缓存)；Claude 5、Claude 5.5 与 Fable 六个模型**不支持结构化输出**，`response_format` 的 `json_schema` 与 `json_object` 会返回 400。Fable 系列、`claude-opus-5-5` 与 `claude-sonnet-5-5` 的 `tool_choice` 只接受 `"auto"`，`"required"` 或指定函数名会返回 400。`claude-opus-4-5` 只有输入 / 输出两项计价，会忽略 `cache_control`，输入全部按输入价计费。已有 Anthropic SDK 的应用可走原生 [Messages 接口](/cn/api-reference/text/claude-messages)，全部 Claude 模型都可调用。
+Chat 接口用 `max_tokens` 限制输出；GPT 专用的 `reasoning_effort` 与 `max_completion_tokens` 不适用于 Claude 模型。除 `claude-opus-4-5` 外的 Claude 模型都是三段缓存价（读 / 5 分钟写 / 1 小时写），放行显式 `cache_control`，写法见[缓存](#缓存)；Claude 5、Claude 5.5 与 Fable 七个模型**不支持结构化输出**，`response_format` 的 `json_schema` 与 `json_object` 会返回 400。`claude-haiku-5-5` 有 100K 长上下文分档：输入总量（含缓存读写）超过 100,000 时，整单的输入、缓存与输出都按高档计费。Fable 系列、`claude-opus-5-5` 与 `claude-sonnet-5-5` 的 `tool_choice` 只接受 `"auto"`，`"required"` 或指定函数名会返回 400。`claude-opus-4-5` 只有输入 / 输出两项计价，会忽略 `cache_control`，输入全部按输入价计费。已有 Anthropic SDK 的应用可走原生 [Messages 接口](/cn/api-reference/text/claude-messages)，全部 Claude 模型都可调用。
 
 ### Google Gemini
 

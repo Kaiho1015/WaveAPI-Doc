@@ -1,0 +1,194 @@
+---
+title: "Nano Banana 2.1 Economy"
+description: "Nano Banana 2.1 economy line: text-to-image and multi-reference editing at a fixed price per image by output resolution"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+Nano Banana 2.1 Economy (`gemini-nano-banana-2.1-rev`) provides text-to-image and reference-image editing on Google's Nano Banana 2.1, outputs at `1k`, `2k` and `4k`, and is billed at a fixed price per successful image. Compared with the official line, each request returns one image, and the four long ratios `1:4`, `4:1`, `1:8` and `8:1` are available at `1k` only. To generate several images per request, or to be billed from actual token usage, use [Nano Banana 2.1](/en/api-reference/image/gemini/nano-banana-2-1).
+
+<Note>
+The economy line is not Google's official API, and the two lines never switch automatically: the model ID selects the line.
+</Note>
+
+## Quick start
+
+<CodeGroup>
+
+```bash Text to image
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: nb21-rev-001" \
+  -d '{
+    "model": "gemini-nano-banana-2.1-rev",
+    "action": "generate",
+    "prompt": "A celadon teacup on an oak table, natural window light, product photography",
+    "aspect_ratio": "1:1",
+    "resolution": "2k",
+    "n": 1
+  }'
+```
+
+```bash Edit with a reference
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: nb21-rev-edit-001" \
+  -d '{
+    "model": "gemini-nano-banana-2.1-rev",
+    "action": "edit",
+    "prompt": "Keep the subject, replace the background with a bamboo grove at dawn",
+    "image_urls": ["https://cdn.example.com/source.png"],
+    "aspect_ratio": "auto",
+    "resolution": "1k"
+  }'
+```
+
+```bash Multiple references
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-nano-banana-2.1-rev",
+    "action": "edit",
+    "prompt": "Place the person from the first image into the scene from the second, matching the light",
+    "image_urls": [
+      "https://cdn.example.com/person.png",
+      "https://cdn.example.com/scene.png"
+    ],
+    "aspect_ratio": "16:9",
+    "resolution": "4k"
+  }'
+```
+
+```bash Long banner
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-nano-banana-2.1-rev",
+    "action": "generate",
+    "prompt": "An ink-wash scroll of a canal town south of the Yangtze, from morning mist to dusk",
+    "aspect_ratio": "8:1",
+    "resolution": "1k"
+  }'
+```
+
+</CodeGroup>
+
+A successful submission returns a `task_id`. Retrieve the result with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status), wait inline with [`Prefer: wait`](/en/api-reference/task/submit#in-request-waiting-prefer-wait), or configure a webhook.
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  Must be `gemini-nano-banana-2.1-rev`.
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  - `generate` — generate from text
+  - `edit` — rewrite from reference images; `image_urls` is required
+
+  Image-to-image and multi-reference blending both use `edit`; the only difference is how many entries `image_urls` carries.
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description or editing instruction, in English or Chinese.
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URLs. Required for `edit`, up to 14. Reference images carry no extra charge.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="auto">
+  Frame ratio: 14 fixed ratios plus `auto` — `auto`, `1:1`, `2:3`, `3:2`, `3:4`, `4:3`, `4:5`, `5:4`, `9:16`, `16:9`, `21:9`, `1:4`, `4:1`, `1:8`, `8:1`.
+
+  `1:4`, `4:1`, `1:8` and `8:1` are available only when `resolution` is `1k`; sending one of them at `2k` or `4k` returns `400`.
+
+  `auto` lets the model decide: it picks from the prompt for text-to-image, and follows the input image for edits. When omitted, `auto` is used.
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1k">
+  Output resolution: `1k`, `2k` or `4k`. `0.5k` is not supported and returns `400`.
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate. Value: `1`. Each request returns one image.
+</ParamField>
+
+See [Submit a task](/en/api-reference/task/submit) for `callback_url`, `callback_events`, `Prefer: wait`, `Idempotency-Key` and the maximum-cost header.
+
+<Warning>
+The economy line does not support `mask_url`, `quality` or `seed`, and does not accept the `google_search` or `google_image_search` of Nano Banana 2 Economy. Any other parameter returns `400` and is not billed. For masked inpainting use [`gpt-image-2`](/en/api-reference/image/gpt-image/gpt-image-2).
+</Warning>
+
+## Limits
+
+| Condition | Limit |
+|---|---|
+| Per request | One image per request. |
+| `action: "edit"` | Add at least one reference image to edit |
+| `resolution` is `2k` or `4k` | At 2K and 4K, the 1:4, 4:1, 1:8 and 8:1 aspect ratios are not available. |
+| Reference images | Up to 14 |
+
+## Pricing
+
+Billed at a **fixed price per successfully generated image**, with one rate each for `1k`, `2k` and `4k`. `generate` and `edit` cost the same, reference images add no fee, and neither aspect ratio nor prompt length changes the price — **resolution is the only billing dimension, so the cost of a call is known before it is submitted**. When `resolution` is omitted, the image is generated at the default `1k` and billed at the `1k` rate.
+
+<Note>
+Rates are in `price_config` on `GET /v1/models` and in the console's Model Market. `price_config.image_prices` is keyed by `1k`, `2k` and `4k`; `default` is the fallback price for a resolution without its own key.
+
+What a single call actually cost is the `cost` field on the task response: an integer quota at 500,000 quota = 1 USD, not dollars.
+</Note>
+
+You are only billed for a successfully generated image. Failed and cancelled tasks, and tasks that return no usable image, are refunded in full.
+
+## Response
+
+```json Completed task
+{
+  "task_id": "task-wave1791564844b950000002",
+  "model": "gemini-nano-banana-2.1-rev",
+  "action": "edit",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564844,
+  "completed_at": 1791564894,
+  "billing_status": "settled",
+  "cost": 14063,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1792169694,
+        "url": ["https://cdn.example.com/result.jpg"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564844b950000002",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564844b950000002/cancel"
+  }
+}
+```
+
+Generated images come back in `result.images`, where `url` is an array and `expires_at` is when the link stops working. See [Query Task Status](/en/api-reference/task/status) for the full field list.
+
+## Official vs reverse
+
+| | Economy | [Official](/en/api-reference/image/gemini/nano-banana-2-1) |
+|---|---|---|
+| Model ID | `gemini-nano-banana-2.1-rev` | `gemini-nano-banana-2.1` |
+| Billing | Fixed by resolution | Actual token usage |
+| Output count | 1 | 1–4 |
+| `1:4` `4:1` `1:8` `8:1` | `1k` only | `1k` `2k` `4k` |
+| Reference images | Up to 14, no extra charge | Up to 14, billed as image input tokens |
+
+Both lines share the same actions, resolution tiers (`1k` `2k` `4k`) and remaining aspect ratios.
+
+## Related
+
+- [Gemini Image Series](/en/api-reference/image/gemini/overview)
+- [Nano Banana 2.1](/en/api-reference/image/gemini/nano-banana-2-1)
+- [Nano Banana Economy](/en/api-reference/image/gemini/nano-banana-rev)
+- [Submit Task](/en/api-reference/task/submit)
+- [Query Task Status](/en/api-reference/task/status)
+- [Task System](/en/docs/task-system)

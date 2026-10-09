@@ -1,0 +1,190 @@
+---
+title: "Vidu Q4 Preview"
+description: "ShengShu Vidu Q4 Preview: start-frame-to-video, or video from up to 15 reference images plus 3 reference audio clips, 3–16 seconds, up to 4K, audio on by default"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+ShengShu Technology's Vidu Q4 preview, model ID `vidu-q4-preview`. It has a single `generate` action with two ways in, chosen by the assets you send: a start frame for image-to-video, or reference images (optionally with reference audio) for reference-to-video, where characters and subjects come from the images. Output runs from `540p` to `4k`, with a dialogue and sound-effects track on by default. The model does not do text-only or first-and-last-frame video; for those, use `vidu-q3-pro` or `vidu-q3-turbo` from the [Vidu Q3 Series](/en/api-reference/video/vidu).
+
+## Quick start
+
+<CodeGroup>
+
+```bash Start frame to video
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: vidu-q4-demo-001" \
+  -d '{
+    "model": "vidu-q4-preview",
+    "action": "generate",
+    "prompt": "The person turns toward the window, slow push-in, soft indoor light",
+    "first_frame_image": "https://cdn.example.com/first-frame.jpg",
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```bash Reference to video
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "vidu-q4-preview",
+    "action": "generate",
+    "prompt": "The person from image 1 walks into the bookstore from image 2 and greets the clerk with the line from the reference audio",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/bookstore.jpg"
+    ],
+    "audio_urls": ["https://cdn.example.com/line.mp3"],
+    "aspect_ratio": "9:16",
+    "duration": 8,
+    "resolution": "720p"
+  }'
+```
+
+```bash Single reference image
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "vidu-q4-preview",
+    "action": "generate",
+    "prompt": "The person from the reference image runs down a street after the rain, camera tracking from the side",
+    "image_urls": ["https://cdn.example.com/character.jpg"],
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "resolution": "4k",
+    "generate_audio": false
+  }'
+```
+
+</CodeGroup>
+
+A successful submission returns a `task_id`. Retrieve the result with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status), wait inline with [`Prefer: wait`](/en/api-reference/task/submit#in-request-waiting-prefer-wait), or configure a webhook.
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  Always `vidu-q4-preview`.
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  `generate` is the only action. The input mode follows the assets you send:
+
+  - Start frame to video: send `first_frame_image`; the prompt is optional
+  - Reference to video: send `image_urls`, optionally with `audio_urls`; the prompt is required
+
+  Sending neither returns `400`; the model does not do text-only video.
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  Description of the video — motion, camera, mood. Required when `image_urls` is sent; optional with `first_frame_image` alone, in which case the model decides the content from the start frame.
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  Start frame URL, used as the opening shot; the aspect ratio follows this image. With it set, `image_urls` and `audio_urls` cannot be sent.
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URLs, 1–15; they decide characters, subjects, setting and style. Every image is treated as a reference, a single image included — it is never used as a start frame. With it set, `prompt` is required.
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  Reference audio URLs, at most 3 clips, MP3, 3–12 seconds each. Only usable together with `image_urls`, and cannot be sent with `first_frame_image`. If a clip's format or length does not fit, the task fails during generation and is refunded in full.
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  Clip length in seconds, an integer from `3` to `16`.
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  Output resolution: `540p`, `720p`, `1080p`, `2k` or `4k`.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  Frame ratio: `16:9`, `9:16`, `4:3`, `3:4`, `1:1`. Applies to reference-to-video only; with `first_frame_image` it has no effect and the ratio follows the start frame.
+</ParamField>
+
+<ParamField body="generate_audio" type="boolean" default="true">
+  Whether to generate an audio track (dialogue and sound effects). Set it to `false` for a silent clip; the price is the same.
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  Random seed. The same parameters with the same seed produce similar, though not identical, results.
+</ParamField>
+
+The shared `callback_url`, `callback_events`, `Prefer: wait`, `Idempotency-Key` and cost-cap headers are documented in [Submit Task](/en/api-reference/task/submit).
+
+The model does not accept `last_frame_image`, `video_urls`, `n`, `negative_prompt`, `watermark` or `quality`. Anything beyond the parameters above returns `400` and is not billed.
+
+## Limits
+
+| Condition | Limit |
+|---|---|
+| Per request | One video per task; up to 15 reference images and 3 reference audio clips. |
+| Neither `first_frame_image` nor `image_urls` sent | Provide a start frame (first_frame_image) or 1-15 reference images (image_urls); text-only generation is not supported. |
+| `first_frame_image` sent | With a start frame, reference images and audio cannot be added, and the aspect ratio follows the image. |
+| `image_urls` sent | Reference-to-video requires a prompt. |
+| `audio_urls` sent | Reference audio needs at least one reference image. |
+
+| Item | Start frame to video | Reference to video |
+|---|---|---|
+| Images | `first_frame_image`, 1 image | `image_urls`, 1–15 images |
+| Reference audio | Not supported | `audio_urls`, at most 3 clips, MP3, 3–12 seconds each |
+| Prompt | Optional | Required |
+| Aspect ratio | Follows the start frame | `aspect_ratio`, default `16:9` |
+| Duration and resolution | 3–16 seconds, `540p`–`4k` | 3–16 seconds, `540p`–`4k` |
+
+## Pricing
+
+Billed by **resolution tier times output seconds**: the resolution sets the per-second rate, `duration` sets the number of seconds, and their product is the cost of the call — known before you submit. A higher resolution has a higher per-second rate.
+
+Start-frame and reference-to-video are priced the same. Reference images and reference audio are not billed separately; `generate_audio`, `seed` and the aspect ratio do not affect the price either, so audio and silent clips cost the same. Without `resolution` the `720p` default tier applies.
+
+<Note>
+Rates are in `price_config` on `GET /v1/models`, and in the console's Model Market.
+
+What a single call actually cost is the `cost` field on the task response — an integer quota at 500,000 quota = 1 USD.
+</Note>
+
+You are only billed for a video that is produced. Failed and cancelled tasks, and tasks that return no usable video, are refunded in full. The final charge is the `cost` field on the task response — an integer quota, not dollars.
+
+## Response
+
+```json Task completed
+{
+  "task_id": "task-wave1791564845b950000001",
+  "model": "vidu-q4-preview",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564845,
+  "completed_at": 1791564954,
+  "result": {
+    "videos": [
+      {
+        "url": ["https://cdn.example.com/result.mp4"],
+        "expires_at": 1792169754
+      }
+    ]
+  },
+  "billing_status": "settled",
+  "cost": 75600,
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564845b950000001",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564845b950000001/cancel"
+  }
+}
+```
+
+`result.videos` holds the generated video; `url` is an array and `expires_at` is when the link stops working (Unix seconds) — copy the file to your own storage before then. Full field reference in [Query Task Status](/en/api-reference/task/status).
+
+## Related
+
+- [Vidu Q3 Series](/en/api-reference/video/vidu)
+- [Video Generation Overview](/en/api-reference/video/overview)
+- [Submit Task](/en/api-reference/task/submit)
+- [Query Task Status](/en/api-reference/task/status)
+- [Task System](/en/docs/task-system)

@@ -2,6 +2,17 @@
 title: "Model Updates"
 ---
 
+<Update label="2026-10-10" description="Model launch">
+**7 new models · text / image / video**
+
+- **Text · Anthropic**: `claude-haiku-5-5` — the smallest model of Claude 5.5, 1M-token context, adaptive thinking on by default, image input, function calling and the native `/v1/messages` endpoint; a request with more than 100K input tokens is billed entirely at the long-context tier.
+- **Image · Black Forest Labs**: `flux-3-image` — FLUX 3 Image: text-to-image, single-image editing and up to 10 reference images, five output tiers up to 4K, and bounding boxes in the prompt to steer layout and local edits; billed per image, reference images are free.
+- **Image · Google**: `gemini-nano-banana-2.1` and `gemini-nano-banana-2.1-rev` — Nano Banana 2.1 with 1K / 2K / 4K output and up to 14 reference images. The official line settles on actual token usage and returns up to 4 images per request; the economy line has a fixed per-image price and returns one image.
+- **Image · Microsoft**: `mai-image-2.6` and `mai-image-2.6-flash` — MAI-Image-2.6 and its faster version: text-to-image, single-image editing and composition from up to 5 references, 1K / 2K, exact pixel sizes and optional web grounding; billed on actual token usage.
+- **Video · Vidu**: `vidu-q4-preview` — Vidu Q4 Preview: start-frame video, or video from 1–15 reference images plus up to 3 reference audio clips, 3–16 seconds, 540p to 4K, with audio by default.
+- **Docs**: [Text models overview](/en/api-reference/text/overview) · [FLUX 3 Image](/en/api-reference/image/flux/flux-3-image) · [Nano Banana 2.1](/en/api-reference/image/gemini/nano-banana-2-1) · [Nano Banana 2.1 Economy](/en/api-reference/image/gemini/nano-banana-2-1-rev) · [MAI-Image-2.6](/en/api-reference/image/mai-image/mai-image-2-6) · [Vidu Q4 Preview](/en/api-reference/video/vidu/vidu-q4-preview)
+</Update>
+
 <Update label="2026-09-30" description="Model launch">
 **Text models · 2 new models (OpenAI / Anthropic)**
 
