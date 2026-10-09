@@ -1,0 +1,221 @@
+---
+title: "FLUX 3 Image"
+description: "Black Forest Labs FLUX 3 Image：文生图、单图编辑与最多 10 张多图参考，提示词内 bbox 控制布局，按输出档位按张计费"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+FLUX 3 Image 是 Black Forest Labs 的第三代图像模型。同一个模型完成文生图、单图编辑和最多 10 张参考图的多图参考，输出分 `768sq` 到 `4k` 五档；在提示词里给元素打标签并附上 bbox，可以指定布局或只改画面的某一块，写法见「使用示例」。FLUX.2 与 FLUX.1 Kontext 见 [FLUX 系列](/cn/api-reference/image/flux)。
+
+## 快速开始
+
+<CodeGroup>
+
+```bash 文生图
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: flux3-demo-001" \
+  -d '{
+    "model": "flux-3-image",
+    "action": "generate",
+    "prompt": "雨后的老街巷口，青石板反光，一位撑油纸伞的行人走过，电影感构图",
+    "aspect_ratio": "21:9",
+    "resolution": "2k"
+  }'
+```
+
+```bash 单图编辑
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: flux3-edit-001" \
+  -d '{
+    "model": "flux-3-image",
+    "action": "edit",
+    "prompt": "把画面改成水彩画风格，保留构图和人物",
+    "image_urls": ["https://cdn.example.com/source.png"],
+    "aspect_ratio": "auto",
+    "resolution": "1k"
+  }'
+```
+
+```bash 多图参考
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-3-image",
+    "action": "edit",
+    "prompt": "把 Image 1 里的产品放进 Image 2 的场景，光线和透视保持一致",
+    "image_urls": [
+      "https://cdn.example.com/product.png",
+      "https://cdn.example.com/scene.png"
+    ],
+    "resolution": "2k",
+    "grounding": false
+  }'
+```
+
+</CodeGroup>
+
+提交成功后返回 `task_id`。用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 查询结果，也可以用 [`Prefer: wait`](/cn/api-reference/task/submit#请求内等待prefer-wait) 在一次调用里等待，或配置 Webhook。
+
+## 请求参数
+
+<ParamField body="model" type="string" required>
+  固定为 `flux-3-image`。
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  - `generate`：根据文字生成图片，不接受参考图
+  - `edit`：基于参考图编辑，必须提供 `image_urls`。传 1 张是单图编辑，传 2–10 张是多图参考
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  图片描述或编辑指令。不支持负面提示词，想要的画面请正面描述。
+
+  可以用 `<标签>` 指代画面元素，并在同一个字符串末尾附上 bbox 数组来指定布局或局部编辑的区域，见「使用示例」。
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图片 URL 数组。`edit` 时必填，最多 10 张；`generate` 不接受。参考图按顺序编号，提示词里用 `ref_image_0`、`ref_image_1`……或 `Image 1`、`Image 2`……指代。参考图不另计费。
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="auto">
+  画面比例：`auto`、`21:9`、`2:1`、`16:9`、`3:2`、`7:5`、`4:3`、`5:4`、`1:1`、`4:5`、`3:4`、`5:7`、`2:3`、`9:16`、`1:2`、`9:21`。
+
+  `auto` 时：`edit` 跟随第一张参考图的画幅；`generate` 按提示词决定，定不下来时为 `1:1`。
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1k">
+  输出档位，也是计费档位：`768sq`（约 768×768 方图）、`1k`（约 1 MP）、`1.5k`（约 2 MP）、`2k`（约 4 MP）、`4k`（约 16 MP）。实际像素尺寸以返回的图片为准。`4k` 出图可能需要几分钟。
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  生成数量，取值 `1`。每次请求返回一张图。
+</ParamField>
+
+<ParamField body="safety_tolerance" type="integer" default="2">
+  内容安全容忍度，`0`–`4`，`0` 最严格，数值越大越宽松。
+</ParamField>
+
+<ParamField body="grounding" type="boolean" default="true">
+  是否允许生成前进行网页或图片检索，传 `false` 关闭。
+</ParamField>
+
+通用的 `callback_url`、`callback_events`、`Prefer: wait`、`Idempotency-Key` 和费用上限请求头见[提交任务](/cn/api-reference/task/submit)。
+
+本模型不接受 `seed`、`steps`、`guidance`、`output_format`、`prompt_upsampling`、`negative_prompt`、`mask_url`，也不接受 `width`、`height` 这类像素尺寸：分辨率用 `resolution` 选，画幅用 `aspect_ratio` 选。传入这些参数或以上之外的参数会返回 `400`，不计费。
+
+## 限制
+
+| 条件 | 限制 |
+|---|---|
+| 每次请求 | 提示词必填，每次生成 1 张图片。 |
+| `action: "generate"` | 文生图不接收参考图，请使用 edit。 |
+| `action: "edit"` | 图片编辑需要参考图。 |
+| 参考图张数 | 最多 10 张 |
+
+## 计费
+
+按成功出图的**固定张价**结算，`resolution` 是唯一的计费维度：`768sq`、`1k`、`1.5k`、`2k`、`4k` 各一档，档位越高越贵。`generate` 与 `edit` 同价，参考图不另计费，画幅、提示词长度、`grounding` 与 `safety_tolerance` 都不影响价格，提交前即可确定单次费用。每次请求出 1 张图，按 1 张计费。
+
+不传 `resolution` 时按默认档 `1k` 计费。`price_config.image_prices` 里的 `default` 是兜底价，与 `1k` 档相同。
+
+<Note>
+单价见 `GET /v1/models` 返回的 `price_config`，或控制台「模型市场」。
+
+看这一单实际花了多少：任务响应里的 `cost`（整数 quota，500,000 quota = 1 USD）。
+</Note>
+
+只有成功出图才计费。任务失败、取消，或没有返回可用图片时，全额退款。最终费用以任务响应里的 `cost` 为准，它是整数 quota 不是美元。
+
+## 响应
+
+```json 任务完成
+{
+  "task_id": "task-wave1791564843b950261937",
+  "model": "flux-3-image",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564843,
+  "completed_at": 1791564881,
+  "billing_status": "settled",
+  "cost": 18450,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1792169681,
+        "url": ["https://cdn.example.com/result.png"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564843b950261937",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564843b950261937/cancel"
+  }
+}
+```
+
+`result.images` 返回生成的图片，`url` 是数组，`expires_at` 是图片链接的过期时间戳。完整字段说明见[查询任务状态](/cn/api-reference/task/status)。
+
+## 使用示例
+
+布局和局部编辑都写在 `prompt` 里，不是独立的请求参数：先用自然语言写指令，用 `<标签>` 指代元素（如 `<car_1>`），再在同一个字符串末尾附上一个 JSON 数组，每个对象描述一个框。
+
+| 字段 | 说明 |
+|---|---|
+| `id` | 与提示词里的标签对应，不带尖括号 |
+| `from` | 元素来源，如 `ref_image_0`；新画或重画的元素用 `null` |
+| `src_bbox` | 元素在原图中的框；`from` 为 `null` 时也为 `null` |
+| `tgt_bbox` | 元素在输出图中的框；与 `src_bbox` 相同表示原地保留，不同表示移动 |
+| `bbox` | 文生图布局用，元素在输出图中的框 |
+| `desc` | 这个元素要改成什么样，或要保持什么样 |
+
+所有框都按 `[y1, x1, y2, x2]`（上、左、下、右）书写，坐标是 0–1000 的归一化值：左上角 `[0, 0]`，右下角 `[1000, 1000]`，不是像素。
+
+### 局部编辑
+
+把框内的汽车改成红色，背景原样保留。以下是请求体，提交方式同「快速开始」：
+
+```json
+{
+  "model": "flux-3-image",
+  "action": "edit",
+  "prompt": "在 <ref_image_0> 中，把汽车 <car_1> 改成红色，保留背景 <background_1>。 [{\"id\":\"car_1\",\"from\":null,\"src_bbox\":null,\"tgt_bbox\":[250,300,750,800],\"desc\":\"红色汽车，保持原有形状和朝向\"},{\"id\":\"background_1\",\"from\":\"ref_image_0\",\"src_bbox\":[0,0,1000,1000],\"tgt_bbox\":[0,0,1000,1000],\"desc\":\"保留原有道路、背景和光照\"}]",
+  "image_urls": ["https://cdn.example.com/car.jpg"],
+  "aspect_ratio": "auto",
+  "resolution": "2k"
+}
+```
+
+要移动某个元素，`from` 指向参考图，`src_bbox` 写原位置，`tgt_bbox` 写新位置。
+
+### 文生图布局
+
+不带参考图时，每个框用 `id`、`bbox`、`desc` 三个字段。坐标网格随画幅拉伸，所以要显式传 `aspect_ratio`：
+
+```json
+{
+  "model": "flux-3-image",
+  "action": "generate",
+  "prompt": "极简插画：黑色奔跑人物剪影 <silhouette_1>，纯黄绿色背景 <background_1>。 [{\"id\":\"background_1\",\"bbox\":[0,0,1000,1000],\"desc\":\"带轻微纸张纹理的荧光黄绿色背景\"},{\"id\":\"silhouette_1\",\"bbox\":[150,150,850,850],\"desc\":\"带点状纹理的黑色奔跑人物剪影\"}]",
+  "aspect_ratio": "1:1",
+  "resolution": "1k"
+}
+```
+
+- bbox 数组是 `prompt` 字符串的一部分，手写 JSON 时内部双引号要转义成 `\"`；用 SDK 或 JSON 序列化生成请求体时会自动转义。
+- 提示词里的标签与数组里的 `id` 一一对应；`ref_image_0` 这类标识指向输入的参考图。
+- 需要保留的区域也要列出来，在 `desc` 里写明保留要求。
+- 局部编辑靠 bbox 完成，本模型不接受 `mask_url`。
+
+## 相关文档
+
+- [FLUX 系列](/cn/api-reference/image/flux)
+- [FLUX 3 Video](/cn/api-reference/video/flux/flux-3-video)
+- [图像生成概述](/cn/api-reference/image/overview)
+- [提交任务](/cn/api-reference/task/submit)
+- [查询任务状态](/cn/api-reference/task/status)
+- [任务系统](/cn/docs/task-system)

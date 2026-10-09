@@ -1,0 +1,221 @@
+---
+title: "FLUX 3 Image"
+description: "Black Forest Labs FLUX 3 Image: text-to-image, single-image editing and multi-reference with up to 10 images, bbox layout control in the prompt, billed per image by output tier"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+FLUX 3 Image is Black Forest Labs' third-generation image model. One model covers text-to-image, single-image editing and multi-image reference with up to 10 images, at five output tiers from `768sq` to `4k`. Tagging elements in the prompt and appending bounding boxes lets you set the layout or change only part of the image — see "Examples". For FLUX.2 and FLUX.1 Kontext, see [FLUX Series](/en/api-reference/image/flux).
+
+## Quick start
+
+<CodeGroup>
+
+```bash Text to image
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: flux3-demo-001" \
+  -d '{
+    "model": "flux-3-image",
+    "action": "generate",
+    "prompt": "An old alley after rain, wet flagstones catching the light, a passer-by with an oil-paper umbrella, cinematic framing",
+    "aspect_ratio": "21:9",
+    "resolution": "2k"
+  }'
+```
+
+```bash Single-image edit
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: flux3-edit-001" \
+  -d '{
+    "model": "flux-3-image",
+    "action": "edit",
+    "prompt": "Turn the image into a watercolor painting, keeping the composition and the people",
+    "image_urls": ["https://cdn.example.com/source.png"],
+    "aspect_ratio": "auto",
+    "resolution": "1k"
+  }'
+```
+
+```bash Multiple references
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "flux-3-image",
+    "action": "edit",
+    "prompt": "Place the product from Image 1 into the scene from Image 2, matching light and perspective",
+    "image_urls": [
+      "https://cdn.example.com/product.png",
+      "https://cdn.example.com/scene.png"
+    ],
+    "resolution": "2k",
+    "grounding": false
+  }'
+```
+
+</CodeGroup>
+
+A successful submission returns a `task_id`. Retrieve the result with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status), wait inline with [`Prefer: wait`](/en/api-reference/task/submit#in-request-waiting-prefer-wait), or configure a webhook.
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  Must be `flux-3-image`.
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  - `generate` — generate from text; takes no reference images
+  - `edit` — edit from reference images; `image_urls` is required. One image is a single-image edit, 2–10 images is multi-image reference
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description or editing instruction. Negative prompts are not supported; describe what you want to see.
+
+  You can refer to elements with `<tags>` and append a bbox array to the same string to set the layout or the region to edit — see "Examples".
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URLs. Required for `edit`, up to 10; cannot be sent with `generate`. References are numbered in order and can be referred to in the prompt as `ref_image_0`, `ref_image_1`, … or `Image 1`, `Image 2`, …. Reference images are not billed.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="auto">
+  Aspect ratio: `auto`, `21:9`, `2:1`, `16:9`, `3:2`, `7:5`, `4:3`, `5:4`, `1:1`, `4:5`, `3:4`, `5:7`, `2:3`, `9:16`, `1:2`, `9:21`.
+
+  With `auto`, `edit` follows the first reference image, and `generate` decides from the prompt, falling back to `1:1`.
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1k">
+  Output tier, which is also the billing tier: `768sq` (about 768×768 square), `1k` (about 1 MP), `1.5k` (about 2 MP), `2k` (about 4 MP), `4k` (about 16 MP). The actual pixel size is that of the returned image. `4k` can take several minutes.
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate. Value: `1`. Each request returns one image.
+</ParamField>
+
+<ParamField body="safety_tolerance" type="integer" default="2">
+  Content safety tolerance, `0`–`4`; `0` is the strictest and higher values are more permissive.
+</ParamField>
+
+<ParamField body="grounding" type="boolean" default="true">
+  Allow web or image search before generating. Set `false` to turn it off.
+</ParamField>
+
+See [Submit Task](/en/api-reference/task/submit) for `callback_url`, `callback_events`, `Prefer: wait`, `Idempotency-Key`, and the maximum-cost header.
+
+This model does not accept `seed`, `steps`, `guidance`, `output_format`, `prompt_upsampling`, `negative_prompt` or `mask_url`, nor pixel sizes such as `width` and `height`: pick the resolution with `resolution` and the frame with `aspect_ratio`. These and any other parameters not listed above return `400` and are not billed.
+
+## Limits
+
+| Condition | Limit |
+|---|---|
+| Per request | A prompt is required and each request returns one image. |
+| `action: "generate"` | Text-to-image does not accept references; use edit. |
+| `action: "edit"` | Image editing requires at least one reference image. |
+| Reference images | Up to 10 |
+
+## Pricing
+
+Billed at a **fixed price per generated image**, with `resolution` as the only billing dimension: `768sq`, `1k`, `1.5k`, `2k` and `4k` are one tier each, and higher tiers cost more. `generate` and `edit` cost the same, reference images are not billed, and aspect ratio, prompt length, `grounding` and `safety_tolerance` do not affect the price, so the cost of a request is known before you submit it. Each request returns one image and is billed as one image.
+
+Without `resolution`, the default `1k` tier is billed. The `default` entry in `price_config.image_prices` is the fallback price and equals the `1k` tier.
+
+<Note>
+Rates are in `price_config` on `GET /v1/models`, and in the console's Model Market.
+
+What a single call actually cost is the `cost` field on the task response — an integer quota at 500,000 quota = 1 USD.
+</Note>
+
+You are only billed for a successfully generated image. Failed and cancelled tasks, and tasks that return no usable image, are refunded in full. The final charge is the `cost` field on the task response — an integer quota, not dollars.
+
+## Response
+
+```json Completed task
+{
+  "task_id": "task-wave1791564843b950261937",
+  "model": "flux-3-image",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564843,
+  "completed_at": 1791564881,
+  "billing_status": "settled",
+  "cost": 18450,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1792169681,
+        "url": ["https://cdn.example.com/result.png"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564843b950261937",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564843b950261937/cancel"
+  }
+}
+```
+
+Generated images come back in `result.images`, where `url` is an array and `expires_at` is when the link stops working. See [Query Task Status](/en/api-reference/task/status) for the full field list.
+
+## Examples
+
+Layout and local edits are written into `prompt`; they are not separate request parameters. Write the instruction in natural language, refer to elements with `<tags>` (such as `<car_1>`), then append a JSON array to the same string, one object per box.
+
+| Field | Meaning |
+|---|---|
+| `id` | Matches a tag in the prompt, without the angle brackets |
+| `from` | Where the element comes from, such as `ref_image_0`; `null` for newly drawn or redrawn elements |
+| `src_bbox` | The element's box in the source image; `null` when `from` is `null` |
+| `tgt_bbox` | The element's box in the output; the same as `src_bbox` keeps it in place, a different box moves it |
+| `bbox` | For text-to-image layout: the element's box in the output |
+| `desc` | What the element should become, or what to keep |
+
+Every box is written as `[y1, x1, y2, x2]` (top, left, bottom, right) in coordinates normalized to 0–1000: the top-left corner is `[0, 0]` and the bottom-right is `[1000, 1000]`. They are not pixels.
+
+### Local edit
+
+Turn the car inside the box red and keep the background unchanged. The request body below is submitted the same way as in "Quick start":
+
+```json
+{
+  "model": "flux-3-image",
+  "action": "edit",
+  "prompt": "In <ref_image_0>, make the car <car_1> red and keep the background <background_1>. [{\"id\":\"car_1\",\"from\":null,\"src_bbox\":null,\"tgt_bbox\":[250,300,750,800],\"desc\":\"A red car, same shape and direction as before\"},{\"id\":\"background_1\",\"from\":\"ref_image_0\",\"src_bbox\":[0,0,1000,1000],\"tgt_bbox\":[0,0,1000,1000],\"desc\":\"Keep the original road, background and lighting\"}]",
+  "image_urls": ["https://cdn.example.com/car.jpg"],
+  "aspect_ratio": "auto",
+  "resolution": "2k"
+}
+```
+
+To move an element, point `from` at the reference image, put the original position in `src_bbox` and the new position in `tgt_bbox`.
+
+### Text-to-image layout
+
+Without reference images, each box uses three fields: `id`, `bbox` and `desc`. The coordinate grid stretches with the frame, so send `aspect_ratio` explicitly:
+
+```json
+{
+  "model": "flux-3-image",
+  "action": "generate",
+  "prompt": "Minimal illustration: a black running silhouette <silhouette_1> on a flat yellow-green background <background_1>. [{\"id\":\"background_1\",\"bbox\":[0,0,1000,1000],\"desc\":\"Fluorescent yellow-green background with a light paper texture\"},{\"id\":\"silhouette_1\",\"bbox\":[150,150,850,850],\"desc\":\"Black running silhouette with a dotted texture\"}]",
+  "aspect_ratio": "1:1",
+  "resolution": "1k"
+}
+```
+
+- The bbox array is part of the `prompt` string. In hand-written JSON, escape the inner double quotes as `\"`; SDKs and JSON serializers do this for you.
+- Tags in the prompt map one-to-one to `id` values in the array; identifiers such as `ref_image_0` point to the input reference images.
+- List the regions to keep as well, and state what to keep in `desc`.
+- Local edits are done with bboxes; this model does not accept `mask_url`.
+
+## Related
+
+- [FLUX Series](/en/api-reference/image/flux)
+- [FLUX 3 Video](/en/api-reference/video/flux/flux-3-video)
+- [Image Generation Overview](/en/api-reference/image/overview)
+- [Submit Task](/en/api-reference/task/submit)
+- [Query Task Status](/en/api-reference/task/status)
+- [Task System](/en/docs/task-system)

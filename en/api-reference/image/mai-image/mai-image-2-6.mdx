@@ -1,0 +1,226 @@
+---
+title: "MAI-Image-2.6"
+description: "Microsoft MAI-Image-2.6 and its Flash version: text-to-image, single-image editing and composition from up to 5 references, exact pixel sizes, billed from actual token usage"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+MAI-Image-2.6 is Microsoft's image model for text-to-image, single-image editing and multi-image composition from up to 5 reference images, with PNG output. This page covers the standard `mai-image-2.6` and the faster, lower-cost `mai-image-2.6-flash`: the two share the same actions, parameters and billing model and differ only in rates — switching models means changing `model` and nothing else. For masked inpainting use [`gpt-image-2`](/en/api-reference/image/gpt-image/gpt-image-2).
+
+## Quick start
+
+<CodeGroup>
+
+```bash Text to image
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: mai-demo-001" \
+  -d '{
+    "model": "mai-image-2.6",
+    "action": "generate",
+    "prompt": "A university library plaza at dusk, photorealistic, warm backlight",
+    "aspect_ratio": "16:9",
+    "resolution": "2k"
+  }'
+```
+
+```bash Exact size
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mai-image-2.6-flash",
+    "action": "generate",
+    "prompt": "The Bund at night with river cruise boats, travel poster style",
+    "width": 2048,
+    "height": 1152,
+    "web_grounding": true
+  }'
+```
+
+```bash Single-image edit
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: mai-edit-001" \
+  -d '{
+    "model": "mai-image-2.6",
+    "action": "edit",
+    "prompt": "Make the cup dark green and add a bunch of dried flowers on the table",
+    "image_urls": ["https://cdn.example.com/source.png"]
+  }'
+```
+
+```bash Multi-image composition
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mai-image-2.6-flash",
+    "action": "edit",
+    "prompt": "Combine the products from both references into one clean product photo on a white background",
+    "image_urls": [
+      "https://cdn.example.com/first.png",
+      "https://cdn.example.com/second.png"
+    ]
+  }'
+```
+
+</CodeGroup>
+
+A successful submission returns a `task_id`. Retrieve the result with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status), wait inline with [`Prefer: wait`](/en/api-reference/task/submit#in-request-waiting-prefer-wait), or configure a webhook.
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  One of `mai-image-2.6` or `mai-image-2.6-flash`.
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  - `generate` — generate from text; takes no reference images
+  - `edit` — edit from reference images; `image_urls` is required. One image is a single-image edit, 2–5 images is multi-image composition
+
+  For edits the model sets the output size, about 1 megapixel and close to the reference ratio: `aspect_ratio` and `resolution` have no effect, and `width` and `height` cannot be sent.
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description or editing instruction, in English or Chinese.
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URLs. Required for `edit`, up to 5; cannot be sent with `generate`. Reference images are billed as image input tokens — see "Pricing".
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="1:1">
+  Aspect ratio: `auto`, `1:1`, `4:3`, `3:4`, `3:2`, `2:3`, `16:9`, `9:16`, `2:1`, `1:2`, `21:9`, `9:21`, `4:1`, `1:4`. `auto` lets the model pick the ratio from the prompt.
+
+  Applies to `generate` only; when `width` and `height` are sent, the pixel size wins.
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1k">
+  Output tier: `1k` or `2k`. `1k` is about 1 megapixel and `2k` about 2.3 megapixels; the short side is at least 768, so at extreme ratios `1k` goes above 1 megapixel. Output sizes per aspect ratio are listed under "Pricing".
+
+  Applies to `generate` only; when `width` and `height` are sent, it plays no part in the size.
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate. Value: `1`. Each request returns one image.
+</ParamField>
+
+<ParamField body="web_grounding" type="boolean" default="false">
+  Search for real-time information before generating; useful for real people, places and events. Available for both `generate` and `edit`.
+</ParamField>
+
+<ParamField body="width" type="integer">
+  Exact output width in pixels, sent together with `height`; at least `768`, width × height at most 2,359,296 (the pixel count of 1536 × 1536), rounded down to a multiple of 32. Overrides `aspect_ratio` and `resolution`. `action: "generate"` only; sending it with `edit` returns `400`.
+
+  The cap is on total pixels, not on each side: `2048 × 1152` and `3072 × 768` are both valid. Values that are not multiples of 32 are rounded down, so `1000 × 1000` comes out as `992 × 992`.
+</ParamField>
+
+<ParamField body="height" type="integer">
+  Exact output height in pixels, sent together with `width`; same limits as `width`. `action: "generate"` only.
+</ParamField>
+
+See [Submit Task](/en/api-reference/task/submit) for `callback_url`, `callback_events`, `Prefer: wait`, `Idempotency-Key`, and the maximum-cost header.
+
+Neither model accepts `seed`, `quality`, `background`, `output_format`, `negative_prompt` or `mask_url`: output is always PNG and masked editing is not supported. These and any other parameters not listed above return `400` and are not billed.
+
+## Limits
+
+| Condition | Limit |
+|---|---|
+| Per request | A prompt is required and each request returns one image. |
+| `action: "generate"` | Text-to-image does not accept references; use edit. |
+| `action: "edit"` | Image editing requires at least one reference image. |
+| `action: "edit"` | For edits the model sets the output size (about 1 megapixel, close to the reference ratio). |
+| `width` or `height` sent | width and height must be sent together. |
+| Reference images | Up to 5 |
+| Exact size | `width` and `height` at least 768 each, width × height at most 2,359,296 |
+
+## Pricing
+
+**Billed from actual token usage** across three dimensions: text input, image input and image output. Both models use the same dimensions at different rates; every rate on `mai-image-2.6-flash` is lower than on `mai-image-2.6`.
+
+- **Image output** — output image tokens = output width × height ÷ 1024. For example, 1024×1024 is 1,024 tokens and 1536×1536 is 2,304 tokens
+- **Image input** — each reference image is about width × height ÷ 1024 tokens
+- **Text input** — the prompt's tokens
+
+Output tokens depend only on the pixel count of the output, so aspect ratio, tier and `width` / `height` all affect the cost; an edit outputs about 1 megapixel, roughly 1,000 tokens.
+
+### Output sizes
+
+Text-to-image produces these sizes (width × height, pixels) for each `aspect_ratio` and `resolution`. With `width` and `height`, the output uses the values sent, rounded down to multiples of 32.
+
+| Aspect ratio | `1k` | `2k` |
+|---|---|---|
+| `1:1` | 1024×1024 | 1536×1536 |
+| `4:3` / `3:4` | 1152×864 / 864×1152 | 1760×1312 / 1312×1760 |
+| `3:2` / `2:3` | 1248×832 / 832×1248 | 1856×1248 / 1248×1856 |
+| `16:9` / `9:16` | 1344×768 / 768×1344 | 2048×1152 / 1152×2048 |
+| `2:1` / `1:2` | 1536×768 / 768×1536 | 2144×1056 / 1056×2144 |
+| `21:9` / `9:21` | 1792×768 / 768×1792 | 2336×992 / 992×2336 |
+| `4:1` / `1:4` | 3072×768 / 768×3072 | 3072×768 / 768×3072 |
+
+Because the short side is at least 768, the more extreme the ratio, the more pixels the `1k` tier produces: `4:1` outputs 3072×768 at both `1k` and `2k`, the same output tokens as `1:1` at `2k`. With `auto`, the size follows the ratio the model picks.
+
+### Holds and settlement
+
+Submitting a task places a hold for the estimated usage; the task then settles from actual usage and the difference is released. The estimate is built from:
+
+- **Image output** — 2,304 tokens, the largest output size, regardless of aspect ratio and tier
+- **Text input** — a floor of 64 tokens
+- **Reference images** — width × height ÷ 1024 tokens each; 4,096 tokens when the size cannot be read
+
+Because image output is reserved at the maximum, the hold is above the final settled amount whenever the output is smaller (for example `1:1` at `1k`, or an edit), and the difference is released when the task finishes.
+
+<Note>
+Per-model rates are in `price_config` on `GET /v1/models`, and in the console's Model Market.
+
+What a single call actually cost is the `cost` field on the task response — an integer quota at 500,000 quota = 1 USD.
+</Note>
+
+You are only billed for a successfully generated image. Failed and cancelled tasks, and tasks that return no usable image, are refunded in full. The final charge is the `cost` field on the task response — an integer quota, not dollars.
+
+## Response
+
+```json Completed task
+{
+  "task_id": "task-wave1791564844b950137402",
+  "model": "mai-image-2.6",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564844,
+  "completed_at": 1791564896,
+  "billing_status": "settled",
+  "cost": 17533,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1792169696,
+        "url": ["https://cdn.example.com/result.png"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564844b950137402",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564844b950137402/cancel"
+  }
+}
+```
+
+Generated images (PNG) come back in `result.images`, where `url` is an array and `expires_at` is when the link stops working. See [Query Task Status](/en/api-reference/task/status) for the full field list.
+
+## Available models
+
+| Model ID | Positioning | Billing |
+|---|---|---|
+| `mai-image-2.6` | Standard | Actual token usage |
+| `mai-image-2.6-flash` | Faster, lower cost; same capabilities and parameters as `mai-image-2.6` | Actual token usage, lower rates |
+
+## Related
+
+- [Image Generation Overview](/en/api-reference/image/overview)
+- [Submit Task](/en/api-reference/task/submit)
+- [Query Task Status](/en/api-reference/task/status)
+- [Task System](/en/docs/task-system)

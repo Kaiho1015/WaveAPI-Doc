@@ -1,0 +1,208 @@
+---
+title: "Nano Banana 2.1"
+description: "Google Nano Banana 2.1 official line: text-to-image and multi-reference editing, up to 4 images per request, billed from actual token usage"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+Nano Banana 2.1 (`gemini-nano-banana-2.1`) is Google's image model for text-to-image and editing with up to 14 reference images. It outputs at `1k`, `2k` and `4k`, returns up to 4 images per request, and is billed from actual token usage. It is a different model from Nano Banana 2 (`gemini-3.1-flash-image`, see [Nano Banana Official](/en/api-reference/image/gemini/nano-banana)): there is no `0.5k` tier and no `google_search` or `google_image_search`, so drop those when migrating from Nano Banana 2. When the price of an image has to be known before submission, use [Nano Banana 2.1 Economy](/en/api-reference/image/gemini/nano-banana-2-1-rev).
+
+<Note>
+The official and economy lines never switch automatically: the model ID selects the line.
+</Note>
+
+## Quick start
+
+<CodeGroup>
+
+```bash Text to image
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: nb21-001" \
+  -d '{
+    "model": "gemini-nano-banana-2.1",
+    "action": "generate",
+    "prompt": "A celadon teacup on an oak table, natural window light, product photography",
+    "aspect_ratio": "1:1",
+    "resolution": "2k",
+    "n": 1
+  }'
+```
+
+```bash Several images at once
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: nb21-batch-001" \
+  -d '{
+    "model": "gemini-nano-banana-2.1",
+    "action": "generate",
+    "prompt": "A minimalist cafe logo on an off-white background, clean lines",
+    "aspect_ratio": "1:1",
+    "resolution": "1k",
+    "n": 4
+  }'
+```
+
+```bash Edit with a reference
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: nb21-edit-001" \
+  -d '{
+    "model": "gemini-nano-banana-2.1",
+    "action": "edit",
+    "prompt": "Keep the subject, replace the background with a bamboo grove at dawn",
+    "image_urls": ["https://cdn.example.com/source.png"],
+    "aspect_ratio": "auto",
+    "resolution": "1k"
+  }'
+```
+
+```bash Multiple references
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-nano-banana-2.1",
+    "action": "edit",
+    "prompt": "Place the person from the first image into the scene from the second, matching the light",
+    "image_urls": [
+      "https://cdn.example.com/person.png",
+      "https://cdn.example.com/scene.png"
+    ],
+    "aspect_ratio": "16:9",
+    "resolution": "4k"
+  }'
+```
+
+</CodeGroup>
+
+A successful submission returns a `task_id`. Retrieve the result with [`GET /v1/tasks/{task_id}`](/en/api-reference/task/status), wait inline with [`Prefer: wait`](/en/api-reference/task/submit#in-request-waiting-prefer-wait), or configure a webhook.
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  Must be `gemini-nano-banana-2.1`.
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  - `generate` — generate from text
+  - `edit` — rewrite from reference images; `image_urls` is required
+
+  Image-to-image and multi-reference blending both use `edit`; the only difference is how many entries `image_urls` carries.
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Image description or editing instruction, in English or Chinese.
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  Reference image URLs. Required for `edit`, up to 14. Reference images are billed as image input — see "Pricing".
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="auto">
+  Frame ratio: 14 fixed ratios plus `auto` — `auto`, `1:1`, `2:3`, `3:2`, `3:4`, `4:3`, `4:5`, `5:4`, `9:16`, `16:9`, `21:9`, `1:4`, `4:1`, `1:8`, `8:1`.
+
+  `1:4`, `4:1`, `1:8` and `8:1` suit long horizontal and vertical banners and are available at `1k`, `2k` and `4k`.
+
+  `auto` lets the model decide: it picks from the prompt for text-to-image, and follows the input image for edits. When omitted, `auto` is used.
+</ParamField>
+
+<ParamField body="resolution" type="string" default="1k">
+  Output resolution: `1k`, `2k` or `4k`. `0.5k` is not supported and returns `400`.
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of images to generate, `1`–`4`. Each image is billed for its own output image tokens, so a larger `n` costs more.
+</ParamField>
+
+See [Submit a task](/en/api-reference/task/submit) for `callback_url`, `callback_events`, `Prefer: wait`, `Idempotency-Key` and the maximum-cost header.
+
+<Warning>
+Nano Banana 2.1 does not support `mask_url`, `quality` or `seed`, and does not accept Nano Banana 2's `google_search` or `google_image_search`. Any other parameter returns `400` and is not billed. For masked inpainting use [`gpt-image-2`](/en/api-reference/image/gpt-image/gpt-image-2).
+</Warning>
+
+## Limits
+
+| Condition | Limit |
+|---|---|
+| Per request | Up to 4 images per request. |
+| `action: "edit"` | Add at least one reference image to edit |
+| Reference images | Up to 14 |
+| Resolution | `1k`, `2k`, `4k`; `0.5k` is not supported |
+
+## Pricing
+
+Billed from actual token usage across four dimensions:
+
+| Dimension | Covers | `price_config.image_usage_rates` key |
+|---|---|---|
+| Text input | The prompt | `text_input` |
+| Reference image input | Each image in `image_urls` | `image_input` |
+| Text output | The thinking text the model produces while generating | `text_output` |
+| Image output | Each generated image | `image_output` |
+
+More reference images, a higher resolution and a larger `n` all raise the cost of a call.
+
+<Note>
+Rates are in `price_config` on `GET /v1/models` and in the console's Model Market.
+
+What a single call actually cost is the `cost` field on the task response: an integer quota at 500,000 quota = 1 USD, not dollars.
+</Note>
+
+### Holds and settlement
+
+Submitting a task places a hold for the estimated usage; the task then settles from actual usage and the difference is released. The settled amount never exceeds the hold. The estimate is built from:
+
+- **Image output** — expected output tokens per image, looked up by `resolution`, multiplied by `n`
+- **Text output** — reserved at the model's maximum output tokens, once per request
+- **Text input** — reserved by the prompt's byte length, with a floor of 64
+- **Reference images** — 768px tiles at 258 tokens per tile
+
+Because text output is reserved at the model's ceiling, the hold is usually well above the final settled amount, and the difference is released when the task finishes. The estimated output tokens per resolution are in `price_config.image_usage_reservation` on `GET /v1/models`.
+
+You are only billed for a successfully generated image. Failed and cancelled tasks, and tasks that return no usable image, are refunded in full.
+
+## Response
+
+```json Completed task
+{
+  "task_id": "task-wave1791564843b950000001",
+  "model": "gemini-nano-banana-2.1",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564843,
+  "completed_at": 1791564885,
+  "billing_status": "settled",
+  "cost": 41873,
+  "result": {
+    "images": [
+      {
+        "expires_at": 1792169685,
+        "url": ["https://cdn.example.com/result-1.jpg"]
+      },
+      {
+        "expires_at": 1792169685,
+        "url": ["https://cdn.example.com/result-2.jpg"]
+      }
+    ]
+  },
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564843b950000001",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564843b950000001/cancel"
+  }
+}
+```
+
+The example above is the result of `n: 2`. `result.images` has one entry per image, where `url` is an array and `expires_at` is when the link stops working. See [Query Task Status](/en/api-reference/task/status) for the full field list.
+
+## Related
+
+- [Gemini Image Series](/en/api-reference/image/gemini/overview)
+- [Nano Banana 2.1 Economy](/en/api-reference/image/gemini/nano-banana-2-1-rev)
+- [Nano Banana Official](/en/api-reference/image/gemini/nano-banana)
+- [Submit Task](/en/api-reference/task/submit)
+- [Query Task Status](/en/api-reference/task/status)
+- [Task System](/en/docs/task-system)

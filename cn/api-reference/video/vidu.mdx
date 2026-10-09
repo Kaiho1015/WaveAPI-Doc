@@ -4,7 +4,7 @@ description: "生数科技 Vidu Q3：参考图生视频、多参考融合、文�
 api: "POST https://api.qingbo.ai/v1/tasks"
 ---
 
-生数科技 Vidu Q3 系列。本页覆盖 `vidu-q3`、`vidu-q3-mix`、`vidu-q3-pro` 和 `vidu-q3-turbo`：四个模型走同一个任务接口，都只有 `generate` 一个动作，都按分辨率档与秒数计费，区别在于要不要参考图、支持哪些分辨率档，以及能不能生成音频。前两个是参考生视频（`image_urls` 必填，人物与风格由参考图决定），后两个既能文生视频也能用首帧或首尾帧，并且默认带原生音频。
+生数科技 Vidu Q3 系列。本页覆盖 `vidu-q3`、`vidu-q3-mix`、`vidu-q3-pro` 和 `vidu-q3-turbo`：四个模型走同一个任务接口，都只有 `generate` 一个动作，都按分辨率档与秒数计费，区别在于要不要参考图、支持哪些分辨率档，以及能不能生成音频。前两个是参考生视频（`image_urls` 必填，人物与风格由参考图决定），后两个既能文生视频也能用首帧或首尾帧，并且默认带原生音频。需要 `2k` / `4k` 输出、更多参考图（最多 15 张）或参考音频时，用 [Vidu Q4 Preview](/cn/api-reference/video/vidu/vidu-q4-preview)；它不支持纯文生视频和首尾帧。
 
 ## 快速开始
 
@@ -198,6 +198,7 @@ curl -X POST https://api.qingbo.ai/v1/tasks \
 
 ## 相关文档
 
+- [Vidu Q4 Preview](/cn/api-reference/video/vidu/vidu-q4-preview)
 - [视频生成概述](/cn/api-reference/video/overview)
 - [提交任务](/cn/api-reference/task/submit)
 - [查询任务状态](/cn/api-reference/task/status)

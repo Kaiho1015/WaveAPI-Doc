@@ -4,7 +4,7 @@ description: "ShengShu Vidu Q3: reference-to-video, multi-reference blending, te
 api: "POST https://api.qingbo.ai/v1/tasks"
 ---
 
-ShengShu Technology's Vidu Q3 line. This page covers `vidu-q3`, `vidu-q3-mix`, `vidu-q3-pro` and `vidu-q3-turbo`: all four go through the same task endpoint, all four have `generate` as their only action, and all four are billed by resolution tier and seconds. They differ in whether reference images are required, which resolutions they offer, and whether they produce audio. The first two are reference-to-video (`image_urls` is required, and the characters and style come from those images); the other two do text-to-video as well as start-frame and first-and-last-frame video, with native audio on by default.
+ShengShu Technology's Vidu Q3 line. This page covers `vidu-q3`, `vidu-q3-mix`, `vidu-q3-pro` and `vidu-q3-turbo`: all four go through the same task endpoint, all four have `generate` as their only action, and all four are billed by resolution tier and seconds. They differ in whether reference images are required, which resolutions they offer, and whether they produce audio. The first two are reference-to-video (`image_urls` is required, and the characters and style come from those images); the other two do text-to-video as well as start-frame and first-and-last-frame video, with native audio on by default. For `2k` / `4k` output, more reference images (up to 15) or reference audio, use [Vidu Q4 Preview](/en/api-reference/video/vidu/vidu-q4-preview); it does not do text-only or first-and-last-frame video.
 
 ## Quick start
 
@@ -198,6 +198,7 @@ You are only billed for a video that is produced. Failed and cancelled tasks, an
 
 ## Related
 
+- [Vidu Q4 Preview](/en/api-reference/video/vidu/vidu-q4-preview)
 - [Video Generation Overview](/en/api-reference/video/overview)
 - [Submit Task](/en/api-reference/task/submit)
 - [Query Task Status](/en/api-reference/task/status)

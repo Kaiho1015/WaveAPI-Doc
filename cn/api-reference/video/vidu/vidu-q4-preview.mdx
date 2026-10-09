@@ -1,0 +1,190 @@
+---
+title: "Vidu Q4 Preview"
+description: "生数科技 Vidu Q4 Preview：首帧图生视频，或最多 15 张参考图加 3 段参考音频生成视频，3–16 秒，最高 4K，默认带音轨"
+api: "POST https://api.qingbo.ai/v1/tasks"
+---
+
+生数科技 Vidu 的 Q4 预览版，模型 ID `vidu-q4-preview`。只有 `generate` 一个动作，按传入的素材分两种用法：传一张首帧图做图生视频，或传参考图（可再加参考音频）做参考图生视频，人物与主体由参考图决定。输出分辨率从 `540p` 到 `4k`，默认带对白和音效的音轨。本模型不支持纯文生视频和首尾帧，需要这两种方式时用 [Vidu Q3 系列](/cn/api-reference/video/vidu)的 `vidu-q3-pro` 或 `vidu-q3-turbo`。
+
+## 快速开始
+
+<CodeGroup>
+
+```bash 首帧图生视频
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: vidu-q4-demo-001" \
+  -d '{
+    "model": "vidu-q4-preview",
+    "action": "generate",
+    "prompt": "人物转身望向窗外，镜头缓慢推近，室内光线柔和",
+    "first_frame_image": "https://cdn.example.com/first-frame.jpg",
+    "duration": 5,
+    "resolution": "1080p"
+  }'
+```
+
+```bash 参考图生视频
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "vidu-q4-preview",
+    "action": "generate",
+    "prompt": "图 1 的人物走进图 2 的书店，用参考音频里的台词向店员打招呼",
+    "image_urls": [
+      "https://cdn.example.com/character.jpg",
+      "https://cdn.example.com/bookstore.jpg"
+    ],
+    "audio_urls": ["https://cdn.example.com/line.mp3"],
+    "aspect_ratio": "9:16",
+    "duration": 8,
+    "resolution": "720p"
+  }'
+```
+
+```bash 单张参考图
+curl -X POST https://api.qingbo.ai/v1/tasks \
+  -H "Authorization: Bearer $WAVE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "vidu-q4-preview",
+    "action": "generate",
+    "prompt": "参考图中的人物在雨后的街道上奔跑，镜头侧向跟随",
+    "image_urls": ["https://cdn.example.com/character.jpg"],
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "resolution": "4k",
+    "generate_audio": false
+  }'
+```
+
+</CodeGroup>
+
+提交成功后返回 `task_id`。用 [`GET /v1/tasks/{task_id}`](/cn/api-reference/task/status) 查询结果，也可以用 [`Prefer: wait`](/cn/api-reference/task/submit#请求内等待prefer-wait) 在一次调用里等待，或配置 Webhook。
+
+## 请求参数
+
+<ParamField body="model" type="string" required>
+  固定为 `vidu-q4-preview`。
+</ParamField>
+
+<ParamField body="action" type="string" default="generate">
+  `generate` 是唯一的动作。输入方式由传入的素材决定：
+
+  - 首帧图生视频：传 `first_frame_image`，提示词可选
+  - 参考图生视频：传 `image_urls`，可加 `audio_urls`，提示词必填
+
+  两者都不传时返回 `400`，本模型不支持纯文生视频。
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  视频描述，写动作、镜头与氛围。传 `image_urls` 时必填；只传 `first_frame_image` 时可选，不传时由模型根据首帧生成内容。
+</ParamField>
+
+<ParamField body="first_frame_image" type="string">
+  首帧图片 URL，作为视频的起始画面，画幅跟随这张图。传了它就不能再传 `image_urls` 和 `audio_urls`。
+</ParamField>
+
+<ParamField body="image_urls" type="string[]">
+  参考图 URL 数组，1–15 张，决定人物、主体、场景与风格。每一张都按参考图处理，只传 1 张也一样，不会被当作首帧。传了它 `prompt` 必填。
+</ParamField>
+
+<ParamField body="audio_urls" type="string[]">
+  参考音频 URL 数组，最多 3 段，MP3 格式，每段 3–12 秒。只能与 `image_urls` 一起使用，不能与 `first_frame_image` 同时传。参考音频格式或时长不符时，任务会在执行阶段失败，费用全额退回。
+</ParamField>
+
+<ParamField body="duration" type="integer" default="5">
+  视频时长（秒），`3`–`16` 的整数。
+</ParamField>
+
+<ParamField body="resolution" type="string" default="720p">
+  输出分辨率：`540p`、`720p`、`1080p`、`2k` 或 `4k`。
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" default="16:9">
+  画面比例：`16:9`、`9:16`、`4:3`、`3:4`、`1:1`。只对参考图生视频生效；带 `first_frame_image` 时传了也不生效，画幅跟随首帧。
+</ParamField>
+
+<ParamField body="generate_audio" type="boolean" default="true">
+  是否生成音轨（对白与音效）。设为 `false` 输出无声视频，价格不变。
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  随机种子。同一组参数配同一个种子会得到接近的结果，不保证完全一致。
+</ParamField>
+
+通用的 `callback_url`、`callback_events`、`Prefer: wait`、`Idempotency-Key` 和费用上限请求头见[提交任务](/cn/api-reference/task/submit)。
+
+本模型不接受 `last_frame_image`、`video_urls`、`n`、`negative_prompt`、`watermark` 和 `quality`。以上之外的参数会返回 `400`，不计费。
+
+## 限制
+
+| 条件 | 限制 |
+|---|---|
+| 每次请求 | 每次任务只生成一个视频；参考图最多 15 张，参考音频最多 3 段。 |
+| 未传 `first_frame_image` 与 `image_urls` | 需要提供首帧（first_frame_image）或 1–15 张参考图（image_urls），不支持纯文生视频。 |
+| 传 `first_frame_image` | 使用首帧时不能再传参考图和参考音频，画幅跟随首帧图片。 |
+| 传 `image_urls` | 参考图生视频必须填写提示词。 |
+| 传 `audio_urls` | 使用参考音频时至少需要一张参考图。 |
+
+| 项目 | 首帧图生视频 | 参考图生视频 |
+|---|---|---|
+| 图片 | `first_frame_image` 1 张 | `image_urls` 1–15 张 |
+| 参考音频 | 不支持 | `audio_urls` 最多 3 段，MP3，每段 3–12 秒 |
+| 提示词 | 可选 | 必填 |
+| 画幅 | 跟随首帧 | `aspect_ratio`，默认 `16:9` |
+| 时长与分辨率 | 3–16 秒，`540p`–`4k` | 3–16 秒，`540p`–`4k` |
+
+## 计费
+
+按**分辨率档 × 输出秒数**计费：分辨率决定每秒单价，`duration` 决定秒数，两者相乘就是这一单的费用，提交前即可确定。分辨率越高，每秒单价越高。
+
+首帧图生视频与参考图生视频同价。参考图和参考音频不另计费；`generate_audio`、`seed` 和画面比例也不影响价格，有声与无声同价。没带 `resolution` 时按默认档 `720p` 计费。
+
+<Note>
+单价见 `GET /v1/models` 返回的 `price_config`，或控制台「模型市场」。
+
+看这一单实际花了多少：任务响应里的 `cost`（整数 quota，500,000 quota = 1 USD）。
+</Note>
+
+只有成功出片才计费。任务失败、取消，或没有返回可用视频时，全额退款。最终费用以任务响应里的 `cost` 为准，它是整数 quota 不是美元。
+
+## 响应
+
+```json 任务完成
+{
+  "task_id": "task-wave1791564845b950000001",
+  "model": "vidu-q4-preview",
+  "action": "generate",
+  "status": "completed",
+  "progress": "100%",
+  "created_at": 1791564845,
+  "completed_at": 1791564954,
+  "result": {
+    "videos": [
+      {
+        "url": ["https://cdn.example.com/result.mp4"],
+        "expires_at": 1792169754
+      }
+    ]
+  },
+  "billing_status": "settled",
+  "cost": 75600,
+  "urls": {
+    "get": "https://api.qingbo.ai/v1/tasks/task-wave1791564845b950000001",
+    "cancel": "https://api.qingbo.ai/v1/tasks/task-wave1791564845b950000001/cancel"
+  }
+}
+```
+
+`result.videos` 返回生成的视频，`url` 是数组，`expires_at` 是链接过期时间（Unix 秒），过期前把文件转存到自己的存储。完整字段说明见[查询任务状态](/cn/api-reference/task/status)。
+
+## 相关文档
+
+- [Vidu Q3 系列](/cn/api-reference/video/vidu)
+- [视频生成概述](/cn/api-reference/video/overview)
+- [提交任务](/cn/api-reference/task/submit)
+- [查询任务状态](/cn/api-reference/task/status)
+- [任务系统](/cn/docs/task-system)

@@ -236,6 +236,7 @@ GPT-5 and later use `max_completion_tokens` to cap output and `reasoning_effort`
 | `claude-fable-5` | + 3 cache rates | — / ✓ |
 | `claude-opus-5-5` | + 3 cache rates | — / ✓ |
 | `claude-sonnet-5-5` | + 3 cache rates | — / ✓ |
+| `claude-haiku-5-5` | + 3 cache rates | — / ✓ |
 | `claude-opus-5` | + 3 cache rates | — / ✓ |
 | `claude-sonnet-5` | + 3 cache rates | — / ✓ |
 | `claude-opus-4-8` | + 3 cache rates | — / ✓ |
@@ -252,6 +253,7 @@ GPT-5 and later use `max_completion_tokens` to cap output and `reasoning_effort`
 - `claude-fable-5` — cache writes are priced at two TTLs, 5-minute and 1-hour; max input 1M, max output 128K; JSON Schema structured output is not supported; `tool_choice` accepts only `"auto"`
 - `claude-opus-5-5` — cache writes are priced at two TTLs, 5-minute and 1-hour; JSON Schema and `json_object` are not supported; use `tool_choice: "auto"`; `any` and `tool` are not supported; thinking is always on and cannot be disabled
 - `claude-sonnet-5-5` — cache writes are priced at two TTLs, 5-minute and 1-hour; max input 1M, max output 128K; JSON Schema and `json_object` are not supported; use `tool_choice: "auto"`; `any` and `tool` are not supported; `temperature`, `top_p` and `top_k` accept only their defaults, and other values return 400; adaptive thinking is on by default
+- `claude-haiku-5-5` — 100K long-context tier; cache writes are priced at two TTLs, 5-minute and 1-hour; max input 1M, max output 128K; JSON Schema and `json_object` are not supported; web search is not supported; `temperature`, `top_p` and `top_k` accept only their defaults, and other values return 400; adaptive thinking is on by default
 - `claude-opus-5` — cache writes are priced at two TTLs, 5-minute and 1-hour; max input 128K, max output 16K; JSON Schema and `json_object` are not supported
 - `claude-sonnet-5` — cache writes are priced at two TTLs, 5-minute and 1-hour; max input 1M, max output 128K; JSON Schema and `json_object` are not supported
 - `claude-opus-4-8` — cache writes are priced at two TTLs, 5-minute and 1-hour
@@ -261,7 +263,7 @@ GPT-5 and later use `max_completion_tokens` to cap output and `reasoning_effort`
 - `claude-sonnet-4-5` — cache writes are priced at two TTLs, 5-minute and 1-hour
 - `claude-haiku-4-5` — cache writes are priced at two TTLs, 5-minute and 1-hour
 
-Use `max_tokens` on the Chat endpoint to cap output; the GPT-only `reasoning_effort` and `max_completion_tokens` do not apply to Claude models. Every Claude model except `claude-opus-4-5` carries three cache rates (read / 5-minute write / 1-hour write) and allows explicit `cache_control` — see [Caching](#caching) for the request shape. The six Claude 5 / Claude 5.5 / Fable models do **not support structured output**: `response_format` with `json_schema` or `json_object` returns 400. On the Fable models, `claude-opus-5-5` and `claude-sonnet-5-5`, `tool_choice` accepts only `"auto"`; `"required"` or a named function returns 400. `claude-opus-4-5` bills input and output only; it ignores `cache_control` and bills all input at the input rate. Apps built on the Anthropic SDK can use the native [Messages endpoint](/en/api-reference/text/claude-messages) with every Claude model.
+Use `max_tokens` on the Chat endpoint to cap output; the GPT-only `reasoning_effort` and `max_completion_tokens` do not apply to Claude models. Every Claude model except `claude-opus-4-5` carries three cache rates (read / 5-minute write / 1-hour write) and allows explicit `cache_control` — see [Caching](#caching) for the request shape. The seven Claude 5 / Claude 5.5 / Fable models do **not support structured output**: `response_format` with `json_schema` or `json_object` returns 400. `claude-haiku-5-5` has a 100K long-context tier: once total input (cache reads and writes included) exceeds 100,000, input, cache and output for the whole request are billed at the higher rates. On the Fable models, `claude-opus-5-5` and `claude-sonnet-5-5`, `tool_choice` accepts only `"auto"`; `"required"` or a named function returns 400. `claude-opus-4-5` bills input and output only; it ignores `cache_control` and bills all input at the input rate. Apps built on the Anthropic SDK can use the native [Messages endpoint](/en/api-reference/text/claude-messages) with every Claude model.
 
 ### Google Gemini
 

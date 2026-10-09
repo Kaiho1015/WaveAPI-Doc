@@ -6,6 +6,48 @@ title: "Pricing Updates"
 This page lists, newest first, each model's launch pricing and the price changes that followed. Launch entries show the model's **current** unit price (earlier prices are in the corresponding "Price change" entries); retired models are kept and marked with their retirement date. Pricing changes apply only to calls made **after** the change takes effect; historical calls are unaffected. Each model's live unit price is shown in the [Models overview](/en/docs/models) and the console "Model Market"; check each call's cost fields and units against [Request & Response Format](/en/docs/request-response) and the relevant endpoint documentation.
 </Note>
 
+<Update label="2026-10-10" description="Pricing change">
+**`seedance-2.0-mini` and `seedance-2.0-fast` rates raised**
+
+Per-second rates by tier:
+
+| Model | 480p | 720p |
+|---|---|---|
+| `seedance-2.0-mini` | \$0.012655 → **\$0.031639** | \$0.027216 → **\$0.06804** |
+| `seedance-2.0-mini` with reference video / input video per second | \$0.007593 → **\$0.018983** | \$0.01633 → **\$0.040824** |
+| `seedance-2.0-fast` | \$0.04482 → **\$0.050622** | \$0.0963 → **\$0.108864** |
+| `seedance-2.0-fast` with reference video / input video per second | \$0.02664 → **\$0.029831** | \$0.05769 → **\$0.064152** |
+
+The change takes effect **immediately** and applies only to calls made after it.
+</Update>
+
+<Update label="2026-10-10" description="Model launch">
+**7 models launched · pricing**
+
+**Text**
+
+| Model ID | Price (USD) |
+|---|---|
+| `claude-haiku-5-5` | Input \$0.09 · output \$0.45 · cache read \$0.009 · cache write \$0.1125 · cache write (1h) \$0.18; above 100K input tokens: input \$0.45 · output \$2.25 · cache read \$0.045 · cache write \$0.5625 · cache write (1h) \$0.9 (per 1M tokens) |
+
+**Image**
+
+| Model ID | Price (USD) |
+|---|---|
+| `flux-3-image` | Per image: 768sq \$0.0369 · 1k \$0.0432 · 1.5k \$0.063 · 2k \$0.09 · 4k \$0.5463; reference images are free |
+| `gemini-nano-banana-2.1` | Actual token usage: text input \$1.35 · image input \$1.35 · text output \$6.75 · image output \$27 (per 1M tokens) |
+| `gemini-nano-banana-2.1-rev` | Per image: 1k \$0.0225 · 2k \$0.028125 · 4k \$0.03375 |
+| `mai-image-2.6` | Actual token usage: text input \$4.5 · image input \$7.2 · image output \$34.2 (per 1M tokens) |
+| `mai-image-2.6-flash` | Actual token usage: text input \$1.575 · image input \$2.25 · image output \$17.1 (per 1M tokens) |
+
+**Video**
+
+| Model ID | Price (USD) |
+|---|---|
+| `vidu-q4-preview` | Per second: 540p \$0.0504 · 720p \$0.1026 · 1080p \$0.108 · 2k \$0.171 · 4k \$0.351, same with or without audio; reference images and audio are free |
+
+</Update>
+
 <Update label="2026-09-30" description="Pricing change">
 **`gpt-6-sol` long-context output rate raised**
 

@@ -4,7 +4,7 @@ description: "Black Forest Labs FLUX image models: FLUX.2 prices output by megap
 api: "POST https://api.qingbo.ai/v1/tasks"
 ---
 
-FLUX is the image model line from Black Forest Labs. This page covers the five models available today, in two generations: FLUX.2 lets you pick the output megapixel tier and takes up to eight reference images, priced by MP tier; FLUX.1 Kontext focuses on contextual editing, outputs a fixed 1 MP with up to four reference images, and charges a fixed price per image. Both generations use the same task endpoint and the same actions — switching models means changing `model` and nothing else.
+FLUX is the image model line from Black Forest Labs. This page covers the five models available today, in two generations: FLUX.2 lets you pick the output megapixel tier and takes up to eight reference images, priced by MP tier; FLUX.1 Kontext focuses on contextual editing, outputs a fixed 1 MP with up to four reference images, and charges a fixed price per image. Both generations use the same task endpoint and the same actions — switching models means changing `model` and nothing else. FLUX 3 Image has its own parameters and tiers; see [FLUX 3 Image](/en/api-reference/image/flux/flux-3-image).
 
 ## Quick start
 
@@ -197,6 +197,7 @@ All five support `generate` and `edit`, return one image per request, accept `se
 
 ## Related
 
+- [FLUX 3 Image](/en/api-reference/image/flux/flux-3-image)
 - [Image Generation Overview](/en/api-reference/image/overview)
 - [Submit Task](/en/api-reference/task/submit)
 - [Query Task Status](/en/api-reference/task/status)
